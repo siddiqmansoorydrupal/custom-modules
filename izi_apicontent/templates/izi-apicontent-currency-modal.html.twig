@@ -1,0 +1,30 @@
+{#
+/**
+ * @file
+ * Theme template for the currency modal content.
+ *
+ * Available variables:
+ * - items: An array containing the currency items grouped by label.
+ *   Each item contains the following keys:
+ *   - label: The label for the group of currencies.
+ *   - currencies: An array of currencies with keys 'name', 'code', and 'symbol'.
+ */
+#}
+<div class="currency-popup">
+  {% for item in items %}
+    <div class="heading">{{ item.label }}</div>
+    <div class="row">
+      {% for currency in item.currencies %}
+        <div class="col-6 col-sm-4 flex-item">
+          <a class="popup--currency-item {{ currency.selected }}" data-href="{{ currency.code }}" href="javascript:void(0)">
+            <div class="currency-medium">{{ currency.name }}</div>
+            <div class="currency-normal">{{ currency.code }} - {{ currency.symbol }}</div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+    {% if not loop.last %}
+      <div class="w-100 border-bottom"></div>
+    {% endif %}
+  {% endfor %}
+</div>

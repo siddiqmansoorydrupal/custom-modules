@@ -1,0 +1,12 @@
+#izi_ads.settings_form:
+#  title: 'IZI Ads'
+#  description: 'Configure IZI Ads.'
+#  parent: system.admin_config_system
+#  route_name: izi_ads.settings_form
+#  weight: 10
+
+entity.izi_ads_exclusion.overview:
+  title: IZI Ads Exclusions
+  parent: system.admin_config_system
+  description: 'List of izi ads exclusions to remove ads from certain pages.'
+  route_name: entity.izi_ads_exclusion.collection

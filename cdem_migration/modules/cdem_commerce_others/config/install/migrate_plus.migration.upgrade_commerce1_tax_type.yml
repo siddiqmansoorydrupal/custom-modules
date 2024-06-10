@@ -1,0 +1,61 @@
+uuid: 1c7a2974-1c56-41f9-84a9-d23a24834bb9
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_commerce1_tax_type
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Commerce
+  - Configuration
+  - 'CDEM structure'
+migration_group: cde_structure
+label: 'Commerce 1 tax types'
+source:
+  plugin: commerce1_tax_type
+  constants:
+    plugin: custom
+process:
+  id:
+    -
+      plugin: machine_name
+      source: name
+    -
+      plugin: make_unique_entity_field
+      entity_type: commerce_tax_type
+      field: id
+      length: 30
+  label:
+    -
+      plugin: get
+      source: name
+  plugin:
+    -
+      plugin: get
+      source: constants/plugin
+  configuration/rates/0/id:
+    -
+      plugin: get
+      source: '@id'
+  configuration/rates/0/label:
+    -
+      plugin: get
+      source: name
+  configuration/rates/0/amount:
+    -
+      plugin: get
+      source: rate
+  configuration/territories/0/country_code:
+    -
+      plugin: default_value
+      source: default_country
+      default_value: US
+destination:
+  plugin: 'entity:commerce_tax_type'
+  destination_module: commerce_tax
+migration_dependencies:
+  required: {  }
+  optional: {  }

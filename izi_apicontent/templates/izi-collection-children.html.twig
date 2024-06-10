@@ -1,0 +1,51 @@
+<div class="strip">
+
+  <div class="contained contained--no-padding">
+    {% if video is not empty %}
+      <div class="collection__storyvideo">
+        {{ video }}
+      </div>
+    {% endif %}
+
+    {% if description_audio is not empty %}
+      <div class="collection__audio">
+        {{ description_audio }}
+      </div>
+    {% endif %}
+
+    <div class="collection__intro js-truncate-inline" data-more-txt="{{ 'Read more'|t }}" data-less-txt="{{ 'Read less'|t }}">
+      <div class="strip__subtitle strip__subtitle--narrow">{{ description }}</div>
+    </div>
+
+    {% if first_has_audio %}
+      <div class="button__container button__container--middle">
+        <a class="button button--cta button--icon-controller-play" href="#">
+          {{ 'Play audio tour'|t }}
+        </a>
+      </div>
+    {% endif %}
+
+    <h2 class="strip__title">
+      {{ title }}
+    </h2>
+
+    <ul class="gallery">
+      {% for child in children %}
+        <li class="card card--stop">
+          <a class="card__toggle" href="{{ child['url'] }}">
+            <div class="card__header">
+              <div class="card__image lazyload" data-original="{{ child['image_small'] }}" style="background-image: url('{{ img_placeholder }}');"></div>
+              <div class="card__title">
+                <p>{{ child['title'] }}</p>
+              </div>
+            </div>
+          </a>
+          <div class="slideout" data-uuid="{{ child['uuid'] }}" data-lang="{{ child['lang'] }}">
+            {{ child['full'] }}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+</div>

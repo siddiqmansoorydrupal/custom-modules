@@ -1,0 +1,23 @@
+<div class="collections-list-block">
+  <div class="collections-list-title">
+    {{  title }}
+  </div>
+  <div class="collections-list-container" data-role="collectionsListFotorama">
+    <div class="collections-list-group">
+      {% for collection in collections %}
+          <a href="{{ collection['url'] }}" class="collections-list-item">
+          <div class="collections-list-images">
+            <div class="collections-list-image-after"></div>
+            <div class="collections-list-image-before"></div>
+            <div class="collections-list-image-wrapper">
+              <div class="collections-list-image lazyload" data-original="{{ collection['image'] }}" style="background-image: url('{{ img_placeholder }}');"></div>
+            </div>
+          </div>
+          <div class="collections-list-item-title" data-role="enableDotdotdot">
+            <?php print $collection['title']; ?>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>

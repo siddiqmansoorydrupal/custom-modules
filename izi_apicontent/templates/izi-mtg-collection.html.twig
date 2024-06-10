@@ -1,0 +1,79 @@
+<div class="mtg-collection">
+
+  <!-- Title -->
+  <div class="strip strip--white details__header masthead museum-title-wrapper mtg-audiotours-page">
+
+    <div class="contained">
+      <div class="divLeft">
+        <span class="masthead__subtitle masthead__subtitle--mobile">
+          {{ 'Audio tour'|t }}
+        </span>
+        <div class="masthead__image" style="background-image: url({{ header_image }});"></div>
+        <h1 class="masthead__title">
+        <span class="masthead__subtitle">
+          {{ 'Audio tour'|t }}
+        </span>
+          {{ title }}
+        </h1>
+        <ul class="meta">
+          <li class="meta__item meta__item--reviews">
+            <span class="rating rating--{% if reviews_score is not empty %}{{ reviews_score }}{% else %}0{% endif %}"></span>
+            <a class="details__number-of-reviews js-scrollto" href="#reviews">
+              {{ number_of_reviews_text }}
+            </a>
+          </li>
+          <li class="meta__item meta__item--city">{{ museum_path }}</li>
+          {% if is_free %}
+            <li class="meta__item meta__item--price">
+            <span class="label">
+              {{ 'Free'|t }}
+            </span>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+      <div class="divRight">
+        <ul class="applinks">
+          <li class="applinks__label">
+            {{ 'Download the app'|t }}
+          </li>
+          <li class="applinks__item applinks__item--ios">
+            <a href="{{ app_url }}">iOS</a>
+          </li>
+          <li class="applinks__item applinks__item--android">
+            <a href="{{ app_url }}">Android</a>
+          </li>
+          <li class="applinks__item applinks__item--windows">
+            <a href="{{ app_url }}">Windows Phone</a>
+          </li>
+        </ul>
+        <div class="button__container">
+          <div class="typeicon typeicon--audiotour"></div>
+          {% if language_selector is not empty %}
+            {{ language_selector }}
+          {% endif %}
+          <div class="dropdown__group">
+            <a class="button button--secondary button--icon-share dropdown__toggle js-dropdown-toggle">
+              {{ 'Share'|t }}
+            </a>
+            <div class="dropdown__menu">
+              <div class="social">
+                {{ drupal_block('addtoany_block') }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Exhibitions -->
+  {{ children }}
+  <!-- Provided by -->
+  {{ publisher }}
+  <!-- Reviews -->
+  {{ reviews }}
+  <!-- App button -->
+  {{ app_button }}
+</div>

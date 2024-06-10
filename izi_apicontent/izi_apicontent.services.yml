@@ -1,0 +1,24 @@
+services:
+  izi_apicontent.izi_object_service:
+    class: Drupal\izi_apicontent\IziObjectService
+    arguments: ['@izi_libizi.libizi', '@izi_apicontent.language_service', '@current_route_match']
+
+  izi_apicontent.language_service:
+    class: Drupal\izi_apicontent\LanguageService
+
+  izi_apicontent.helpers_service:
+    class: Drupal\izi_apicontent\HelpersService
+
+  izi_apicontent.breadcrumb:
+    class: Drupal\izi_apicontent\IziApicontentBreadcrumbBuilder
+    arguments: [ '@izi_apicontent.izi_object_service', '@izi_apicontent.language_service', '@logger.factory' ]
+    tags:
+      - { name: breadcrumb_builder, priority: 1000 }
+
+
+  path_processor.izi_apicontent:
+    class: Drupal\izi_apicontent\PathProcessor\PathProcessorIziApicontent
+    tags:
+      - { name: path_processor_inbound, priority: 100 }
+      - { name: path_processor_outbound, priority: 100 }
+    arguments: [ '@path_alias.manager' ]

@@ -1,0 +1,45 @@
+<div class="controls">
+  {% if audio_uuid %}
+    <div style="width: 0px; height: 0px;" id="{{ 'jp_jplayer'|clean_id }}" class="audio-player jp-jplayer" data-audio-uuid="{{ audio_uuid }}" data-role="mainPlayer" data-url="{{ url }}" data-uuid="{{ parent_uuid }}">
+      <img style="width: 0px; height: 0px; display: none;" id="jp_poster_0">
+      <audio src="{{ url }}" preload="none" id="jp_audio_0"></audio>
+    </div>
+    <div class="jp-audio" data-role="mainPlayerInterface" id="{{ parent_uuid }}">
+      <div class="jp-type-single">
+        <div class="jp-gui jp-interface">
+          <ul class="jp-controls">
+            <li class="item">
+              <a class="link jp-play" href="javascript:;" tabindex="1"></a>
+            </li>
+            <li class="item">
+              <a style="display: none;" class="link jp-pause" href="javascript:;" tabindex="1"></a>
+            </li>
+          </ul>
+          <div aria-disabled="false" class="jp-progress is-hidden ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all" data-role="playerProgress">
+            <div style="width: 0%;" class="ui-slider-range ui-widget-header ui-corner-all ui-slider-range-min"></div>
+            <a style="left: 0%;" class="ui-slider-handle ui-state-default ui-corner-all" href="#"></a>
+          </div>
+          <div class="jp-time-holder is-hidden" data-role="playerTime">
+            <div class="jp-current-time">00:00</div>
+            <div class="jp-duration">00:00</div>
+          </div>
+          <div class="jp-audio-preview" data-role="playerPreview">
+            <div class="preview-text">
+              <div class="preview-text--inner">
+                {{ 'Listen to audio'|t }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <a href="{{ app_url }}" class="drop-down-get-app-button" data-role="appInstall">
+    <div class="app {{ not audio_uuid ? 'to-left' : 'to-right' }}" data-role="appLinks">
+      <div class="text">
+        {{ 'Mobile App'|t }}
+      </div>
+    </div>
+  </a>
+</div>

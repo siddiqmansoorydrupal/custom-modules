@@ -1,0 +1,103 @@
+id: upgrade_commerce1_payment
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Commerce
+  - Content
+migration_group: cde_commerce_order
+label: 'Commerce payment'
+source:
+  plugin: commerce1_payment_transaction
+  constants:
+    type: payment_manual
+process:
+  payment_id:
+    -
+      plugin: get
+      source: transaction_id
+  payment_gateway:
+    -
+      plugin: migration_lookup
+      migration: upgrade_commerce1_payment_gateway
+      source: payment_method
+    -
+      plugin: skip_on_empty
+      method: row
+  type:
+    -
+      plugin: get
+      source: constants/type
+  order_id:
+    -
+      plugin: migration_lookup
+      migration: upgrade_commerce1_order
+      source: order_id
+    -
+      plugin: skip_on_empty
+      method: row
+  'amount/number': amount
+  'amount/currency_code': currency_code
+  'refunded_amount/number': refund_amount
+  'refunded_amount/currency_code': currency_code
+  # total_price:
+  #   source:
+  #     - amount
+  #     - currency_code
+  #   plugin: commerce1_migrate_commerce_price
+  amount:
+    source:
+      - amount
+      - currency_code
+      - 2
+    plugin: commerce1_migrate_commerce_price
+  refunded_amount:
+    source:
+      - refund_amount
+      - currency_code
+      - 2
+    plugin: commerce1_migrate_commerce_price
+  # amount/number:
+  #   -
+  #     plugin: get
+  #     source: amount
+  # amount/currency_code:
+  #   -
+  #     plugin: get
+  #     source: currency_code
+  # refunded_amount/number:
+  #   -
+  #     plugin: get
+  #     source: refund_amount
+  # refunded_amount/currency_code:
+  #   -
+  #     plugin: get
+  #     source: currency_code
+  state:
+    plugin: static_map
+    source: status
+    bypass: true
+    map:
+      success: completed
+      failure: void
+      pending: pending
+  completed:
+    -
+      plugin: get
+      source: received
+  field_metatag:
+    -
+      plugin: d7_metatag_entities
+      source: pseudo_metatag_entities
+destination:
+  plugin: 'entity:commerce_payment'
+  destination_module: commerce_payment
+migration_dependencies:
+  required:
+    - upgrade_commerce1_order
+    - upgrade_commerce1_payment_gateway
+  optional:
+    - upgrade_commerce1_payment_gateway
+    - upgrade_commerce1_order

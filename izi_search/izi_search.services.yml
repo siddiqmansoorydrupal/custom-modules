@@ -1,0 +1,13 @@
+services:
+  izi_search.izi_search_service:
+    class: Drupal\izi_search\IziSearchService
+    arguments: [
+      '@izi_apicontent.izi_object_service',
+      '@izi_apicontent.language_service'
+    ]
+
+  izi_search.breadcrumb:
+    class: Drupal\izi_search\IziSearchBreadcrumbBuilder
+    arguments: ['@izi_apicontent.izi_object_service']
+    tags:
+      - { name: breadcrumb_builder, priority: 1000 }

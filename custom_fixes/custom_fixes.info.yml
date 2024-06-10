@@ -1,0 +1,6 @@
+name: 'custom_fixes'
+type: module
+description: 'Module to fix errors or show errors'
+core: 8.x
+core_version_requirement: ^8 || ^9 || ^10
+package: 'Custom'

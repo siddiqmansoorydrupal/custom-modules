@@ -1,0 +1,126 @@
+uuid: 14325174-d175-47e5-9efb-352fe1013335
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_taxonomy_term_product_weld_style
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Content
+migration_group: cde_terms
+label: 'Taxonomy terms (Product Weld Style)'
+source:
+  plugin: d7_taxonomy_term
+  bundle: product_weld_style
+process:
+  tid:
+    -
+      plugin: get
+      source: tid
+  vid:
+    -
+      plugin: migration_lookup
+      migration: upgrade_d7_taxonomy_vocabulary
+      source: vid
+  name:
+    -
+      plugin: get
+      source: name
+  description/value:
+    -
+      plugin: get
+      source: description
+  description/format:
+    -
+      plugin: get
+      source: format
+  weight:
+    -
+      plugin: get
+      source: weight
+  parent_id:
+    -
+      plugin: skip_on_empty
+      method: process
+      source: parent
+    -
+      plugin: migration_lookup
+      migration:
+        - upgrade_d7_taxonomy_term_tags
+        - upgrade_d7_taxonomy_term_products
+        - upgrade_d7_taxonomy_term_product_abnormal_head_diameter
+        - upgrade_d7_taxonomy_term_product_body_material
+        - upgrade_d7_taxonomy_term_product_category
+        - upgrade_d7_taxonomy_term_product_cross_over
+        - upgrade_d7_taxonomy_term_product_cross_over_2
+        - upgrade_d7_taxonomy_term_product_cross_over_sub_sub_cat
+        - upgrade_d7_taxonomy_term_product_diameter
+        - upgrade_d7_taxonomy_term_product_distance_across_flats
+        - upgrade_d7_taxonomy_term_product_drive
+        - upgrade_d7_taxonomy_term_product_external_sleeve
+        - upgrade_d7_taxonomy_term_product_finish
+        - upgrade_d7_taxonomy_term_product_grip_range
+        - upgrade_d7_taxonomy_term_product_head_style
+        - upgrade_d7_taxonomy_term_product_hex_washer
+        - upgrade_d7_taxonomy_term_product_inner_diameter
+        - upgrade_d7_taxonomy_term_product_internal_expander
+        - upgrade_d7_taxonomy_term_product_length
+        - upgrade_d7_taxonomy_term_product_material
+        - upgrade_d7_taxonomy_term_product_metric_standard
+        - upgrade_d7_taxonomy_term_product_metric_standard_
+        - upgrade_d7_taxonomy_term_product_military_specification
+        - upgrade_d7_taxonomy_term_product_name_overide
+        - upgrade_d7_taxonomy_term_product_national_aerospace_standards
+        - upgrade_d7_taxonomy_term_product_outer_diameter
+        - upgrade_d7_taxonomy_term_product_pin_material
+        - upgrade_d7_taxonomy_term_product_point_type
+        - upgrade_d7_taxonomy_term_product_screw_material
+        - upgrade_d7_taxonomy_term_product_shaft_diameter
+        - upgrade_d7_taxonomy_term_product_shank
+        - upgrade_d7_taxonomy_term_product_size
+        - upgrade_d7_taxonomy_term_product_style
+        - upgrade_d7_taxonomy_term_product_sub_sub_cat
+        - upgrade_d7_taxonomy_term_product_tek_point
+        - upgrade_d7_taxonomy_term_product_thickness
+        - upgrade_d7_taxonomy_term_product_thread_length
+        - upgrade_d7_taxonomy_term_product_thread_pitch
+        - upgrade_d7_taxonomy_term_product_thread_type
+        - upgrade_d7_taxonomy_term_product_type
+        - upgrade_d7_taxonomy_term_product_washer_material
+        - upgrade_d7_taxonomy_term_product_washer_outer_diameter
+        - upgrade_d7_taxonomy_term_product_washer_type
+        - upgrade_d7_taxonomy_term_product_weld_style
+        - upgrade_d7_taxonomy_term_product_wings
+  parent:
+    -
+      plugin: default_value
+      default_value: 0
+      source: '@parent_id'
+  forum_container:
+    -
+      plugin: get
+      source: is_container
+  changed:
+    -
+      plugin: get
+      source: timestamp
+  langcode:
+    -
+      plugin: get
+      source: language
+  field_metatag:
+    -
+      plugin: d7_metatag_entities
+      source: pseudo_metatag_entities
+destination:
+  plugin: 'entity:taxonomy_term'
+  default_bundle: product_weld_style
+migration_dependencies:
+  required:
+    - upgrade_d7_taxonomy_vocabulary
+  optional:
+    - upgrade_d7_field_instance
+    - upgrade_d7_taxonomy_vocabulary

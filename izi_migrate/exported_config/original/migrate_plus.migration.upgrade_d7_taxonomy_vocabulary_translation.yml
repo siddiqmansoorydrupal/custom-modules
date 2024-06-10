@@ -1,0 +1,50 @@
+uuid: e22539d5-1abb-4b0a-b17d-5ed064cff389
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_taxonomy_vocabulary_translation
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'Drupal 7'
+  - Configuration
+  - Multilingual
+migration_group: migrate_drupal_7
+label: 'Taxonomy vocabulary translations'
+source:
+  plugin: d7_taxonomy_vocabulary_translation
+process:
+  vid:
+    -
+      plugin: migration_lookup
+      migration: upgrade_d7_taxonomy_vocabulary
+      source: vid
+    -
+      plugin: skip_on_empty
+      method: row
+  langcode:
+    -
+      plugin: get
+      source: language
+  property:
+    -
+      plugin: static_map
+      source: property
+      map:
+        name: name
+        description: description
+  translation:
+    -
+      plugin: get
+      source: translation
+destination:
+  plugin: 'entity:taxonomy_vocabulary'
+  destination_module: config_translation
+  translations: true
+migration_dependencies:
+  required:
+    - upgrade_language
+    - upgrade_d7_taxonomy_vocabulary
+  optional:
+    - upgrade_d7_taxonomy_vocabulary

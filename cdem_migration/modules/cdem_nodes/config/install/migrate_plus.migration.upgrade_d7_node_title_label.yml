@@ -1,0 +1,53 @@
+uuid: d73d8363-2c13-441b-917b-a2a1bcb16e11
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_node_title_label
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Configuration
+migration_group: cde_nodes
+label: 'Node title label'
+source:
+  plugin: d7_node_type
+  constants:
+    entity_type: node
+    field_name: title
+process:
+  label:
+    -
+      plugin: static_map
+      source: title_label
+      bypass: true
+      map:
+        Title: 0
+    -
+      plugin: skip_on_empty
+      method: row
+  entity_type:
+    -
+      plugin: get
+      source: constants/entity_type
+  bundle:
+    -
+      plugin: get
+      source: type
+  field_name:
+    -
+      plugin: get
+      source: constants/field_name
+  product_type:
+    -
+      plugin: skip_on_empty
+      source: product_type
+      method: row
+destination:
+  plugin: 'entity:base_field_override'
+migration_dependencies:
+  required:
+    - upgrade_d7_node_type
+  optional: {  }

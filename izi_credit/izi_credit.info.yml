@@ -1,0 +1,7 @@
+name: 'Izi Credit'
+type: module
+description: 'A custom credit system module.'
+core_version_requirement: ^10
+package: Custom
+dependencies:
+  - drupal:commerce

@@ -1,0 +1,5 @@
+name: IZI Cognito
+type: module
+description: Any editable user data must be stored in Cognito.
+package: IZI
+core_version_requirement: ^9 || ^10

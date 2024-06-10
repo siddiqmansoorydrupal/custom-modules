@@ -1,0 +1,105 @@
+izi_apicontent.settings_form:
+  path: '/admin/config/system/izi-apicontent'
+  defaults:
+    _title: 'IZI Content settings'
+    _form: 'Drupal\izi_apicontent\Form\SettingsForm'
+  requirements:
+    _permission: 'izi.travel administer multilingual definitions'
+
+izi_apicontent.browse:
+  path: '/browse/{uuid}/{language}'
+  defaults:
+    _description: 'Display an MTG object'
+    language: 'none'
+    _controller: '\Drupal\izi_apicontent\Controller\MtgObjectController::show'
+    _title_callback: '\Drupal\izi_apicontent\Controller\MtgObjectController::getTitle'
+  requirements:
+    _permission: 'izi.travel view content'
+    uuid: '^(?!publishers)[^\/]*'
+
+izi_apicontent.browse.publishers:
+  path: '/browse/publishers/{uuid}/{language}'
+  defaults:
+    _title: 'Publisher'
+    _description: 'Display a Publisher'
+    language: 'none'
+    _controller: '\Drupal\izi_apicontent\Controller\PublisherController::show'
+  requirements:
+    _permission: 'izi.travel view content'
+
+izi_apicontent.browse.publisher_ajax_load_more:
+  path: 'publisher_load_more/{uuid}/{offset}'
+  defaults:
+    _title: 'Publisher content load more'
+    _description: 'Publisher content AJAX load more page callback.'
+    _controller: '\Drupal\izi_apicontent\Controller\PublisherController::izi_apicontent_publisher_ajax_load_more'
+  requirements:
+    _permission: 'izi.travel view content'
+
+izi_apicontent.browse.tourstops_load_more:
+  path: 'tourstops_load_more/{parent_uuid}/{number_of_needed_tourstop}/{lang}'
+  defaults:
+    _title: 'Tourstops load more'
+    _description: 'Publisher content AJAX load more page callback.'
+    _controller: '\Drupal\izi_apicontent\Controller\TourStopsController::izi_apicontent_tourstops_ajax_load_more'
+  requirements:
+    _permission: 'izi.travel view content'
+
+izi_apicontent.browse.tour_stop_details:
+  path: '/izi_apicontent/{uuid}/{prev_id}/{next_id}/{lang}'
+  defaults:
+    _title: 'Tourstop details'
+    _description: 'AJAX menu callback to render the content of one tour stop'
+    uuid: FALSE
+    prev_id: '0'
+    next_id: '0'
+    _controller: '\Drupal\izi_apicontent\Controller\TourStopsController::izi_apicontent_get_tour_stop_details'
+  requirements:
+    _permission: 'izi.travel view content'
+    uuid: '^(?!exhibit)[^\/]*'
+
+izi_apicontent.browse.exhibit_details:
+  path: '/izi_apicontent/exhibit/{uuid}/{lang}'
+  defaults:
+    _title: 'Exhibit details'
+    _description: 'AJAX menu callback to render the content of one exhibit'
+    uuid: FALSE
+    _controller: '\Drupal\izi_apicontent\Controller\ExhibitController::izi_apicontent_get_exhibit_details'
+  requirements:
+    _permission: 'izi.travel view content'
+
+izi_apicontent.app_settings:
+  path: '/admin/config/system/app-settings'
+  defaults:
+    _title: 'App settings'
+    _form: 'Drupal\izi_apicontent\Form\AppSettingsForm'
+  requirements:
+    _permission: 'administer site configuration'
+    
+# File: izi_apicontent.routing.yml
+izi_apicontent.stripe_payment_form:
+  path: '/izi-apicontent/stripe-payment-form'
+  defaults:
+    _form: '\Drupal\izi_apicontent\Form\StripePaymentForm'
+    _title: 'Stripe Payment Form'
+  requirements:
+    _permission: 'access content'
+    
+izi_apicontent.add_to_cart:
+  path: '/add-to-cart'
+  defaults:
+    _controller: '\Drupal\izi_apicontent\Controller\AddToCartController::addToCart'
+    _title: 'Add Custom Product to Cart'
+  requirements:
+    _permission: 'access content'
+  options:
+    _auth: ['basic_auth', 'cookie']
+    
+izi_apicontent.currency_modal:
+  path: '/izi_apicontent/currency-modal'
+  defaults:
+    _controller: '\Drupal\izi_apicontent\Controller\IziApicurrencyController::currencyModal'
+    _title: 'Currency Modal'
+  requirements:
+    _permission: 'access content'
+    

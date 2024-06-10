@@ -1,0 +1,79 @@
+<div class="search-block">
+  <div class="search-bg">
+    <div class="row">
+      <div class="block-padding">
+        <div class="columns small-12">
+          <div class="support-partials hide">
+            <li class="hide all_results ui-menu-item" data-role="all_results">
+              {{ 'See all search results'|t }}
+            </li>
+            <div class="hide" data-role="all-guides-text">
+              {{ 'All audio guides'|t }}
+            </div>
+          </div>
+          <div class="search-form idle" data-role="search-form">
+
+            {{ search_form }}
+
+          </div>
+          <div class="browse-container">
+            {% if search_string is empty %}
+              <div class="search-choose-location tac">
+                {{ 'or choose location below'|t }}
+              </div>
+            {% else %}
+              <div class="search-filters clearfix" data-role="search-filters">
+                <div class="pull-left">
+                  <div class="show_filters ml20" data-role="show_filters" data-text-toggle="{{ 'Show filters'|t }}">
+                    {{ 'Choose location'|t }}
+                  </div>
+                </div>
+                <div class="choose-location-descr" data-role="choose-location-descr">
+                  {{ 'or choose location below'|t }}
+                </div>
+                <div class="pull-right mr20 base-filters">
+                  {% if filters['lang'] is not empty %}
+                    <div class="base-filters-item base-filters-language">
+                      <div class="value r-arr-down" data-role="filter-dropdown base-filter-language">
+                        <span class="filter-label">{{ 'Audio guide language'|t }}:</span><span class="text">{{ filters['lang']['current_hrn'] }}</span>
+                        <div class="select">
+                          {% for link in filters['lang']['list'] %}
+                            {{ link }}
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+                  <div class="base-filters-item base-filters-type">
+                    <div class="value r-arr-down" data-role="filter-dropdown base-filter-type" data-value="default">
+                      <span class="filter-label">{{ 'Guide type'|t }}:</span><span class="text">{{ filters['types']['current_hrn'] }}</span>
+                      <div class="select">
+                        {% for link in filters['types']['list'] %}
+                          {{ link }}
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+
+            <div data-role="fr-wrp" style="height:{% if search_string is empty %}394px{% else %}0px{% endif %};overflow:hidden;zoom:1;">
+              <div class="fotorama-countries-cities-container">
+                {% for slide in slides %}
+                  {{ slide }}
+                {% endfor %}
+              </div>
+            </div>
+            <div class="browse-cities-per-country-hidden" style="display: none;">
+              {% for cities in countries_with_cities %}
+                {{ cities }}
+              {% endfor %}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

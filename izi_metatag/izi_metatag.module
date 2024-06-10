@@ -1,0 +1,372 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for izi_metatag module.
+ */
+
+use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Component\Utility\Unicode;
+use Drupal\Component\Utility\Xss;
+use Drupal\Core\Url;
+use Drupal\izi_libizi\Exception\IziLibiziNotFoundException;
+use \Drupal\Core\Routing\RouteObjectInterface;
+use Triquanta\IziTravel\DataType\MtgObjectInterface;
+use Triquanta\IziTravel\DataType\MultipleFormInterface;
+
+/**
+ * Implements hook_page_attachments().
+ */
+function izi_metatag_page_attachments(array &$attachments) {
+
+  $route_match = \Drupal::routeMatch();
+  $route_name = $route_match->getRouteName();
+
+  izi_metatag_set_global_site_metatags($attachments);
+
+  if ($route_name == 'izi_search.search' || $route_name == 'izi_search.search_results') {
+    izi_metatag_set_global_izi_metatags($attachments, NULL);
+    return;
+  }
+
+  $object_service = \Drupal::service('izi_apicontent.izi_object_service');
+  if ($uuid = $object_service->getCurrentPageUuid()) {
+    $object = $object_service->loadObjectByUUID($uuid, IZI_APICONTENT_TYPE_MTG_OBJECT);
+    if ($object) {
+      izi_metatag_set_metatags($attachments, $object);
+      if ($object instanceof MtgObjectInterface) {
+        izi_metatag_set_global_izi_metatags($attachments, $object->getLanguageCode());
+        // OG tag shows current URL.
+        $current_link = Url::fromRoute('<current>', [], [
+          'absolute' => TRUE,
+        ])->toString();
+        izi_metatag_create_metatag($attachments, 'og:url', $current_link, $uuid);
+        return;
+      }
+    }
+  }
+
+  $includes = ['country', 'city', 'translations'];
+  if ($route_name == 'izi_search.city') {
+    $uuid = $route_match->getParameter('city');
+    try {
+      /** @var \Triquanta\IziTravel\DataType\CompactCityInterface $city */
+      $city = $object_service->loadObject($uuid, IZI_APICONTENT_TYPE_CITY, MultipleFormInterface::FORM_COMPACT, $includes);
+      $filter_type = izi_metatag_validate_filter_type($uuid, 'all');
+      izi_metatag_set_metatags($attachments, $city, ['filter_type' => $filter_type]);
+      izi_metatag_set_global_izi_metatags($attachments, $city->getLanguageCode());
+    }
+    catch (IziLibiziNotFoundException $e) {
+      // We don't launch an exception to avoid unnecessary 404 errors
+      // caused because of metatags.
+    }
+    return;
+  }
+
+  if ($route_name == 'izi_search.country') {
+    try {
+      /** @var \Triquanta\IziTravel\DataType\CompactCountryInterface $country */
+      $uuid = $route_match->getParameter('country');
+      $country = $object_service->loadObject($uuid, IZI_APICONTENT_TYPE_COUNTRY, MultipleFormInterface::FORM_COMPACT, $includes);
+      $filter_type = izi_metatag_validate_filter_type($uuid, 'all');
+      // The izi_metatag module sets the title!
+      izi_metatag_set_metatags($attachments, $country, ['filter_type' => $filter_type]);
+      izi_metatag_set_global_izi_metatags($attachments, $country->getLanguageCode());
+    }
+    catch (IziLibiziNotFoundException $e) {
+      // We don't launch an exception to avoid unnecessary 404 errors
+      // caused because of metatags.
+    }
+  }
+}
+
+/**
+ * Set metatags for an izi object.
+ *
+ * The object may be any type. Detection is done in this function itself.
+ *
+ * @param $izi_object
+ *   Any izi object
+ * @param array $options
+ */
+function izi_metatag_set_metatags(&$page, $izi_object, array $options = []) {
+  $object_service = \Drupal::service('izi_apicontent.izi_object_service');
+  try {
+    $object_type = $object_service->izi_apicontent_get_sub_type($izi_object);
+  }
+  catch (Exception $e) {
+    // If we didn't succeed in detecting the object type,
+    // The type might be in the options array.
+    return;
+  }
+
+  // Get the title and set page title and og:title metatag.
+  $request = \Drupal::request();
+  if ($route = $request->attributes->get(RouteObjectInterface::ROUTE_OBJECT)) {
+    $title = \Drupal::service('title_resolver')->getTitle($request, $route);
+    if ($title) {
+      // Set the og:title tag.
+      izi_metatag_create_metatag($page, 'og:title', $title, $izi_object->getUuid());
+    }
+  }
+
+  switch ($object_type) {
+    case IZI_APICONTENT_TYPE_COUNTRY:
+      /** @var \Triquanta\IziTravel\DataType\CompactCountryInterface $country */
+      $country = $izi_object;
+      $uuid = $country->getUuid();
+      $langcode = \Drupal::service('izi_apicontent.language_service')
+        ->get_interface_language();
+      $country_name_translated = $object_service->getCountryNameByUuid($country->getUuid(), $langcode);
+
+      switch ($options['filter_type']) {
+        case 'all':
+          // Set the description metatag.
+          $description = izi_metatag_format_string_from_variable('izi_metatag_country_all_description', ['@country' => $country_name_translated]);
+          izi_metatag_create_metatag($page, 'description', $description, $uuid);
+          break;
+
+        case MtgObjectInterface::TYPE_TOUR:
+          // Set the description metatag.
+          $description = izi_metatag_format_string_from_variable('izi_metatag_country_tour_description', ['@country' => $country_name_translated]);
+          izi_metatag_create_metatag($page, 'description', $description, $uuid);
+          break;
+
+        case MtgObjectInterface::TYPE_MUSEUM:
+          // Set the description metatag.
+          $description = izi_metatag_format_string_from_variable('izi_metatag_country_museum_description', ['@country' => $country_name_translated]);
+          izi_metatag_create_metatag($page, 'description', $description, $uuid);
+          break;
+
+        case 'quest':
+          // Set the description metatag.
+          $description = izi_metatag_format_string_from_variable('izi_metatag_country_quest_description', ['@country' => $country_name_translated]);
+          izi_metatag_create_metatag($page, 'description', $description, $uuid);
+          break;
+
+      }
+      break;
+
+    case IZI_APICONTENT_TYPE_CITY:
+      /** @var \Triquanta\IziTravel\DataType\CompactCityInterface $city */
+      $city = $izi_object;
+      $uuid = $city->getUuid();
+      $city_name_translated = \Drupal::service('izi_search.izi_search_service')
+        ->izi_search_country_city_translated_title($city);
+
+      switch ($options['filter_type']) {
+        case 'all':
+          // Set the description metatag.
+          $description = izi_metatag_format_string_from_variable('izi_metatag_city_all_description', ['@city' => $city_name_translated]);
+          izi_metatag_create_metatag($page, 'description', $description, $uuid);
+          break;
+
+        case MtgObjectInterface::TYPE_TOUR:
+          // Set the description metatag.
+          $description = izi_metatag_format_string_from_variable('izi_metatag_city_tour_description', ['@city' => $city_name_translated]);
+          izi_metatag_create_metatag($page, 'description', $description, $uuid);
+          break;
+
+        case MtgObjectInterface::TYPE_MUSEUM:
+          // Set the description metatag.
+          $description = izi_metatag_format_string_from_variable('izi_metatag_city_museum_description', ['@city' => $city_name_translated]);
+          izi_metatag_create_metatag($page, 'description', $description, $uuid);
+          break;
+
+        case 'quest':
+          // Set the description metatag.
+          $description = izi_metatag_format_string_from_variable('izi_metatag_city_quest_description', ['@city' => $city_name_translated]);
+          izi_metatag_create_metatag($page, 'description', $description, $uuid);
+          break;
+
+      }
+      break;
+
+    case IZI_APICONTENT_SUB_TYPE_TOUR:
+    case IZI_APICONTENT_SUB_TYPE_TOURIST_ATTRACTION:
+    case IZI_APICONTENT_SUB_TYPE_EXHIBIT:
+    case IZI_APICONTENT_SUB_TYPE_MUSEUM:
+    case IZI_APICONTENT_SUB_TYPE_COLLECTION:
+
+      // The uuid is given, so other module can recognize what to alter.
+      // It doesn't need to be the uuid of the content!!!!
+      $uuid = 'izi_metatag';
+
+      /** @var \Triquanta\IziTravel\DataType\FullMtgObjectInterface $mtg_object */
+      $mtg_object = $izi_object;
+
+      // Get the content.
+      /** @var \Triquanta\IziTravel\DataType\ContentInterface $content */
+      $content = $object_service->get_object_language_content($mtg_object->getContent());
+
+      // Set the og:site_name metatag.
+      $site_name = \Drupal::config('system.site')->get('name');
+      izi_metatag_create_metatag($page, 'og:site_name', $site_name, $uuid);
+
+      // Get the description and set both description and og:description metatags.
+      $description = Xss::filter($content->getDescription());
+      $description = html_entity_decode(filter_var($description, FILTER_SANITIZE_STRING), ENT_QUOTES);
+      $truncated_description = Unicode::truncate($description, 200, TRUE, TRUE);
+      izi_metatag_create_metatag($page, 'description', $truncated_description, $uuid);
+      izi_metatag_create_metatag($page, 'og:description', $truncated_description, $uuid);
+
+      // Get the first image and set the og:image metatag.
+      $images = $content->getImages();
+      if (count($images)) {
+        $image = reset($images);
+        $img_url = $object_service->izi_apicontent_media_url($image, $mtg_object);
+        izi_metatag_create_metatag($page, 'og:image', $img_url, $uuid);
+        if (!empty($img_url)) {
+          $img_size = izi_metatag_get_image_size($img_url);
+          izi_metatag_create_metatag($page, 'og:image:width', $img_size['width'], $uuid);
+          izi_metatag_create_metatag($page, 'og:image:height', $img_size['height'], $uuid);
+        }
+      }
+      break;
+  }
+
+}
+
+/**
+ *
+ */
+function izi_metatag_set_global_izi_metatags(&$page, string $lang_code = NULL) {
+  $languageManager = \Drupal::languageManager();
+  $site_languages = $languageManager->getLanguages();
+  $default_language = $languageManager->getDefaultLanguage();
+  $iziLanguageCode = $lang_code ?? $default_language->getId();
+
+  $canonical_language = $site_languages[$iziLanguageCode] ?? $default_language;
+  $canonical_link = Url::fromRoute('<current>', [], [
+    'language' => $canonical_language,
+    'absolute' => TRUE,
+  ]);
+  $page['#attached']['html_head_link'][] = [
+    [
+      'rel' => 'canonical',
+      'href' => $canonical_link->toString(),
+    ],
+  ];
+
+  // Create alternative links to other UI languages with the same izi content.
+  foreach ($site_languages as $id => $site_language) {
+    $alt_link = Url::fromRoute('<current>', [], [
+      'language' => $site_language,
+      'absolute' => TRUE,
+    ]);
+    // We manually set the language of the item to the izi object language.
+    // NB This may conflict with the language of the actual page which will
+    // follow the Drupal language.
+    $page['#attached']['html_head_link'][] = [
+      [
+        'rel' => 'alternate',
+        'hreflang' => $id,
+        'href' => $alt_link->toString(),
+      ],
+    ];
+  }
+}
+
+/**
+ * Set a metatag in the head.
+ *
+ * @param $page
+ * @param $property
+ * @param $tag_content
+ * @param $uuid
+ */
+function izi_metatag_create_metatag(&$attachments, $property, $tag_content, $uuid): void {
+  $tag = [
+    '#tag' => 'meta',
+    '#attributes' => [
+      'property' => $property,
+      'name' => $property,
+      'content' => $tag_content,
+    ],
+  ];
+  $attachments['#attached']['html_head'][] = [$tag, $property . ':' . $uuid];
+}
+
+/**
+ * Helper function to get image width and height from URL
+ * Used in og:image metatag to avoid this Facebook bug:
+ * http://stackoverflow.com/questions/27913369/facebook-open-graph-no-image-first-time/27913458#27913458
+ */
+function izi_metatag_get_image_size($img_url) {
+  $img_size = getimagesize($img_url);
+  return [
+    'width' => $img_size[0],
+    'height' => $img_size[1],
+  ];
+}
+
+/**
+ * Gets the value of a variable and executes replacements.
+ */
+function izi_metatag_format_string_from_variable($varname, $replace_array): FormattableMarkup|string {
+  $var_value = \Drupal::config('izi_metatag.settings')->get($varname);
+  return new FormattableMarkup($var_value, $replace_array);
+}
+
+/**
+ * Validates the filter type.
+ *
+ * @param string $type
+ *   Type to be validated. For example from URL.
+ * @param string $default
+ *   (option) default value. Note: Default value is NOT validated.
+ *
+ * @return string
+ *   Valid filter type or default value.
+ */
+function izi_metatag_validate_filter_type($type, $default = '') {
+  $allowed_types = ['all', 'tour', 'museum', 'quest'];
+  if (is_string($type) && in_array($type, $allowed_types)) {
+    return $type;
+  }
+  return $default;
+}
+
+/**
+ * Adds site wide metatags not limited to IZI.
+ *
+ * @param $attachments
+ *
+ * @return void
+ */
+function izi_metatag_set_global_site_metatags(&$attachments) {
+
+  $languageManager = \Drupal::languageManager();
+  $site_languages = $languageManager->getLanguages();
+  $prefixes = \Drupal::config('language.negotiation')->get('url.prefixes');
+
+  foreach ($site_languages as $id => $site_language) {
+    $language_prefix = $prefixes[$site_language->getId()];
+    $sitemap_uri = "/$language_prefix/sitemap.xml";
+
+    $url = Url::fromUri("base:$sitemap_uri");
+
+    // <link rel="sitemap"  title="Sitemap" href="/en/sitemap.xml" />
+    $attachments['#attached']['html_head_link'][] = [
+      [
+        'rel' => 'sitemap',
+        "type" => "application/xml",
+        'hreflang' => $id,
+        'href' => $url->toString(),
+      ],
+    ];
+  }
+}
+
+/**
+ * Implements hook_metatags_alter().
+ */
+function izi_metatag_metatags_alter(array &$metatags, array &$context) {
+
+  $route_match = \Drupal::routeMatch();
+  $route_name = $route_match->getRouteName();
+  $object = \Drupal::service('izi_apicontent.izi_object_service')->loadCurrentPageObject();
+  if ($object instanceof MtgObjectInterface) {
+    unset($metatags['canonical_url']);
+  }
+}

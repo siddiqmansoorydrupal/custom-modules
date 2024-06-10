@@ -1,0 +1,7 @@
+name: 'cdem_metatag'
+type: module
+description: 'Module for migration cdem_metatag'
+core_version_requirement: ^9.2 || ^10
+package: 'CDE migration'
+dependencies:
+  - cdem_migration

@@ -1,0 +1,5 @@
+name: IZI Core
+type: module
+description: Core functionality
+package: IZI
+core_version_requirement: ^9 || ^10

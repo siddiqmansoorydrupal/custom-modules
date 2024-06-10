@@ -1,0 +1,4 @@
+administer izi_maps configuration:
+  title: 'Administer izi_maps configuration'
+  description: 'Optional description.'
+  restrict access: true

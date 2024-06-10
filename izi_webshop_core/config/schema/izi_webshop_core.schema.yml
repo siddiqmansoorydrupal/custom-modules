@@ -1,0 +1,8 @@
+# Schema for the configuration files of the Izi webshop core module.
+izi_webshop_core.settings:
+  type: config_object
+  label: 'IZI webshop core settings'
+  mapping:
+    default_tour_price:
+      type: string
+      label: 'Default Tour Price'

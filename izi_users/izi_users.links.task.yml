@@ -1,0 +1,4 @@
+izi_users.account_credits:
+  title: 'Tour & Credits'
+  route_name: 'izi_users.account_credits'
+  base_route: 'entity.user.canonical'

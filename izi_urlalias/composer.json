@@ -1,0 +1,11 @@
+{
+    "name": "org/izi_urlalias",
+    "type": "drupal-drush",
+    "extra": {
+        "drush": {
+            "services": {
+                "drush.services.yml": "^11"
+            }
+        }
+    }
+}

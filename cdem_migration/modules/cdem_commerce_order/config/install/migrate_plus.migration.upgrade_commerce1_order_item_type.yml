@@ -1,0 +1,50 @@
+uuid: f109d145-ac12-4b41-badf-feb869b3a119
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_commerce1_order_item_type
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Commerce
+  - Configuration
+migration_group: cde_commerce_order
+label: 'Commerce order item type'
+source:
+  plugin: commerce1_order_item_type
+process:
+  id:
+    -
+      plugin: static_map
+      source: type
+      bypass: true
+      map:
+        shipping: false
+    -
+      plugin: skip_on_empty
+      method: row
+  type:
+    -
+      plugin: get
+      source: type
+  label:
+    -
+      plugin: get
+      source: type
+  purchasableEntityType:
+    -
+      plugin: default_value
+      default_value: commerce_product_variation
+  orderType:
+    -
+      plugin: default_value
+      default_value: default
+destination:
+  plugin: 'entity:commerce_order_item_type'
+  destination_module: commerce_order
+migration_dependencies:
+  required: {  }
+  optional: {  }

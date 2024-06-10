@@ -1,0 +1,8 @@
+# Schema for the configuration files of the IZI Url Alias module.
+izi_urlalias.settings:
+  type: config_object
+  label: 'IZI Url Alias settings'
+  mapping:
+    example:
+      type: string
+      label: 'Example'

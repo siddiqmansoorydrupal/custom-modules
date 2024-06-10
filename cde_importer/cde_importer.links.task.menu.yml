@@ -1,0 +1,41 @@
+cde_importer.importer:
+  title: 'Importer'
+  description: 'Manage importers'
+  route_name: cde_importer.importer
+  base_route: cde_importer.importer
+ 
+cde_importer.importer.product:
+  title: 'Product Importer'
+  description: 'Import products'
+  route_name: cde_importer.importer.product
+  base_route: cde_importer.importer
+ 
+cde_importer.importer.weekly:
+  title: 'Weekly Importer'
+  description: 'Import weekly data'
+  route_name: cde_importer.importer.weekly
+  base_route: cde_importer.importer
+ 
+cde_importer.importer.offline:
+  title: 'Offline Products'
+  description: 'Import offline products'
+  route_name: cde_importer.importer.offline
+  base_route: cde_importer.importer
+ 
+cde_importer.importer.orders:
+  title: 'Orders Importer'
+  description: 'Import orders'
+  route_name: cde_importer.importer.orders
+  base_route: cde_importer.importer
+ 
+cde_importer.importer.carts:
+  title: 'Carts Importer'
+  description: 'Import carts'
+  route_name: cde_importer.importer.carts
+  base_route: cde_importer.importer
+ 
+cde_importer.importer.latest_carts:
+  title: 'Latest Carts Importer'
+  description: 'Import latest carts'
+  route_name: cde_importer.importer.latest_carts
+  base_route: cde_importer.importer

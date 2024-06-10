@@ -1,0 +1,172 @@
+uuid: f5543472-b1f8-4e4b-9b06-2788948bd4e6
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_field_formatter_settings
+class: Drupal\migrate_drupal\Plugin\migrate\FieldMigration
+field_plugin_method: alterFieldFormatterMigration
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Configuration
+migration_group: cde_fields
+label: 'Field formatter configuration'
+source:
+  plugin: d7_field_instance_per_view_mode
+  constants:
+    third_party_settings: {  }
+process:
+  field_type_exists:
+    -
+      plugin: migration_lookup
+      migration: upgrade_d7_field
+      source:
+        - field_name
+        - entity_type
+    -
+      plugin: extract
+      index:
+        - 0
+    -
+      plugin: skip_on_empty
+      method: row
+  entity_type:
+    -
+      plugin: uc7_entity_type
+  bundle:
+    -
+      plugin: migration_lookup
+      migration: upgrade_d7_field_instance
+      source:
+        - entity_type
+        - bundle
+        - field_name
+    -
+      plugin: extract
+      index:
+        - 1
+  view_mode:
+    -
+      plugin: migration_lookup
+      migration: upgrade_d7_view_modes
+      source:
+        - entity_type
+        - view_mode
+    -
+      plugin: extract
+      index:
+        - 1
+    -
+      plugin: static_map
+      bypass: true
+      map:
+        full: default
+  field_name:
+    -
+      plugin: migration_lookup
+      migration: upgrade_d7_field
+      source: field_name
+    -
+      plugin: extract
+      index:
+        - 1
+    -
+      plugin: skip_on_empty
+      method: row
+  options/label:
+    -
+      plugin: get
+      source: formatter/label
+  options/weight:
+    -
+      plugin: get
+      source: formatter/weight
+  plugin_id:
+    -
+      plugin: process_field
+      source: type
+      method: getPluginId
+  formatter_type:
+    -
+      plugin: process_field
+      source: type
+      method: getFieldFormatterType
+  options/type:
+    -
+      plugin: static_map
+      bypass: true
+      source:
+        - '@plugin_id'
+        - '@formatter_type'
+      map:
+        taxonomy_term_reference:
+          taxonomy_term_reference_link: entity_reference_label
+          taxonomy_term_reference_plain: entity_reference_label
+          taxonomy_term_reference_rss_category: entity_reference_label
+          i18n_taxonomy_term_reference_link: entity_reference_label
+          entityreference_entity_view: entity_reference_entity_view
+        image:
+          image: image
+          uc_product_image: image
+        commerce_price:
+          commerce_price_formatted_amount: commerce_price_default
+          commerce_price_prefix_suffix: commerce_price_default
+        datetime:
+          date_default: datetime_default
+          format_interval: datetime_time_ago
+          date_plain: datetime_plain
+        addressfield:
+          addressfield_default: address_default
+        entityreference:
+          entityreference_label: entity_reference_label
+          entityreference_entity_id: entity_reference_entity_id
+          entityreference_entity_view: entity_reference_entity_view
+    -
+      plugin: d7_field_type_defaults
+    -
+      plugin: skip_on_empty
+      method: row
+  hidden:
+    -
+      plugin: static_map
+      source: '@options/type'
+      map:
+        hidden: true
+      default_value: false
+  options/settings:
+    -
+      plugin: default_value
+      source: formatter/settings
+      default_value: {  }
+  options/third_party_settings:
+    -
+      plugin: get
+      source: constants/third_party_settings
+  workaround:
+    -
+      plugin: static_map
+      source: '@options/type'
+      bypass: 'true'
+      map:
+        taxonomy_term_reference_plain: skip
+        image_delta: skip
+        cloud_zoom: skip
+        field_extractor: skip
+        commerce_cart_add_to_cart_form: skip
+        commerce_fancy_attributes_color: skip
+        title_linked: skip
+    -
+      plugin: skip_on_value
+      value: skip
+      method: row
+destination:
+  plugin: component_entity_display
+migration_dependencies:
+  required:
+    - upgrade_d7_field_instance
+    - upgrade_d7_view_modes
+  optional:
+    - upgrade_d7_field
+    - upgrade_d7_field_instance
+    - upgrade_d7_view_modes

@@ -1,0 +1,17 @@
+services:
+  cde_order.order_receipt_subscriber:
+    class: Drupal\cde_order\EventSubscriber\CDEOrderReceiptSubscriber
+    arguments: ['@entity_type.manager', '@commerce_order.order_receipt_mail']
+    tags:
+      - { name: 'event_subscriber' }
+
+  cde_order.route_subscriber:
+    class: Drupal\cde_order\EventSubscriber\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
+
+  cde_order.checkout_completion_subscriber:
+    class: Drupal\cde_order\EventSubscriber\CdeCheckoutCompletionSubscriber
+    arguments: ['@commerce_cart.cart_provider']
+    tags:
+      - { name: event_subscriber, priority: 100 }

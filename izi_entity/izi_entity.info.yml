@@ -1,0 +1,5 @@
+name: IZI Entity
+type: module
+description: Provides an entity to track IZI objects locally.
+package: IZI
+core_version_requirement: ^9 || ^10

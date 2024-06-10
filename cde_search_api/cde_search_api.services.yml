@@ -1,0 +1,6 @@
+services:
+  cde_search_api.facet_cache_max_age:
+    class: Drupal\cde_search_api\EventSubscriber\FacetCacheMaxAge
+    arguments: []
+    tags:
+      - { name: event_subscriber }

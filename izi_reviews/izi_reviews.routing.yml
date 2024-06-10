@@ -1,0 +1,7 @@
+izi_reviews.load_more:
+  path: '/reviews_load_more/{offset}/{uuid}'
+  defaults:
+    _title: 'Reviews load more'
+    _controller: '\Drupal\izi_reviews\Controller\IziReviewsController::izi_reviews_ajax_load_more'
+  requirements:
+    _permission: 'access content'

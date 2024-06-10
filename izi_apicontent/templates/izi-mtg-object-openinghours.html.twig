@@ -1,0 +1,87 @@
+<div class="openinghours__wrapper">
+  {#  <dl class="openinghours openinghours--today" data-timezone="<?php print $timezone_id; ?>" data-gmt="<?php print $gmt_offset; ?>" data-mon="<?php if(!empty($openinghours[1])) { print $openinghours[1][0]; ?> - <?php print $openinghours[1][1]; } ?>" data-tue="<?php if(!empty($openinghours[2])) { print $openinghours[2][0]; ?> - <?php print $openinghours[2][1]; } ?>" data-wed="<?php if(!empty($openinghours[3])) { print $openinghours[3][0]; ?> - <?php print $openinghours[3][1]; } ?>" data-thu="<?php if(!empty($openinghours[4])) { print $openinghours[4][0]; ?> - <?php print $openinghours[4][1]; } ?>" data-fri="<?php if(!empty($openinghours[5])) { print $openinghours[5][0]; ?> - <?php print $openinghours[5][1]; } ?>" data-sat="<?php if(!empty($openinghours[6])) { print $openinghours[6][0]; ?> - <?php print $openinghours[6][1]; } ?>" data-sun="<?php if(!empty($openinghours[7])) { print $openinghours[7][0]; ?> - <?php print $openinghours[7][1]; } ?>">#}
+  {#    <dt><?php print t('Today'); ?>:</dt> <dd>09:00 - 17:00</dd>#}
+  {#  </dl>#}
+  <dl class="openinghours openinghours--today"
+      data-timezone="{{ timezone_id }}"
+      data-gmt="{{ gmt_offset }}"
+      data-mon="{% if openinghours[1] is not empty %}{{ openinghours[1][0] ~ ' - ' ~ openinghours[1][1] }}{% endif %}"
+      data-tue="{% if openinghours[2] is not empty %}{{ openinghours[2][0] ~ ' - ' ~ openinghours[2][1] }}{% endif %}"
+      data-wed="{% if openinghours[3] is not empty %}{{ openinghours[3][0] ~ ' - ' ~ openinghours[3][1] }}{% endif %}"
+      data-thu="{% if openinghours[4] is not empty %}{{ openinghours[4][0] ~ ' - ' ~ openinghours[4][1] }}{% endif %}"
+      data-fri="{% if openinghours[5] is not empty %}{{ openinghours[5][0] ~ ' - ' ~ openinghours[5][1] }}{% endif %}"
+      data-sat="{% if openinghours[6] is not empty %}{{ openinghours[6][0] ~ ' - ' ~ openinghours[6][1] }}{% endif %}"
+      data-sun="{% if openinghours[7] is not empty %}{{ openinghours[7][0] ~ ' - ' ~ openinghours[7][1] }}{% endif %}"
+  >
+    <dt>
+      {{ 'Today'|t }}:
+    </dt>
+    <dd>09:00 - 17:00</dd>
+  </dl>
+  <dl class="openinghours openinghours--week" data-prefix="{{ 'Opening hours' }}">
+    <dt>
+      {{ 'Mon'|t|capitalize }}
+    </dt>
+    {% if openinghours[1] is not empty %}
+      <dd>{{ openinghours[1][0]}} - {{ openinghours[1][1] }}</dd>
+    {% else %}
+      <dd class="openinghours--closed">{{ 'Closed'|t }}</dd>
+    {% endif %}
+
+    <dt>
+      {{ 'Tue'|t|capitalize }}
+    </dt>
+    {% if openinghours[2] is not empty %}
+      <dd>{{ openinghours[2][0]}} - {{ openinghours[2][1] }}</dd>
+    {% else %}
+      <dd class="openinghours--closed">{{ 'Closed'|t }}</dd>
+    {% endif %}
+
+    <dt>
+      {{ 'Wed'|t|capitalize }}
+    </dt>
+    {% if openinghours[3] is not empty %}
+      <dd>{{ openinghours[3][0]}} - {{ openinghours[3][1] }}</dd>
+    {% else %}
+      <dd class="openinghours--closed">{{ 'Closed'|t }}</dd>
+    {% endif %}
+
+    <dt>
+      {{ 'Thu'|t|capitalize }}
+    </dt>
+    {% if openinghours[4] is not empty %}
+      <dd>{{ openinghours[4][0]}} - {{ openinghours[4][1] }}</dd>
+    {% else %}
+      <dd class="openinghours--closed">{{ 'Closed'|t }}</dd>
+    {% endif %}
+
+    <dt>
+      {{ 'Fri'|t|capitalize }}
+    </dt>
+    {% if openinghours[5] is not empty %}
+      <dd>{{ openinghours[5][0]}} - {{ openinghours[5][1] }}</dd>
+    {% else %}
+      <dd class="openinghours--closed">{{ 'Closed'|t }}</dd>
+    {% endif %}
+
+    <dt>
+      {{ 'Sat'|t|capitalize }}
+    </dt>
+    {% if openinghours[6] is not empty %}
+      <dd>{{ openinghours[6][0]}} - {{ openinghours[6][1] }}</dd>
+    {% else %}
+      <dd class="openinghours--closed">{{ 'Closed'|t }}</dd>
+    {% endif %}
+
+    <dt>
+      {{ 'Sun'|t|capitalize }}
+    </dt>
+    {% if openinghours[7] is not empty %}
+      <dd>{{ openinghours[7][0]}} - {{ openinghours[7][1] }}</dd>
+    {% else %}
+      <dd class="openinghours--closed">{{ 'Closed'|t }}</dd>
+    {% endif %}
+
+  </dl>
+  <a class="openinghours__toggle">{{ 'Show all opening hours'|t }}</a>
+</div>

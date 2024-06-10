@@ -1,0 +1,48 @@
+uuid: 1f4f2b94-2d0f-42fa-859d-4895d41cde2d
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_user_picture_field
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 6'
+  - 'Drupal 7'
+  - Configuration
+migration_group: cde_users
+label: 'User picture field configuration'
+source:
+  plugin: md_empty
+  constants:
+    entity_type: user
+    type: image
+    name: user_picture
+    cardinality: 1
+  source_module: user
+process:
+  entity_type:
+    -
+      plugin: get
+      source: constants/entity_type
+  field_name:
+    -
+      plugin: get
+      source: constants/name
+  type:
+    -
+      plugin: get
+      source: constants/type
+  cardinality:
+    -
+      plugin: get
+      source: constants/cardinality
+destination:
+  plugin: 'entity:field_storage_config'
+  dependencies:
+    module:
+      - image
+migration_dependencies:
+  required: {  }
+  optional: {  }

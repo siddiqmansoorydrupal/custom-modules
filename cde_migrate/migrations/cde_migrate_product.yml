@@ -1,0 +1,130 @@
+id: cde_migrate_product
+label: document Content Migration
+migration_group: cde_migrate
+ 
+# define a forced module dependency. this will cause the migration definition to be reloaded
+# when you uninstall and reinstall your custom module.
+dependencies:
+  enforced:
+    module:
+      - cde_migrate
+
+source:
+  plugin: cde_migrate_product
+  # The "target" here refers to the database connection where the source data lives.
+  # You will need to configure this database in your settings.php.
+  target: pantheon
+
+destination:
+  plugin: entity:commerce_product
+  default_bundle: knebridge_product_nodes
+
+process:
+    product_id : product_id
+    langcode : language
+    status : status
+    title : title
+    created : created
+    changed : changed
+    field_5price/number : field_5price_amount
+    field_5price/currency_code : field_5price_currency_code
+    field_abnormal_head_diameter : field_abnormal_head_diameter
+    field_base_diameter : field_base_diameter
+    field_blue_devil_item_no : field_blue_devil_item_no
+    field_blue_devil_price : field_blue_devil_price
+    field_body_material : field_body_material
+    field_category_taxonomy : field_category_taxonomy
+    field_cross_over : field_cross_over
+    field_cross_over_2 : field_cross_over_2
+    field_cross_over_sub_sub_cat : field_cross_over_sub_sub_cat
+    field_date_added : field_date_added
+    field_description : field_description
+    field_description_long_text : field_description_long_text
+    field_diameter : field_diameter
+    field_distance_across_flats : field_distance_across_flats
+    field_domestic_import : field_domestic_import
+    field_drive : field_drive
+    field_eligible_customers : field_eligible_customers
+    field_expiration_date : field_expiration_date
+    field_external_sleeve : field_external_sleeve
+    feeds_item : feeds_item
+    field_finish : field_finish
+    field_global_sort : field_global_sort
+    field_grip_range : field_grip_range
+    field_grip_range_taxonomy : field_grip_range_taxonomy
+    field_head_height : field_head_height
+    field_head_style : field_head_style
+    field_hex_washer : field_hex_washer
+    field_image_commerce_product : field_image_commerce_product
+    field_inner_diameter : field_inner_diameter
+    field_in_stock : field_in_stock
+    field_internal_expander : field_internal_expander
+    field_internal_notes : field_internal_notes
+    field_item_description : field_item_description
+    field_length : field_length
+    field_live_item : field_live_item
+    field_long_description : field_long_description
+    field_material : field_material
+    field_metric_standard : field_metric_standard
+    field_metric_standard_ : field_metric_standard_
+    field_military_specification : field_military_specification
+    field_name_overide : field_name_overide
+    field_national_aero_space : field_national_aero_space
+    field_national_aerospace_standar : field_national_aerospace_standar
+    field_offline_item : field_offline_item
+    field_outer_diameter : field_outer_diameter
+    field_part_cross_reference : field_part_cross_reference
+    field_pieces_per_lb : field_pieces_per_lb
+    field_pin_material : field_pin_material
+    field_point : field_point
+    field_point_type : field_point_type
+    commerce_price/number : commerce_price_amount
+    commerce_price/currency_code : commerce_price_currency_code
+    field_price_break_1 : field_price_break_1
+    field_price_break_3 : field_price_break_3
+    field_product_category_taxonomy : field_product_category_taxonomy
+    field_product_category_term : field_product_category_taxonomy
+    field_product_code : field_product_code
+    field_product_field : field_product_field
+    field_product_size_taxonomy : field_product_size_taxonomy
+    field_supplier_sku : sku
+    field_qty_break_1 : field_qty_break_1
+    field_quantity_per_box : field_quantity_per_box
+    field_screw_material : field_screw_material
+    field_shaft_diameter : field_shaft_diameter
+    field_shank : field_shank
+    field_solr_text : field_solr_text
+    field_sort_size : field_sort_size
+    field_sort_sizes : field_sort_sizes
+    field_offline_item_status : field_offline_item_status
+    field_style : field_style
+    field_sub_sub_cat : field_sub_sub_cat
+    field_supplier_2 : field_supplier_2
+    field_supplier_reference : field_supplier_reference
+    field_supplier_2_cost : field_supplier_2_cost
+    field_supplier_cost/number : field_supplier_cost_amount
+    field_supplier_cost/currency_code : field_supplier_cost_currency_code
+    field_supplier_2_sku : field_supplier_sku
+    field_tab_base : field_tab_base
+    field_tek_point : field_tek_point
+    field_tele_part : field_tele_part
+    field_thickness : field_thickness
+    field_thickness_taxonomy : field_thickness_taxonomy
+    field_thread_length : field_thread_length
+    field_thread_pitch : field_thread_pitch
+    field_thread_type : field_thread_type
+    field_field_title_alias_product : field_field_title_alias_product
+    field_title_alias : field_title_alias
+    field_type : field_type
+    field_unit_of_measure : field_unit_of_measure
+    field_washer_material : field_washer_material
+    field_washer_outer_diameter : field_washer_outer_diameter
+    field_washer_type : field_washer_type
+    field_weight : field_weight
+    field_weight_per_um : field_weight_per_um
+    field_weld_style : field_weld_style
+    field_wings : field_wings
+    field_product_category : field_product_category
+    field_product_size : field_product_size
+    field_product_subcategory : field_product_subcategory
+

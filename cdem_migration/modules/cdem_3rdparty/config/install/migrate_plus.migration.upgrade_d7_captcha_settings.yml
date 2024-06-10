@@ -1,0 +1,78 @@
+uuid: 39fdb223-c06d-4498-9a50-076c8ee98d7f
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_captcha_settings
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Configuration
+migration_group: cde_3rdparty
+label: 'Captcha Settings'
+source:
+  plugin: variable
+  variables:
+    - captcha_add_captcha_description
+    - captcha_administration_mode
+    - captcha_allow_on_admin_pages
+    - captcha_default_challenge
+    - captcha_default_challenge_on_nonlisted_forms
+    - captcha_default_validation
+    - captcha_description
+    - captcha_enable_stats
+    - captcha_error_message
+    - captcha_log_wrong_responses
+    - captcha_persistence
+    - captcha_placement_map_cache
+  source_module:
+    - captcha
+process:
+  enabled_default:
+    -
+      plugin: get
+      source: captcha_default_challenge_on_nonlisted_forms
+  default_challenge:
+    -
+      plugin: get
+      source: captcha_default_challenge
+  description:
+    -
+      plugin: get
+      source: captcha_description
+  administration_mode:
+    -
+      plugin: get
+      source: captcha_administration_mode
+  allow_on_admin_pages:
+    -
+      plugin: get
+      source: captcha_allow_on_admin_pages
+  add_captcha_description:
+    -
+      plugin: get
+      source: captcha_add_captcha_description
+  default_validation:
+    -
+      plugin: get
+      source: captcha_default_validation
+  persistence:
+    -
+      plugin: get
+      source: captcha_persistence
+  enable_stats:
+    -
+      plugin: get
+      source: captcha_enable_stats
+  log_wrong_responses:
+    -
+      plugin: get
+      source: captcha_log_wrong_responses
+destination:
+  plugin: config
+  config_name: captcha.settings
+migration_dependencies:
+  required: {  }
+  optional: {  }

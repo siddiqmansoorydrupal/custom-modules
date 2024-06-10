@@ -1,0 +1,31 @@
+<div class="strip strip--white">
+  <div class="contained contained--no-padding">
+    <h2 class="strip__title">
+      {{ title }}
+    </h2>
+    <ul class="carousel gallery js-carousel">
+      {% for audiotour in audiotours %}
+        <li class="card">
+          <a class="card__link" href="{{ audiotour['url'] }}">
+            <div class="card__header">
+              <div class="card__image" style="background-image: url({{ audiotour['image'] }});"></div>
+              <div class="card__title">
+                <p>
+                  {{ audiotour['title'] }}
+                </p>
+              </div>
+              <div class="card__footer">
+                <span class="rating rating--{{ audiotour['rating'] }}">
+                  {{ audiotour['rating_text'] }}
+                </span>
+                <span class="number-of-reviews">
+                  {{ audiotour['number_of_reviews_text'] }}
+                </span>
+              </div>
+            </div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

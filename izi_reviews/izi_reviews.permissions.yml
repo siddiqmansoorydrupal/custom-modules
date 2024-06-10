@@ -1,0 +1,4 @@
+administer izi_reviews configuration:
+  title: 'Administer izi_reviews configuration'
+  description: 'Optional description.'
+  restrict access: true

@@ -1,0 +1,14 @@
+izi_cognito.settings:
+  path: '/admin/system/izi_cognito'
+  defaults:
+    _title: 'Settings'
+    _form: 'Drupal\izi_cognito\Form\SettingsForm'
+  requirements:
+    _permission: 'administer site configuration'
+izi_cognito.edit_cognito_profile:
+  path: '/edit-my-profile'
+  defaults:
+    _title: 'Edit my profile'
+    _form: 'Drupal\izi_cognito\Form\EditCognitoProfile'
+  requirements:
+    _permission: 'access content'

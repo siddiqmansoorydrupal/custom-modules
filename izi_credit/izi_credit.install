@@ -1,0 +1,86 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function izi_credit_schema() {
+  $schema['izi_credit'] = [
+    'description' => 'Stores information about product variations added by resellers along with coupon codes.',
+    'fields' => [
+      'cid' => [
+        'description' => 'Primary Key: Unique coupon ID.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ],
+      'product_id' => [
+        'description' => 'The ID of the product variation.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+      'reseller_uid' => [
+        'description' => 'The user ID of the reseller.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+      'coupon_code' => [
+        'description' => 'The generated coupon code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ],
+      'created' => [
+        'description' => 'The time when the coupon was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+      'expiry_date' => [
+        'description' => 'The expiry date of the coupon.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+      'tour_price' => [
+        'description' => 'The price of the tour associated with the coupon.',
+        'type' => 'numeric',
+        'precision' => 10,
+        'scale' => 2,
+        'not null' => TRUE,
+      ],
+      'used_uid' => [
+        'description' => 'The user ID of the user who used the coupon.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ],
+      'used' => [
+        'description' => 'The time when the coupon was used.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ],
+    ],
+    'primary key' => ['cid'],
+    'indexes' => [
+      'product_id' => ['product_id'],
+      'reseller_uid' => ['reseller_uid'],
+    ],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function izi_credit_install() {
+  $schema = izi_credit_schema();
+  $connection = \Drupal::database();
+  $schema_manager = $connection->schema();
+  $schema_manager->createTable('izi_credit', $schema['izi_credit']);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function izi_credit_uninstall() {
+  $connection = \Drupal::database();
+  $schema_manager = $connection->schema();
+  $schema_manager->dropTable('izi_credit');
+}

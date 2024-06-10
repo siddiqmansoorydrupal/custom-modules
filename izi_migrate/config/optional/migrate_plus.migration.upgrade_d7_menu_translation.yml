@@ -1,0 +1,50 @@
+uuid: d2d8f4e6-2eba-4291-a2b6-10f5f19c0e08
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_menu_translation
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'Drupal 7'
+  - Configuration
+  - Multilingual
+migration_group: izid7
+label: 'Menu translation'
+source:
+  plugin: d7_menu_translation
+process:
+  id:
+    -
+      plugin: migration_lookup
+      migration: upgrade_d7_menu
+      source: menu_name
+    -
+      plugin: skip_on_empty
+      method: row
+  langcode:
+    -
+      plugin: get
+      source: language
+  property:
+    -
+      plugin: static_map
+      source: property
+      map:
+        title: label
+        description: description
+  translation:
+    -
+      plugin: get
+      source: translation
+destination:
+  plugin: 'entity:menu'
+  destination_module: config_translation
+  translations: true
+migration_dependencies:
+  required:
+    - upgrade_language
+    - upgrade_d7_menu
+  optional:
+    - upgrade_d7_menu

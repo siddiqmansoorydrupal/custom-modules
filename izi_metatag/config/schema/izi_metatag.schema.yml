@@ -1,0 +1,74 @@
+# Schema for the configuration files of the izi_metatag module.
+izi_metatag.settings:
+  type: config_object
+  label: 'izi_metatag settings'
+  translatable: true
+  mapping:
+    og_site_name:
+      type: label
+      translatable: true
+      label: 'Site name'
+    izi_metatag_city_all_title:
+      type: label
+      translatable: true
+      label: 'Title for city overview pages without filters'
+    izi_metatag_city_all_description:
+      type: text
+      translatable: true
+      label: 'Description for city overview pages without filters'
+    izi_metatag_city_tour_title:
+      type: label
+      translatable: true
+      label: 'Title for city overview pages with only tours'
+    izi_metatag_city_tour_description:
+      type: text
+      translatable: true
+      label: 'Description for city overview pages with only tours'
+    izi_metatag_city_museum_title:
+      type: label
+      translatable: true
+      label: 'Title for city overview pages with only museums'
+    izi_metatag_city_museum_description:
+      type: text
+      translatable: true
+      label: 'Description for city overview pages with only museums'
+    izi_metatag_city_quest_title:
+      type: label
+      translatable: true
+      label: 'Title for city overview pages with only quests'
+    izi_metatag_city_quest_description:
+      type: text
+      translatable: true
+      label: 'Description for city overview pages with only quests'
+    izi_metatag_country_all_title:
+      type: label
+      translatable: true
+      label: 'Title for country overview pages with all tours'
+    izi_metatag_country_all_description:
+      type: text
+      translatable: true
+      label: 'Description for country overview pages with all tours'
+    izi_metatag_country_tour_title:
+      type: label
+      translatable: true
+      label: 'Title for country overview pages with only tours'
+    izi_metatag_country_tour_description:
+      type: text
+      translatable: true
+      label: 'Description for country overview pages with only tours'
+    izi_metatag_country_museum_title:
+      type: label
+      translatable: true
+      label: 'Title for country overview pages with only museums'
+    izi_metatag_country_museum_description:
+      type: text
+      translatable: true
+      label: 'Description for country overview pages with only museums'
+    izi_metatag_country_quest_title:
+      type: label
+      translatable: true
+      label: 'Title for country overview pages with only quests'
+    izi_metatag_country_quest_description:
+      type: text
+      translatable: true
+      label: 'Description for country overview pages with only quests'

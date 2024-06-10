@@ -1,0 +1,3 @@
+services:
+  izi_users.user:
+    class: Drupal\izi_users\Services\UserHelperService

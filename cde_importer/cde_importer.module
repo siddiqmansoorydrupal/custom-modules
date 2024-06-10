@@ -1,0 +1,21 @@
+<?php
+use Drupal\Core\Url;
+
+/**
+
+ * Implements hook_menu_local_tasks_alter().
+
+ */
+
+function cde_importer_menu_local_tasks_alter(&$local_tasks) {
+
+  // Add a custom tab.
+  /*$local_tasks['tabs'][0]['tabs'][] = [
+    '#theme' => 'menu_local_task',
+    '#link' => [
+      'title' => t('Custom Tab'),
+      'url' => Url::fromRoute('mymodule.custom_route'), // Replace with your route name.
+    ],
+  ];*/
+}
+

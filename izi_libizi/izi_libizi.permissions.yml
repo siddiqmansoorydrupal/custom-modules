@@ -1,0 +1,3 @@
+administer izi_libizi:
+  title: 'Access libizi settings form'
+  description: 'Access to view/set api keys'

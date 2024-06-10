@@ -1,0 +1,56 @@
+izi_search.search:
+  path: '/search'
+  defaults:
+    _title: 'Search'
+    _title_callback: '\Drupal\izi_search\Controller\IziSearchController::getTitle'
+    _controller: '\Drupal\izi_search\Controller\IziSearchController::build'
+  requirements:
+    _permission: 'izi.travel view content'
+
+izi_search.search_results:
+  path: '/search/{search}/{filter_type}/{filter_lang}'
+  defaults:
+    _title: 'Search results'
+    _controller: '\Drupal\izi_search\Controller\IziSearchController::buildSearchResults'
+    filter_type: 'all'
+    filter_lang: 'all'
+  requirements:
+    _permission: 'izi.travel view content'
+
+izi_search.country:
+  path: '/country/{country}/{filter_type}/{filter_lang}'
+  defaults:
+    _title: 'Country'
+    _title_callback: '\Drupal\izi_search\Controller\IziCountryController::getTitle'
+    _controller: '\Drupal\izi_search\Controller\IziCountryController::build'
+    filter_type: 'all'
+    filter_lang: 'all'
+  requirements:
+    _permission: 'izi.travel view content'
+
+izi_search.city:
+  path: '/city/{city}/{filter_type}/{filter_lang}'
+  defaults:
+    _title: 'City'
+    _title_callback: '\Drupal\izi_search\Controller\IziCityController::getTitle'
+    _controller: '\Drupal\izi_search\Controller\IziCityController::build'
+    filter_type: 'all'
+    filter_lang: 'all'
+  requirements:
+    _permission: 'izi.travel view content'
+
+izi_search.search_load_more:
+  path: '/search_load_more/{search_type}/{search_string}/{offset}/{filter_type}/{filter_lang}'
+  defaults:
+    _title: 'Search load more'
+    _controller: '\Drupal\izi_search\Controller\BaseController::izi_search_ajax_load_more'
+  requirements:
+    _permission: 'izi.travel view content'
+
+izi_search.search_autocomplete:
+  path: '/search_autocomplete/{search_string}'
+  defaults:
+    _title: 'Search autocomplete'
+    _controller: '\Drupal\izi_search\Controller\BaseController::izi_search_ajax_get_suggestions'
+  requirements:
+    _permission: 'izi.travel view content'

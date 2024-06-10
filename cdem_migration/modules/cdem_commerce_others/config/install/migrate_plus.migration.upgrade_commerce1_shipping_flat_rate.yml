@@ -1,0 +1,52 @@
+uuid: 32adf717-38df-4326-91d6-baee0ccd0588
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_commerce1_shipping_flat_rate
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Commerce
+  - Content
+migration_group: cde_commerce_other
+label: 'Commerce 1 shipping flat rate'
+source:
+  plugin: commerce1_shipping_flat_rate
+process:
+  name:
+    -
+      plugin: get
+      source: title
+  plugin/target_plugin_id:
+    -
+      plugin: default_value
+      default_value: flat_rate
+  plugin/target_plugin_configuration/rate_label:
+    -
+      plugin: get
+      source: display_title
+  plugin/target_plugin_configuration/rate_amount/number:
+    -
+      plugin: get
+      source: number
+  plugin/target_plugin_configuration/rate_amount/currency_code:
+    -
+      plugin: get
+      source: currency_code
+  stores:
+    -
+      plugin: default_value
+      default_value: 1
+  field_metatag:
+    -
+      plugin: d7_metatag_entities
+      source: pseudo_metatag_entities
+destination:
+  plugin: 'entity:commerce_shipping_method'
+  destination_module: commerce_shipping
+migration_dependencies:
+  required: {  }
+  optional: {  }

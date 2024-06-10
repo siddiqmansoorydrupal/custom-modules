@@ -1,0 +1,50 @@
+uuid: 087ea504-709e-4c5d-b311-0b0bb5df5edb
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_field_collection_bc_sections
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'Drupal 7'
+  - Content
+  - 'Field Collection Content'
+migration_group: migrate_drupal_7
+label: 'Field Collections (Bc sections)'
+source:
+  plugin: d7_field_collection_item
+  field_name: field_bc_sections
+process:
+  type:
+    -
+      plugin: get
+      source: bundle
+  parent_id:
+    -
+      plugin: get
+      source: parent_id
+  parent_type:
+    -
+      plugin: get
+      source: parent_type
+  parent_field_name:
+    -
+      plugin: get
+      source: field_name
+  field_bc_section_text:
+    -
+      plugin: get
+      source: field_bc_section_text
+  field_bc_section_title:
+    -
+      plugin: get
+      source: field_bc_section_title
+destination:
+  plugin: 'entity_reference_revisions:paragraph'
+  default_bundle: bc_sections
+migration_dependencies:
+  required:
+    - upgrade_d7_field_collection_type
+  optional:
+    - upgrade_d7_field_instance

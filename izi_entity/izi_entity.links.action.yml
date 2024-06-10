@@ -1,0 +1,11 @@
+izi_object.type_add:
+  title: 'Add izi object type'
+  route_name: entity.izi_object_type.add_form
+  appears_on:
+    - entity.izi_object_type.collection
+
+izi_object.add_page:
+  title: 'Add izi object'
+  route_name: entity.izi_object.add_page
+  appears_on:
+    - entity.izi_object.collection

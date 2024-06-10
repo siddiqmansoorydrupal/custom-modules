@@ -1,0 +1,6 @@
+custom-fixes-admin-form-js:
+  version: VERSION
+  js:
+    js/custom-fixes-admin-form.js: {}
+  dependencies:
+    - core/jquery

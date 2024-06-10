@@ -1,0 +1,14 @@
+<li class="tour__details-item"
+    id="{{ uuid }}"
+    data-iziuuid="{{ uuid }}"
+  {% if next_id is not empty %}
+    data-izinext="{{ next_id }}"
+  {% endif %}
+  {% if previous_id is not empty %}
+    data-iziprev="{{ previous_id }}"
+  {% endif %}
+  {% if language is not empty %}
+    data-izilang="{{ language }}"
+  {% endif %}
+>
+</li>

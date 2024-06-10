@@ -1,0 +1,38 @@
+uuid: c8371c6d-93e6-4791-b7a1-3894725b4d8f
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_captcha_points
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Configuration
+migration_group: cde_3rdparty
+label: 'Captcha Points Table'
+source:
+  plugin: d7_captcha_points
+process:
+  formId:
+    -
+      plugin: get
+      source: form_id
+  label:
+    -
+      plugin: get
+      source: form_id
+  captchaType:
+    -
+      plugin: captcha_type_formatter
+      source: captcha_type
+  status:
+    -
+      plugin: default_value
+      default_value: true
+destination:
+  plugin: 'entity:captcha_point'
+migration_dependencies:
+  required: {  }
+  optional: {  }

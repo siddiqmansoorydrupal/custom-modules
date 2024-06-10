@@ -1,0 +1,8 @@
+# Schema for the configuration files of the izi_maps module.
+izi_maps.settings:
+  type: config_object
+  label: 'izi_maps settings'
+  mapping:
+    example:
+      type: string
+      label: 'Example'

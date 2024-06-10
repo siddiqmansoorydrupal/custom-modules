@@ -1,0 +1,55 @@
+uuid: 61752ef9-a048-463d-9556-841590580128
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_message
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - CDEM
+  - 'Drupal 7'
+migration_group: cde_message
+label: 'Drupal 7 messages.'
+source:
+  plugin: d7_message_source
+process:
+  mid:
+    -
+      plugin: get
+      source: mid
+  template:
+    -
+      plugin: substr
+      source: type
+      start: 0
+      length: 32
+  created:
+    -
+      plugin: get
+      source: timestamp
+  uid:
+    -
+      plugin: get
+      source: uid
+  arguments:
+    -
+      plugin: d7_message_arguments
+      source:
+        - arguments
+  langcode:
+    -
+      plugin: default_value
+      source: language
+      default_value: und
+  field_metatag:
+    -
+      plugin: d7_metatag_entities
+      source: pseudo_metatag_entities
+destination:
+  plugin: 'entity:message'
+migration_dependencies:
+  required:
+    # - upgrade_d7_message_template
+    - upgrade_d7_user
+  optional: {  }

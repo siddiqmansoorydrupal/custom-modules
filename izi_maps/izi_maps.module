@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for izi_maps module.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function izi_maps_theme($existing, $type, $theme, $path) {
+  $return = [];
+  $return['izi_maps_tourmap'] = [
+    'template' => 'izi-maps-tourmap',
+    'variables' => [
+      'id' => NULL,
+    ],
+  ];
+  return $return;
+}
+
+/**
+ * Implements hook_library_info_alter().
+ */
+function izi_maps_library_info_alter(&$libraries, $extension) {
+  if ($extension == 'izi_maps') {
+    $library = $libraries['google-maps'];
+    $url = array_key_first($library['js']);
+    $key = \Drupal::state()->get('izi_maps:google_api_key');
+    $library['js']["{$url}?key={$key}"] = $library['js'][$url];
+    unset($library['js'][$url]);
+    $libraries['google-maps'] = $library;
+  }
+}

@@ -1,0 +1,5 @@
+izi_metatag.settings:
+  title: 'IZI Metatag Settings'
+  base_route_name: izi_metatag.settings
+  names:
+    - izi_metatag.settings

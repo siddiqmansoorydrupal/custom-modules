@@ -1,0 +1,17 @@
+# Google maps library.
+google-maps:
+  version: 1
+  js:
+    'https://maps.googleapis.com/maps/api/js': { type: external, minified: true }
+
+# Custom module library for general purposes.
+izi_maps:
+  js:
+    js/izi_maps.js: {}
+  css:
+    component:
+      css/izi_maps.css: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+    - izi_maps/google-maps

@@ -1,0 +1,9 @@
+view own credits:
+  title: 'View own credits'
+  description: 'Allows users to view their own credit and balance'
+  restrict access: true
+
+add credits:
+  title: 'Add credits'
+  description: 'Allows users to add credits'
+  restrict access: true

@@ -1,0 +1,21 @@
+<div class="featured-main-city-block clearfix" style="background-image: url('{{ image_url }}')">
+  <div class="featured-main-city-bg">
+    <div class="row">
+      <div class="block-padding">
+        <div class="columns small-offset-3 small-6">
+          <h3 class="featured-main-city-title" data-role="enableDotdotdot">
+            {{ name }}
+          </h3>
+          <div class="featured-main-city-description" data-role="enableDotdotdot">
+            {{ description }}
+          </div>
+          <div class="featured-main-city-link-wrapper">
+            <a href="{{ link_path }}" class="featured-main-city-link" data-role="enableDotdotdot">
+              {{ 'all @city audio guides'|t({'@city': name}) }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

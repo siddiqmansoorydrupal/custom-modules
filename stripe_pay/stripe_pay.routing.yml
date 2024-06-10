@@ -1,0 +1,32 @@
+stripe_pay.payment_init:
+  path: '/stripe-payment-init'
+  defaults:
+    _controller: '\Drupal\stripe_pay\Controller\StripeController::payment_init'
+    _title: 'Handle POST request'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+
+stripe_pay.payment_success:
+  path: '/stripe-pay/success'
+  defaults:
+    _controller: '\Drupal\stripe_pay\Controller\StripeController::payment_success'
+    _title: ""
+  requirements:
+    _access: 'TRUE'
+
+stripe_pay.payment_cancel:
+  path: '/stripe-pay/cancel'
+  defaults:
+    _controller: '\Drupal\stripe_pay\Controller\StripeController::payment_cancel'
+    _title: ""
+  requirements:
+    _access: 'TRUE'
+
+stripe_pay.configurations:
+  path: '/admin/stripe-configurations'
+  defaults:
+    _form: '\Drupal\stripe_pay\Form\StripeConfig'
+    _title: 'Stripe Configurations'
+  requirements:
+    _permission: 'administer site configuration'

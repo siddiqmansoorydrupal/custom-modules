@@ -1,0 +1,7 @@
+name: IZI Libizi
+type: module
+description: Provides API client to IZI library
+package: IZI
+core_version_requirement: ^8 || ^9 || ^10
+interface translation project: izi_libizi
+interface translation server pattern: modules/izi_libizi/translations/%project.%language.po

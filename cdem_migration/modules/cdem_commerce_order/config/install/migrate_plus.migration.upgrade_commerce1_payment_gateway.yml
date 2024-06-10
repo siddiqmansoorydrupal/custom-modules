@@ -1,0 +1,22 @@
+id: upgrade_commerce1_payment_gateway
+label: Commerce payment gateway
+migration_tags:
+  - Drupal 7
+  - Commerce
+  - Configuration
+migration_group: cde_commerce_order
+source:
+  plugin: commerce1_payment_gateway
+  constants:
+    plugin: manual
+process:
+  id:
+    plugin: machine_name
+    source: payment_method
+  label: payment_method
+  # Migrated payments are considered historical and should not initiate real
+  # transactions; therefore the manual payment gateway is used.
+  plugin: 'constants/plugin'
+destination:
+  plugin: 'entity:commerce_payment_gateway'
+  destination_module: commerce_payment_gateway

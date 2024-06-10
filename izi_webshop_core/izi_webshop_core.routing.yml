@@ -1,0 +1,7 @@
+izi_webshop_core.settings:
+  path: '/admin/commerce/config/izi/settings'
+  defaults:
+    _title: 'IZI Settings'
+    _form: 'Drupal\izi_webshop_core\Form\SettingsForm'
+  requirements:
+    _permission: 'administer izi_webshop_core configuration'

@@ -1,0 +1,7 @@
+services:
+  menu_join.breadcrumb.default:
+    class: Drupal\menu_join\MenuJoinBreadcrumbBuilder
+    arguments: ['@context.manager', '@entity_type.manager', '@entity.repository', '@menu.active_trail', '@plugin.manager.menu.link', '@title_resolver', '@request_stack']
+    tags:
+      # This must have a higher priority than competing classes eg: TermBreadcrumbBuilder
+      - { name: breadcrumb_builder, priority: 1003 }

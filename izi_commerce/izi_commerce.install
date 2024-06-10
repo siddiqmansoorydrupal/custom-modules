@@ -1,0 +1,151 @@
+<?php
+
+/**
+ * @file
+ * Create a schema for the user credits.
+ */
+
+use Drupal\Core\Database\Database;
+
+/**
+ * Implements hook_schema().
+ */
+function izi_commerce_schema() {
+  $schema['user_credits'] = [
+    'description' => 'Stores the user credit information.',
+    'fields' => [
+      'uid' => [
+        'description' => 'UID for the user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'mail' => [
+        'description' => 'Primary key for the user.',
+        'type' => 'varchar_ascii',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],  
+      'credits' => [
+        'description' => 'User credits',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'created' => [
+        'description' => 'Created timestamp for the records',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'updated' => [
+        'description' => 'Updated timestamp for the records',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'status' => [
+        'description' => 'User credits status',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+    ],
+    'primary key' => ['mail'],
+    'indexes' => [
+      'mail' => ['mail'],
+    ]
+  ];
+
+
+  // Table for the redeem history
+  $schema['user_redeem_history'] = [
+    'description' => 'Stores the user redeem history information.',
+    'fields' => [
+      'rid' => [
+        'description' => 'Redeem id autoincremented.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ],
+      'mail' => [
+        'description' => 'Primary key for the user.',
+        'type' => 'varchar_ascii',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],  
+      'redeem_point' => [
+        'description' => 'Redeem point.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'created' => [
+        'description' => 'Created timestamp for the records',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+    ],
+    'primary key' => ['rid'],
+    'indexes' => [
+      'mail' => ['mail'],
+    ]
+  ];
+
+  // Table for the redeem the MTG
+  $schema['user_mtg'] = [
+    'description' => 'Stores the user redeem museum, tour, guide (mtg)',
+    'fields' => [
+      'id' => [
+        'description' => 'Table id autoincremented.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ],
+      'rid' => [
+        'description' => 'Redeem id.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'mail' => [
+        'description' => 'Primary key for the user.',
+        'type' => 'varchar_ascii',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],  
+      'mtg_uuid' => [
+        'description' => 'MTG uuid',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'status' => [
+        'description' => 'User credits status',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'mail' => ['mail'],
+    ]
+  ];
+
+  return $schema;
+}

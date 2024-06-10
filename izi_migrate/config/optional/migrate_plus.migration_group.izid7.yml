@@ -1,0 +1,19 @@
+uuid: f38a7164-d4db-49ba-a8a9-bdc0802bfd6b
+langcode: en
+status: true
+id: izid7
+label: 'IZI D7 Migration.'
+description: 'Migrations originally generated from drush migrate-upgrade --configure-only'
+
+source_type: 'Drupal 7'
+
+# We add dependencies just to make sure everything we need will be available
+dependencies:
+  enforced:
+    module:
+      - migrate_drupal
+      - migrate_tools
+
+shared_configuration:
+  source:
+    key: izid7

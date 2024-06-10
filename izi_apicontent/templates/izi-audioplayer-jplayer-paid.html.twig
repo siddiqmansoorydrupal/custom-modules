@@ -1,0 +1,16 @@
+<div class="paidcontent">
+  <div class="paidcontent__icon" aria-hidden="true">$</div>
+  <p class="paidcontent__text">
+    {{ 'This is a paid tour, you can buy <br>the tour in the '|t }}
+	
+    {% if logged_in %}
+		<a href="{{ purchased_link }}" class="buy-now-link">{{ 'Buy Now'|t }}</a>
+	{% else %}
+		<a href="{{ purchased_link }}" class="buy-now-link">{{ 'Buy Now'|t }}</a>
+	{% endif %}
+	
+	{{ 'or'|t }}
+	
+    <a href="{{ app_url }}">{{ 'izi.TRAVEL app'|t }}</a>
+  </p>
+</div>

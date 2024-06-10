@@ -1,0 +1,168 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for IZI Blocks module.
+ */
+
+use Drupal\Core\Link;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_theme().
+ */
+function izi_blocks_theme($existing, $type, $theme, $path) {
+
+  return [
+    'block__izi_blocks' => [
+      'template' => 'block--izi-blocks',
+      'base hook' => 'block',
+    ],
+    'izi_blocks_create' => [
+      'variables' => [
+        'data' => [],
+      ],
+    ],
+    'izi_blocks_download' => [
+      'variables' => [
+        'data' => [],
+      ],
+    ],
+    'izi_blocks_download_small' => [
+      'variables' => [
+        'data' => [],
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function izi_blocks_preprocess_izi_blocks_create(&$variables) {
+
+  $base_path = \Drupal::service('extension.list.theme')->getPath('izi_travel');
+  $img_src = "/$base_path/src/images/img_author_preview.png";
+
+  // $url = Url::fromUri("/node/34733");
+  $url = Url::fromRoute('entity.node.canonical', ['node' => 34733]);
+  $url->setOption('attributes', [
+    'class' => [
+      'button',
+      'button--cta',
+      'button--icon-next',
+    ],
+  ]);
+  $link = Link::fromTextAndUrl(t('Start'), $url);
+
+  $variables['link'] = $link;
+  $variables['image_src'] = $img_src;
+
+}
+
+/**
+ *
+ */
+function izi_blocks_get_links(&$variables) {
+  /** @var \Drupal\izi_apicontent\IziObjectService $izi_object_service */
+  $izi_object_service = \Drupal::service('izi_apicontent.izi_object_service');
+  $object = $izi_object_service->loadCurrentPageObject();
+
+  $variables['links'] = izi_blocks_links();
+  $variables['link_small'] = [
+    izi_blocks_app_link(t('Install mobile app'), [], $object),
+  ];
+
+  $base_path = \Drupal::service('extension.list.theme')->getPath('izi_travel');
+  $img_src = $base_path . '/src/images/get_app.webp';
+  // web/themes/custom/izi_travel/src/images/get_app.webp.
+  $app_image = '<img alt="Get_app" class="promo__image" src="' . $img_src . '" title="' . t('Download app') . '">';
+  $variables['app_image'] = $app_image;
+  $variables['image_path'] = '/' . $img_src;
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function izi_blocks_preprocess_izi_blocks_download(&$variables) {
+  izi_blocks_get_links($variables);
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function izi_blocks_preprocess_izi_blocks_download_small(&$variables) {
+  izi_blocks_get_links($variables);
+}
+
+/**
+ * Get the image links.
+ *
+ * @return
+ *   An array of the links.
+ */
+function izi_blocks_links() {
+
+  $app_config = \Drupal::config('izi_apicontent.app_settings')->getRawData();
+
+  $links = [];
+  $links['apple'] = $app_config['app_download_apple'] ?
+    Link::fromTextAndUrl(t('Download on the App Store'),
+      Url::fromUri(
+        $app_config['app_download_apple'],
+        [
+          'attributes' => [
+            'class' => [
+              'promo__download-link',
+              'promo__download-link--ios',
+            ],
+            'target' => "_blank",
+          ],
+        ],
+      )
+    ) : NULL;
+  $links['google'] = $app_config['app_download_android'] ?
+    Link::fromTextAndUrl(
+      t('Android app on Google play'),
+      Url::fromUri(
+        $app_config['app_download_android'],
+        [
+          'attributes' => [
+            'class' => [
+              'promo__download-link',
+              'promo__download-link--android',
+            ],
+            'target' => "_blank",
+          ],
+        ],
+      )
+    ) : NULL;
+  $links['windows'] = $app_config['app_download_windows'] ?
+    Link::fromTextAndUrl(
+      t('Download from Windows phone store'),
+      Url::fromUri(
+        $app_config['app_download_windows'],
+        [
+          'attributes' => [
+            'class' => [
+              'promo__download-link',
+              'promo__download-link--windows',
+            ],
+            'target' => "_blank",
+          ],
+        ],
+      )
+    ) : NULL;
+  return $links;
+}
+
+/**
+ *
+ */
+function izi_blocks_app_link($text, $options = [], $object = NULL, $store_os = NULL) {
+  $app_download = \Drupal::config('izi_apicontent.app_settings')->get('app_download_page');
+  $url = \Drupal::service('path.validator')->getUrlIfValid($app_download);
+  $url->setOptions($options);
+  $link = Link::fromTextAndUrl($text, $url);
+  return $link;
+}

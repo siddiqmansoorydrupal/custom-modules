@@ -1,0 +1,7 @@
+name: CDE Oder
+type: module
+description: 'Custom module for the order related changes.'
+package: Custom
+core_version_requirement: ^9 || ^10
+dependencies:
+  - commerce:commerce_order

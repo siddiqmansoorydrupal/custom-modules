@@ -1,0 +1,38 @@
+uuid: e8b4fbf6-c7b5-4848-8d12-c81d8c643c13
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_commerce1_payment_gateway
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Commerce
+  - Configuration
+migration_group: cde_commerce_other
+label: 'Commerce payment gateway'
+source:
+  plugin: commerce1_payment_gateway
+  constants:
+    plugin: manual
+process:
+  id:
+    -
+      plugin: machine_name
+      source: payment_method
+  label:
+    -
+      plugin: get
+      source: payment_method
+  plugin:
+    -
+      plugin: get
+      source: constants/plugin
+destination:
+  plugin: 'entity:commerce_payment_gateway'
+  destination_module: commerce_payment_gateway
+migration_dependencies:
+  required: {  }
+  optional: {  }

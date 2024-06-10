@@ -1,0 +1,14 @@
+<div class="strip strip--white">
+  <div class="contained">
+    <a class="provided-by" href="{{ url }}">
+      <span class="provided-by__label">{{ bar_prefix }}</span>
+      {% if image %}
+        <img class="provided-by__logo" src="{{ image }}" alt="{{ title }}" />
+      {% else %}
+        <span class="provided-by__name">{{ title }}</span>
+      {% endif %}
+      <span class="provided-by__description">{{ description }}</span>
+      <span class="provided-by__button button button--normal button--icon-next">{{ button_label }}</span>
+    </a>
+  </div>
+</div>

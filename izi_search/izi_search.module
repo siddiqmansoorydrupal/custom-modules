@@ -1,0 +1,77 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for izi_search module.
+ */
+
+use Drupal\Core\Url;
+
+const IZI_SEARCH_RESULTS_AMOUNT = 12;
+
+/**
+ * Implements hook_theme().
+ */
+function izi_search_theme() {
+  $theme_hooks = [
+    'izi_search_block' => [
+      'template' => 'izi-search-block',
+      'variables' => [
+        'search_form' => [],
+        'slides' => [],
+        'countries_with_cities' => [],
+        'search_string' => '',
+        'filters' => [],
+      ],
+    ],
+    'izi_search_results' => [
+      'template' => 'izi-search-results',
+      'variables' => [
+        'search_block' => [],
+        'title' => '',
+        'results' => '',
+        'load_more' => [],
+      ],
+    ],
+    'izi_object_teaser' => [
+      'template' => 'izi-object-teaser',
+      'variables' => [
+        'title' => '',
+        'type' => '',
+        'uuid' => '',
+        'url' => '',
+        'languages' => [],
+        'city' => '',
+        'country' => '',
+        'image' => '',
+      ],
+    ],
+  ];
+  return $theme_hooks;
+}
+
+/**
+ * Implements hook_language_switch_links_alter().
+ *
+ * Language Switcher dropdown will filter out custom routes unless we give them
+ * an explicit URL. If the route is current & belongs to this module, we build
+ * the URL ourselves.
+ */
+function izi_search_language_switch_links_alter(array &$links, $type, Url $url) {
+  $currentRouteName = Drupal::routeMatch()->getRouteName();
+  if (strpos($currentRouteName, 'izi_search') === 0) {
+
+    // Search page is used for 404, if this page is 404 we will not show the selector.
+    $status = \Drupal::requestStack()->getCurrentRequest()->attributes->get('exception');
+    if ($status && $status->getStatusCode() == 404) {
+      return;
+    }
+    foreach ($links as $lang_code => &$link) {
+      if ($link['url']->getRouteName() == '<current>') {
+        $url = Url::createFromRequest(Drupal::request());
+        $url->setRouteParameter('language', $lang_code);
+        $link['url'] = $url;
+      }
+    }
+  }
+}

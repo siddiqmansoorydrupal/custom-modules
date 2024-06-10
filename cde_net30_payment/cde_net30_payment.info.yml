@@ -1,0 +1,7 @@
+name: CDE Net 30 Payment
+type: module
+description: 'Provides a custom CDE payment method.'
+package: Custom
+core_version_requirement: ^9 || ^10
+dependencies:
+  - commerce:commerce_payment

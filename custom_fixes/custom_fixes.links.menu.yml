@@ -1,0 +1,13 @@
+custom_fixes.facet_settings:
+  route_name: custom_fixes.facet_settings
+  title: 'CDE Search Facets configuration'
+  parent: system.admin_config
+  description: 'CDE Search Facets configuration.'
+  weight: -10
+
+custom_fixes.product_cross_refrence:
+  route_name: custom_fixes.product_cross_refrence
+  title: 'Product Cross Reference Import'
+  parent: system.admin_config
+  description: 'Product Cross Reference Import.'
+  weight: -10

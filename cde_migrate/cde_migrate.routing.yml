@@ -1,0 +1,7 @@
+cde_migrate.form:
+  path: '/admin/config/cde_migrate/form'
+  defaults:
+    _form: '\Drupal\cde_migrate\Form\CdeMigrateForm'
+    _title: 'CSV Import Form'
+  requirements:
+    _permission: 'administer site configuration'

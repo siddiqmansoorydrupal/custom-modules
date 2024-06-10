@@ -1,0 +1,25 @@
+uuid: 5685d727-252a-4052-a852-56872574b708
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_blocked_ips
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'Drupal 7'
+  - Content
+migration_group: migrate_drupal_7
+label: 'Blocked IPs'
+source:
+  plugin: d7_blocked_ips
+process:
+  ip:
+    -
+      plugin: get
+      source: ip
+destination:
+  plugin: blocked_ip
+migration_dependencies:
+  required: {  }
+  optional: {  }

@@ -1,0 +1,161 @@
+<?php
+
+use Drupal\commerce_product\Entity\Product;
+
+/**
+ * Delete wrong diameter terms.
+ */
+function custom_fixes_update_9003() {
+    $tids = \Drupal::entityQuery('taxonomy_term')
+    ->condition('vid', 'product_diameter')
+    ->accessCheck(FALSE)->execute();
+
+    $controller = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+    $entities = $controller->loadMultiple($tids);
+    $controller->delete($entities);
+}
+
+/**
+ * Deleting products.
+ */
+function custom_fixes_update_9013() {
+
+    $database = \Drupal::database();
+    $database->query("TRUNCATE TABLE commerce_product");
+    $database->query("TRUNCATE TABLE commerce_product__2170efc76d");
+    $database->query("TRUNCATE TABLE commerce_product__39a881ea92");
+    $database->query("TRUNCATE TABLE commerce_product__body");
+    $database->query("TRUNCATE TABLE commerce_product__commerce_price");
+    $database->query("TRUNCATE TABLE commerce_product__d84d930a9e");
+    $database->query("TRUNCATE TABLE commerce_product__feeds_item");
+    $database->query("TRUNCATE TABLE commerce_product__field_5price");
+    $database->query("TRUNCATE TABLE commerce_product__field_abnormal_head_diameter");
+    $database->query("TRUNCATE TABLE commerce_product__field_base_diameter");
+    $database->query("TRUNCATE TABLE commerce_product__field_blue_devil_item_no");
+    $database->query("TRUNCATE TABLE commerce_product__field_blue_devil_price");
+    $database->query("TRUNCATE TABLE commerce_product__field_body_material");
+    $database->query("TRUNCATE TABLE commerce_product__field_category_taxonomy");
+    $database->query("TRUNCATE TABLE commerce_product__field_cross_over");
+    $database->query("TRUNCATE TABLE commerce_product__field_cross_over_2");
+    $database->query("TRUNCATE TABLE commerce_product__field_cross_over_sub_sub_cat");
+    $database->query("TRUNCATE TABLE commerce_product__field_date_added");
+    $database->query("TRUNCATE TABLE commerce_product__field_description");
+    $database->query("TRUNCATE TABLE commerce_product__field_description_long_text");
+    $database->query("TRUNCATE TABLE commerce_product__field_diameter");
+    $database->query("TRUNCATE TABLE commerce_product__field_distance_across_flats");
+    $database->query("TRUNCATE TABLE commerce_product__field_domestic_import");
+    $database->query("TRUNCATE TABLE commerce_product__field_drive");
+    $database->query("TRUNCATE TABLE commerce_product__field_eligible_customers");
+    $database->query("TRUNCATE TABLE commerce_product__field_expiration_date");
+    $database->query("TRUNCATE TABLE commerce_product__field_external_sleeve");
+    $database->query("TRUNCATE TABLE commerce_product__field_finish");
+    $database->query("TRUNCATE TABLE commerce_product__field_global_sort");
+    $database->query("TRUNCATE TABLE commerce_product__field_grip_range");
+    $database->query("TRUNCATE TABLE commerce_product__field_grip_range_taxonomy");
+    $database->query("TRUNCATE TABLE commerce_product__field_head_height");
+    $database->query("TRUNCATE TABLE commerce_product__field_head_style");
+    $database->query("TRUNCATE TABLE commerce_product__field_hex_washer");
+    $database->query("TRUNCATE TABLE commerce_product__field_image_commerce_product");
+    $database->query("TRUNCATE TABLE commerce_product__field_in_stock");
+    $database->query("TRUNCATE TABLE commerce_product__field_inner_diameter");
+    $database->query("TRUNCATE TABLE commerce_product__field_internal_expander");
+    $database->query("TRUNCATE TABLE commerce_product__field_item_description");
+    $database->query("TRUNCATE TABLE commerce_product__field_length");
+    $database->query("TRUNCATE TABLE commerce_product__field_live_item");
+    $database->query("TRUNCATE TABLE commerce_product__field_long_description");
+    $database->query("TRUNCATE TABLE commerce_product__field_material");
+    $database->query("TRUNCATE TABLE commerce_product__field_metric_standard");
+    $database->query("TRUNCATE TABLE commerce_product__field_metric_standard_");
+    $database->query("TRUNCATE TABLE commerce_product__field_military_specification");
+    $database->query("TRUNCATE TABLE commerce_product__field_name_overide");
+    $database->query("TRUNCATE TABLE commerce_product__field_offline_item");
+    $database->query("TRUNCATE TABLE commerce_product__field_offline_item_status");
+    $database->query("TRUNCATE TABLE commerce_product__field_outer_diameter");
+    $database->query("TRUNCATE TABLE commerce_product__field_part_cross_reference");
+    $database->query("TRUNCATE TABLE commerce_product__field_pieces_per_lb");
+    $database->query("TRUNCATE TABLE commerce_product__field_pin_material");
+    $database->query("TRUNCATE TABLE commerce_product__field_point");
+    $database->query("TRUNCATE TABLE commerce_product__field_point_type");
+    $database->query("TRUNCATE TABLE commerce_product__field_price_break_1");
+    $database->query("TRUNCATE TABLE commerce_product__field_price_break_3");
+    $database->query("TRUNCATE TABLE commerce_product__field_product_category");
+    $database->query("TRUNCATE TABLE commerce_product__field_product_code");
+    $database->query("TRUNCATE TABLE commerce_product__field_product_field");
+    $database->query("TRUNCATE TABLE commerce_product__field_product_size");
+    $database->query("TRUNCATE TABLE commerce_product__field_product_size_taxonomy");
+    $database->query("TRUNCATE TABLE commerce_product__field_product_subcategory");
+    $database->query("TRUNCATE TABLE commerce_product__field_qty_break_1");
+    $database->query("TRUNCATE TABLE commerce_product__field_quantity_per_box");
+    $database->query("TRUNCATE TABLE commerce_product__field_screw_material");
+    $database->query("TRUNCATE TABLE commerce_product__field_shaft_diameter");
+    $database->query("TRUNCATE TABLE commerce_product__field_shank");
+    $database->query("TRUNCATE TABLE commerce_product__field_solr_text");
+    $database->query("TRUNCATE TABLE commerce_product__field_sort_size");
+    $database->query("TRUNCATE TABLE commerce_product__field_sort_sizes");
+    $database->query("TRUNCATE TABLE commerce_product__field_style");
+    $database->query("TRUNCATE TABLE commerce_product__field_sub_sub_cat");
+    $database->query("TRUNCATE TABLE commerce_product__field_supplier_2");
+    $database->query("TRUNCATE TABLE commerce_product__field_supplier_2_cost");
+    $database->query("TRUNCATE TABLE commerce_product__field_supplier_2_sku");
+    $database->query("TRUNCATE TABLE commerce_product__field_supplier_cost");
+    $database->query("TRUNCATE TABLE commerce_product__field_supplier_reference");
+    $database->query("TRUNCATE TABLE commerce_product__field_supplier_sku");
+    $database->query("TRUNCATE TABLE commerce_product__field_tab_base");
+    $database->query("TRUNCATE TABLE commerce_product__field_tek_point");
+    $database->query("TRUNCATE TABLE commerce_product__field_tele_part");
+    $database->query("TRUNCATE TABLE commerce_product__field_thickness");
+    $database->query("TRUNCATE TABLE commerce_product__field_thickness_taxonomy");
+    $database->query("TRUNCATE TABLE commerce_product__field_thread_length");
+    $database->query("TRUNCATE TABLE commerce_product__field_thread_pitch");
+    $database->query("TRUNCATE TABLE commerce_product__field_thread_type");
+    $database->query("TRUNCATE TABLE commerce_product__field_type");
+    $database->query("TRUNCATE TABLE commerce_product__field_unit_of_measure");
+    $database->query("TRUNCATE TABLE commerce_product__field_washer_material");
+    $database->query("TRUNCATE TABLE commerce_product__field_washer_outer_diameter");
+    $database->query("TRUNCATE TABLE commerce_product__field_washer_type");
+    $database->query("TRUNCATE TABLE commerce_product__field_weight");
+    $database->query("TRUNCATE TABLE commerce_product__field_weight_per_um");
+    $database->query("TRUNCATE TABLE commerce_product__field_weld_style");
+    $database->query("TRUNCATE TABLE commerce_product__field_wings");
+    $database->query("TRUNCATE TABLE commerce_product__stores");
+    $database->query("TRUNCATE TABLE commerce_product__variations");
+    $database->query("TRUNCATE TABLE commerce_product_attribute_value");
+    $database->query("TRUNCATE TABLE commerce_product_attribute_value_field_data");
+    $database->query("TRUNCATE TABLE commerce_product_field_data");
+    $database->query("TRUNCATE TABLE commerce_product_variation");
+    $database->query("TRUNCATE TABLE commerce_product_variation__feeds_item");
+    $database->query("TRUNCATE TABLE commerce_product_variation__weight");
+    $database->query("TRUNCATE TABLE commerce_product_variation_field_data");
+}
+
+/**
+ * Deleting products.
+ */
+// function custom_fixes_update_9011() {
+//     $database = \Drupal::database();
+//     $query = $database->query('SELECT "commerce_product_field_data"."product_id" AS "product_id" FROM {commerce_product_field_data}
+//     LEFT JOIN {commerce_product__field_product_size_taxonomy} ON commerce_product_field_data.product_id = commerce_product__field_product_size_taxonomy.entity_id AND (commerce_product__field_product_size_taxonomy.deleted = 0 AND commerce_product__field_product_size_taxonomy.langcode = commerce_product_field_data.langcode)
+//     WHERE ({commerce_product_field_data}.status = 1) AND ({commerce_product__field_product_size_taxonomy}.field_product_size_taxonomy_target_id IS NULL)');
+//     $result = $query->fetchAll();
+
+//     if (!empty($result)) {
+//         foreach ($result as $key => $value) {
+//             $product =  Product::load($value->product_id);
+//             $product_size = $product->get('field_product_size')->getString();
+//             if (!empty($product_size)) {
+//                 $properties = [];
+//                 $properties['name'] = $product_size;
+//                 $properties['vid'] = 'product_size';
+//                 $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties($properties);
+//                 $term = reset($terms);
+
+//                 $term_id = !empty($term) ? $term->id() : 0;
+//                 \Drupal::logger('module_name_product_size')->notice('<pre><code>' . print_r($product_size, TRUE) . '</code></pre>' );
+//                 \Drupal::logger('module_name_term_id')->notice('<pre><code>' . print_r($term_id, TRUE) . '</code></pre>' );
+//                 $product->field_product_size_taxonomy[] = ['target_id' => $term_id];
+//                 $product->save();
+//             }
+//         }
+//     }
+// }
+

@@ -1,0 +1,70 @@
+
+{{ search_block }}
+
+<div class="s-output clearfix" data-role="s-output">
+  {% if title is not empty %}
+  <h1 class="h1 tac mt70 mb50">
+    {{ title }}
+  </h1>
+  {% endif %}
+
+  {% set tiqets_block = drupal_block('izi_ads_tiqets') %}
+  {% if tiqets_block.content is not empty %}
+    {{ tiqets_block }}
+  {% elseif izi_ads_show() == 1 %}
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <div class="contained tiqets_widget">
+      <ins class="adsbygoogle"
+           style="display:block; height:150px; margin-bottom:20px;"
+           data-ad-client="ca-pub-2867669674714942"
+           data-ad-slot="8635231515"
+           data-ad-format="fluid"
+           data-full-width-responsive="true">
+      </ins>
+    </div>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  {% endif %}
+
+  <div class="s-output-block" data-role="s-output-block">
+    {% if results is not empty %}
+    <div class="s-output-results-wrapper">
+      {{ results }}
+    </div>
+    {% else %}
+    <div class="no-results mt100 tac">
+      <div class="mt100">
+        <div class="no-results-holder tac iblock">
+          <span class="h2">{{ 'No match for your request was found'|t }}</span>
+          <div class="no-results-reasons">
+            <ul class="no_results_list iblock">
+              <li>
+                {{ 'Try to use other keywords' }}
+              </li>
+              <li>
+                {{ 'Go to change location - select alternative filter' }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if load_more is not empty %}
+  <div class="text-center mb25" data-role="s-output-show-more-block">
+    <a class="btn-primary btn-show-more"
+       data-role="s-output-show-more"
+       data-search-type="{{ load_more['search-type'] }}"
+       data-search-string="{{ load_more['search-string'] }}"
+       data-search-offset="{{ load_more['search-offset'] }}"
+       data-filter-type="{{ load_more['filter-type'] }}"
+       data-filter-lang="{{ load_more['filter-lang'] }}">
+      {{ 'Load more'|t }}
+    </a>
+  </div>
+  {% endif %}
+
+</div>

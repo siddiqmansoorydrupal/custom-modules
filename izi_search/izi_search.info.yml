@@ -1,0 +1,5 @@
+name: izi_search
+type: module
+description: Provides a search/browse block and results page
+package: IZI
+core_version_requirement: ^9 || ^10

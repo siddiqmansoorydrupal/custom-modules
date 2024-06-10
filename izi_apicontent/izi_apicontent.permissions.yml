@@ -1,0 +1,11 @@
+'izi.travel view content':
+  title: View Content
+  description: Allow users to view content pages
+
+'izi.travel administer multilingual definitions':
+  title: Administer Multilingual Definitions
+  description: Allow users to administer multilingual definitions pages
+
+'izi.travel administer front page block':
+  title: Administer Front Page Block
+  description: Allow users to administer front page block

@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the IZI Url Alias module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function izi_urlalias_install() {
+  \Drupal::messenger()->addStatus(__FUNCTION__);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function izi_urlalias_uninstall() {
+  \Drupal::messenger()->addStatus(__FUNCTION__);
+}
+
+/**
+ * Implements hook_schema().
+ *
+ * Defines the database tables used by this module.
+ *
+ * @see hook_schema()
+ */
+function izi_urlalias_schema() {
+
+  $schema['izi_urlalias_status'] = [
+    'description' => 'Stores status of izi library aliases.',
+    'fields' => [
+      'uuid' => [
+        'type' => 'varchar',
+        'not null' => TRUE,
+        'length' => 127,
+        'description' => 'The unique identifier of the object.',
+      ],
+      'hash' => [
+        'type' => 'varchar',
+        'length' => 127,
+        'not null' => TRUE,
+        'description' => 'The revision hash of the object.',
+      ],
+      'deleted' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The Unix timestamp when the object was found to be deleted.',
+      ],
+      'verified' => [
+        'type' => 'int',
+        'not null' => FALSE,
+        'default' => NULL,
+        'description' => 'A boolean indicating the status of the object. 0: not verified; 1: verified.',
+      ],
+    ],
+    'primary key' => ['uuid'],
+  ];
+
+  return $schema;
+}

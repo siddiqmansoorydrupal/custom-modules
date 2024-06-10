@@ -1,0 +1,12 @@
+izi_entity.izi_object_type.*:
+  type: config_entity
+  label: 'IZI Object type config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string

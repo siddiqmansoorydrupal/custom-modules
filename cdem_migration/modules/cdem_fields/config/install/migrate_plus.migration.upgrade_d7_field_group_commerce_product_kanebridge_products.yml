@@ -1,0 +1,55 @@
+uuid: d1950b88-f097-4f10-a626-22a02ff2c6e1
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_field_group_commerce_product_kanebridge_products
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Configuration
+migration_group: cde_fields
+label: 'Field groups of commerce_product (bundle: kanebridge_products)'
+source:
+  plugin: d7_field_group
+  entity_type: commerce_product
+  bundle: kanebridge_products
+process:
+  entity_type:
+    -
+      plugin: get
+      source: entity_type
+  bundle:
+    -
+      plugin: get
+      source: bundle
+  mode:
+    -
+      plugin: static_map
+      source: mode
+      bypass: true
+      map:
+        form: default
+  type:
+    -
+      plugin: static_map
+      source: mode
+      default_value: entity_view_display
+      map:
+        form: entity_form_display
+  group_name:
+    -
+      plugin: get
+      source: group_name
+  settings:
+    -
+      plugin: get
+      source: settings
+destination:
+  plugin: d7_field_group
+migration_dependencies:
+  required:
+    - upgrade_d7_view_modes
+  optional: {  }

@@ -1,0 +1,31 @@
+uuid: 3e88c7c0-d53c-4487-880c-24d1f7e6559b
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_system_image
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 6'
+  - 'Drupal 7'
+  - Configuration
+migration_group: cde_system
+label: 'Image toolkit configuration'
+source:
+  plugin: variable
+  variables:
+    - image_toolkit
+  source_module: system
+process:
+  toolkit:
+    -
+      plugin: get
+      source: image_toolkit
+destination:
+  plugin: config
+  config_name: system.image
+migration_dependencies:
+  required: {  }
+  optional: {  }

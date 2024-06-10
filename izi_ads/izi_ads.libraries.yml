@@ -1,0 +1,4 @@
+izi_ads.tiqets_loader:
+  version: 1.0.0
+  js:
+    https://widgets.tiqets.com/loader.js: { type: external, minified: true }

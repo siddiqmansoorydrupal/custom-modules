@@ -1,0 +1,29 @@
+<li class="reviews__row">
+  <div class="reviews__author">
+    <div class="reviews__avatar reviews__avatar--unknown"></div>
+    <p class="reviews__name">{{ name ?? 'Traveler'|t }}</p>
+  </div>
+  <div class="reviews__body well">
+    {% if title is not empty %}
+      <h3 class="reviews__title">{{ title }}</h3>
+    {% endif %}
+
+    {% if stars is not empty %}
+    <span class="reviews__rating rating rating--{{ stars }}">
+      {{ '%stars% out of %max_stars% rating'|trans({'%stars%': stars, '%max_stars%': 5}) }}
+    </span>
+    {% endif %}
+
+    {% if date is not empty %}
+    <span class="reviews__date">
+      {{ date }}
+    </span>
+    {% endif %}
+
+    {% if text is not empty %}
+    <div class="reviews__text js-truncate-inline" data-more-txt="{{ 'Read more'|t }}" data-less-txt="{{ 'Read less'|t }}">
+      <p class="reviews__text">{{ text }}</p>
+    </div>
+    {% endif %}
+  </div>
+</li>

@@ -1,0 +1,154 @@
+<?php
+
+use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
+use Drupal\Core\Site\Settings;
+use Drupal\externalauth\AuthmapInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityMalformedException;
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function izi_webshop_form_user_login_form_alter(&$form, &$form_state)
+{
+    $config = \Drupal::config('izi_cognito.settings');
+    $message = $config->get('login_terms_confirm');
+
+    $form['login_terms_confirm'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#attributes' => [
+            'class' => [
+                'login_terms_confirm',
+            ],
+        ],
+        '#value' => $message,
+    ];
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function izi_webshop_form_user_register_form_alter(&$form, &$form_state)
+{
+    $config = \Drupal::config('izi_cognito.settings');
+    $message = $config->get('signup_terms_confirm');
+
+    $form['signup_terms_confirm'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#attributes' => [
+            'class' => [
+                'signup_terms_confirm',
+            ],
+        ],
+        '#value' => $message,
+    ];
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function izi_webshop_form_cognito_register_form_alter(&$form, &$form_state)
+{
+    $config = \Drupal::config('izi_cognito.settings');
+    $message = $config->get('signup_terms_confirm');
+
+    $form['signup_terms_confirm'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#attributes' => [
+            'class' => [
+                'signup_terms_confirm',
+            ],
+        ],
+        '#value' => $message,
+    ];
+}
+
+
+
+/**
+ * Implements hook_user_cancel_methods_alter().
+ */
+function izi_cognito_user_cancel_methods_alter(array &$methods) {
+  // Add a new user cancellation method.
+  $methods['adminDeleteUser'] = [
+    'title' => t('Delete User from Cognito'),
+    'description' => t('Deletes a user using the adminDeleteUser method.'),
+  ];
+}
+
+
+/**
+ * Implements hook_user_cancel().
+ */
+function izi_cognito_user_cancel($edit, $account, $method) {
+  if ($method == 'adminDeleteUser') {
+    $email = $account->getEmail();
+
+    try {
+      $cognitoResult = izi_cognito_admin_delete_user_function($email);
+
+      // If the Cognito registration status is not successful, throw an exception.
+      if ($cognitoResult['status'] === 0) {
+        // Log the error and throw an exception.
+        \Drupal::logger('izi_cognito')->error($cognitoResult['message']);
+		\Drupal::messenger()->addError($cognitoResult['message']);
+      }else{
+		\Drupal::logger('izi_cognito')->notice($cognitoResult['message']);
+		\Drupal::messenger()->addStatus($cognitoResult['message']);
+		
+		/*$account->delete();
+		\Drupal::messenger()->addStatus(t('Account %name has been deleted.', ['%name' => $account->getDisplayName()]));
+		\Drupal::logger('izi_cognito')->notice('Deleted user: %name %email.', ['%name' => $account->getAccountName(), '%email' => '<' . $account->getEmail() . '>']);*/
+		
+	  }
+    } catch (\Exception $e) {
+      // Handle exceptions by logging them.
+      \Drupal::logger('izi_cognito')->error($e->getMessage());
+	  \Drupal::messenger()->addError($e->getMessage());
+    }
+	return false;
+  }
+}
+
+/**
+ * Function to perform the actual admin user deletion.
+ *
+ * @param string $email
+ *   The email of the user to be deleted.
+ *
+ * @return array
+ *   An array with 'status' and 'message' keys.
+ */
+function izi_cognito_admin_delete_user_function($email) {
+  try {
+    $settings = Settings::get('cognito');
+    $client = new CognitoIdentityProviderClient($settings);
+
+    $client->adminDeleteUser([
+      'UserPoolId' => $settings['user_pool_id'],
+      'Username' => $email,
+    ]);
+
+    // Return a success status.
+    return [
+      'status' => 1,
+      'message' => t('User successfully deleted from cognito.'),
+    ];
+  } catch (\Aws\Exception\AwsException $e) {
+    // Return an error status and message.
+    return [
+      'status' => 0,
+      'message' => $e->getAwsErrorMessage(),
+    ];
+  } catch (\Exception $e) {
+    // Handle other exceptions.
+    return [
+      'status' => 0,
+      'message' => $e->getMessage(),
+    ];
+  }
+}
+

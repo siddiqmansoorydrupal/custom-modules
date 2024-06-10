@@ -1,0 +1,5 @@
+custom_fixes.extratab:
+  route_name: custom_fixes.user_display
+  base_route: entity.user.canonical
+  title: 'Manage display'
+  weight: -9

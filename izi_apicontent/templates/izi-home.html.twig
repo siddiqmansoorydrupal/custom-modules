@@ -1,0 +1,36 @@
+{#
+/**
+ * @file
+ * IZI Api content home page.
+ *
+ * @ingroup izi_apicontent
+ */
+#}
+
+<pre>
+{{ kint() }}
+</pre>
+<div class="welcome-block clearfix">
+  <img src="{{ home_page_main_image }}" />
+  <div class="row">
+    <div class="block-padding">
+      <div class="columns small-12">
+        <h1 class="welcome-title">
+            {{ slogan }}
+        </h1>
+        <div class="welcome-links">
+          <div class="welcome-link">
+              {{ search_button }}
+          </div>
+          <div class="welcome-link">
+            {{ create_button }}
+          </div>
+          <div class="welcome-link">
+            {{ app_button }}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

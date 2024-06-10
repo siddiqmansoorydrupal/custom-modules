@@ -1,0 +1,4 @@
+services:
+  izi_urlalias.fetcher:
+    class: Drupal\izi_urlalias\Fetcher
+    arguments: ['@izi_libizi.libizi', '@izi_apicontent.language_service', '@izi_apicontent.izi_object_service', '@queue', '@string_translation', '@file_system', '@logger.factory']

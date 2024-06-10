@@ -1,0 +1,5 @@
+name: izi_metatag
+type: module
+description: Metatag creation for izi content
+package: IZI
+core_version_requirement: ^9 || ^10

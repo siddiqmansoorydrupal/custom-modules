@@ -1,0 +1,11 @@
+name: 'Stripe Pay'
+type: module
+description: 'Provides the stripe payment integration'
+package: Stripe
+core_version_requirement: ^9 || ^10
+dependencies:
+  - drupal:field
+# Information added by Drupal.org packaging script on 2023-06-11
+version: '1.1.0'
+project: 'stripe_pay'
+datestamp: 1686468012

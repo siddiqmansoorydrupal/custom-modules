@@ -1,0 +1,8 @@
+services:
+
+  izi_reviews.helpers_service:
+    class: Drupal\izi_reviews\HelpersService
+
+  izi_reviews.reviews_service:
+    class: Drupal\izi_reviews\ReviewsService
+    arguments: ['@izi_libizi.libizi', '@izi_reviews.helpers_service']

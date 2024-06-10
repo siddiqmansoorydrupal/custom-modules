@@ -1,0 +1,309 @@
+<!-- Widget Tiqets -->
+{% set tiqets_block = drupal_block('izi_ads_tiqets') %}
+{% if tiqets_block.content is not empty %}
+  {{ tiqets_block }}
+{% elseif izi_ads_show() == 1 %}
+
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- City page block -->
+  <div class="contained tiqets_widget">
+    <center>
+      <ins class="adsbygoogle"
+           style="display:block; height:100px; margin-bottom:20px;"
+           data-ad-client="ca-pub-2867669674714942"
+           data-ad-slot="5705815843"
+           data-ad-format="fluid"
+           data-full-width-responsive="true">
+      </ins>
+    </center>
+  </div>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+{% endif %}
+
+<div class="mtg-object">
+
+  {% if mtg_type == 'exhibit' or mtg_type == 'tourist_attraction' %}
+
+    <div class="sec-{{ mtg_type}} museum drop-down-block--{{ brand_modifier }}-main" data-content_type="{{ mtg_type }}" data-language="{{ language }}" data-role="mainDropDown" data-title="{{ title_attribute }}" data-uuid="{{ uuid }}">
+      <div class="drop-down-container">
+        <div class="images">
+          <div class="drop-down-cell-container">
+            <h2 class="mobile-title">{{ title }}</h2>
+            {{ images }}
+          </div>
+        </div>
+        <div class="description" role="main-description">
+          <div class="drop-down-cell-container">
+
+            {{ language_selector }}
+
+            <h1>{{ title }}</h1>
+
+            {{ audioplayer }}
+
+            <div class="share_browse_app">
+              <div class="get_add_browse">
+                <a href="{{ app_url }}" class="drop-down-get-app-button" data-role="appInstall">
+                  <div class="app {% if audioplayer['#theme'] is not empty %}to-right{% else %}to-left{% endif %}" data-role="appLinks">
+                    <div class="text">
+                      {{ 'Mobile App'|t }}
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <div class="clearboth">
+              {% if video is not empty %}
+                {{ video }}
+              {% endif %}
+            </div>
+
+            <div class="full">
+              <div class="full-text" data-role="dropDownDescription">
+                {{ description }}
+              </div>
+
+              <div class="shadow top">
+                <div class="left"></div>
+                <div class="right"></div>
+                <div class="center"></div>
+              </div>
+              <div class="shadow bottom">
+                <div class="left"></div>
+                <div class="right"></div>
+                <div class="center"></div>
+              </div>
+            </div>
+
+            <div class="dropdown__group">
+              <a class="button button--secondary button--icon-share dropdown__toggle js-dropdown-toggle">
+                {{ 'Share'|t }}
+              </a>
+              <div class="dropdown__menu">
+                <div class="social">
+                  {{ drupal_block('addtoany_block') }}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- App button -->
+    {{ app_button }}
+
+    <!-- Publisher -->
+    {{ publisher }}
+
+    <!-- Collections -->
+    {{ collections }}
+
+    <!-- Children -->
+    {{ children }}
+
+  {% else %}
+
+    <div class="">
+      <!-- Title -->
+      <div class="strip strip--white masthead museum-title-wrapper mtg-tour-page">
+        <div class="contained">
+          <div class="divLeft">
+            <span class="masthead__subtitle masthead__subtitle--mobile">{% trans %} Museum {% endtrans %}</span>
+            <div class="masthead__image" style="background-image: url({{ header_image }});"></div>
+            <h1 class="masthead__title">
+              <span class="masthead__subtitle">{% trans %} Museum {% endtrans %}</span>
+              {{ title | truncate(74, true) }}
+            </h1>
+            <button class="masthead__infotoggle js-toggle" data-target="#museumInfo">
+              {% trans %} Show info {% endtrans %}
+            </button>
+            <ul class="meta">
+              <li class="meta__item meta__item--reviews">
+                <span class="rating rating--{% if reviews_score is not empty %}{{ reviews_score }}{% else %}0{% endif %}"></span>
+                <a class="details__number-of-reviews js-scrollto" href="#reviews">
+                  {{ number_of_reviews_text }}
+                </a>
+              </li>
+              <li class="meta__item meta__item--city">{{ city_path }}</li>
+              {% if is_free %}
+                <li class="meta__item meta__item--price">
+                  <span class="label">{% trans %} Free {% endtrans %}</span>
+                </li>
+              {% endif %}
+            </ul>
+          </div>
+          <div class="divRight">
+            <div class="button__container">
+
+              <div class="typeicon typeicon--audiotour"></div>
+              {% if language_selector is not empty %}
+                {{ language_selector }}
+              {% endif %}
+
+              <div class="dropdown__group">
+                <a class="button button--secondary button--icon-share dropdown__toggle js-dropdown-toggle">
+                  {% trans %} Share {% endtrans %}
+                </a>
+
+                <div class="dropdown__menu">
+                  <div class="social">
+                    {{ drupal_block('addtoany_block') }}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <ul class="applinks desktop-hide">
+              <li class="applinks__label">{% trans %} Download the applinks {% endtrans %}</li>
+              <li class="applinks__item applinks__item--ios">
+                <a href="{{ app_url }}">iOS</a>
+              </li>
+              <li class="applinks__item applinks__item--android">
+                <a href="{{ app_url }}">Android</a>
+              </li>
+              <li class="applinks__item applinks__item--windows">
+                <a href="{{ app_url }}">Windows Phone</a>
+              </li>
+            </ul>
+
+            <div class="qr-code-block desktop-show">
+              <div class="qr-code">
+                <label class="qr-label">
+                  {{ 'Download Tour to your Phone' | t }}
+                </label>
+                {{ qr_code }}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="strip info museum-info" id="museumInfo">
+        <div class="contained">
+          <h2 class="strip__title">{% trans %} Museum info {% endtrans %}</h2>
+          <div class="tab__group">
+            <a class="tab__button tab__button--active" href="#aboutTab">
+              <span>{% trans %} About the museum {% endtrans %}</span>
+            </a>
+            {% if news is not empty %}
+              <a class="tab__button" href="#newsTab">
+                <span>
+                  {{ 'What\'s new'|t }}
+                </span>
+              </a>
+            {% endif %}
+            <a class="tab__button" href="#visitTab">
+              <span>{% trans %} Plan your visit {% endtrans %}</span>
+            </a>
+          </div>
+          <div class="grid">
+
+            <!-- Museum About -->
+            <div class="grid__column tab well well--primary" id="aboutTab">
+              <h3>{% trans %} About the museum {% endtrans %}</h3>
+              {% if audioplayer is not empty %}
+                {{ audioplayer }}
+              {% endif %}
+              {% if video is not empty %}
+                {{ video }}
+              {% endif %}
+              <div class="js-truncate-fancybox" data-more-txt="{% trans %} Read more {% endtrans %}" data-less-txt="Read less">
+                {{ description }}
+              </div>
+            </div>
+
+            <!-- Museum News -->
+            {% if news is not empty %}
+              <div class="grid__column tab well well--primary" id="newsTab">
+                <h3>
+                  {{ 'What\'s new'|t }}
+                </h3>
+                <div class="js-truncate-fancybox" data-more-txt="{% trans %} Read more {% endtrans %}" data-less-txt="Read less">
+                  {{ news | raw  }}
+                </div>
+              </div>
+            {% endif %}
+
+            <!-- Museum Info -->
+            <div class="grid__column tab well well--primary" id="visitTab">
+              <h3>{% trans %} Plan your visit {% endtrans %}</h3>
+              {% if latitude is not empty and longitude is not empty %}
+                {% set map_href = "#{server_protocol}://www.google.com/maps/place/#{latitude},#{longitude}/@#{latitude},#{longitude},15z" %}
+                <a class="mapthumb" href="{{ map_href }}" target="_blank">
+                  {% set static_map_url = "/themes/custom/izi_travel/src/images/staticmap.png" %}
+                  <img class="mapthumb--tablet mapthumb--desktop" src="{{ static_map_url }}" />
+                  <img class="mapthumb--mobile" src="{{ static_map_url }}" />
+                </a>
+              {% endif %}
+              <ul class="iconlist">
+                <li class="iconlist__item iconlist__item--location">
+                  {% if address is not empty %}
+                    {{ address }}
+                  {% endif %}
+                </li>
+                {% if opening is not empty %}
+                  <li class="iconlist__item iconlist__item--time">
+                    {{ opening }}
+                  </li>
+                {% endif %}
+                {% if website is not empty %}
+                  <li class="iconlist__item iconlist__item--url">
+                    <a href="{{ website }}" target="_blank">{{ website }}</a>
+                  </li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audiotours -->
+      {{ museum_tours }}
+
+      <!-- Exhibitions -->
+      {{ children }}
+
+      <!-- Provided by -->
+      {{ publisher }}
+
+      <!-- Related content -->
+      {{ related_content }}
+
+      <!-- Reviews -->
+      {{ reviews }}
+
+      <!-- App button -->
+      {{ app_button }}
+
+      <!-- Sponsors -->
+      {% if sponsors is not empty %}
+        <li class="iconlist__item iconlist__item--url">
+          <div class="strip strip--white affiliates">
+            <div class="contained">
+              <h2 class="strip__title affiliates__title">
+                {% trans %} Sponsors of this museum {% endtrans %}
+              </h2>
+              <div class="affiliates__carousel js-affiliates-carousel">
+                {% for sponsor in sponsors %}
+                  <a class="affiliates__link" href="{{ sponsor['url'] }}" target="_blank">
+                    <img class="affiliates__image" src="{{ sponsor['image_url'] }}" alt="{{ sponsor['name'] }}">
+                  </a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </li>
+      {% endif %}
+    </div>
+
+  {% endif %}
+
+</div>

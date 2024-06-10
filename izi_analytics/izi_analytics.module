@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for izi_analytics module.
+ */
+
+/**
+ * Implements hook_link_alter().
+ */
+function izi_analytics_link_alter(&$variables) {
+  /** @var \Drupal\Core\Url $url */
+  $url = $variables['url'];
+  if ($url->isExternal()) {
+    $attributes = $url->getOptions('attributes');
+    $attributes['data-role'] = 'external_link';
+    $url->setOption('attributes', $attributes);
+    $variables['options']['attributes']['data-role'] = 'external_link';
+  }
+}
+
+/**
+ * Implements hook_page_attachments().
+ */
+function izi_analytics_page_attachments(array &$attachments) {
+  $route = \Drupal::routeMatch()->getRouteObject();
+  $is_admin = \Drupal::service('router.admin_context')->isAdminRoute($route);
+  if (!$is_admin) {
+    $attachments['#attached']['library'][] = 'izi_analytics/izi-analytics';
+  }
+}

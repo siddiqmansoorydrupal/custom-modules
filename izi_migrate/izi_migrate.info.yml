@@ -1,0 +1,7 @@
+name: IZI Migrate
+type: module
+description: Performs content migration from D7
+package: IZI
+core_version_requirement: ^9 || ^10
+dependencies:
+  - migrate_plus

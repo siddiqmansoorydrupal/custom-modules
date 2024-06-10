@@ -1,0 +1,5 @@
+izi_urlalias.settings:
+  title: IZI UrlAlias Settings
+  parent: system.admin_config_system
+  route_name: izi_urlalias.settings
+  weight: 10

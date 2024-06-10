@@ -1,0 +1,65 @@
+uuid: e37a21ed-9c16-40d9-8a24-edb61acf39a8
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_menu_links_translation
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'Drupal 7'
+  - Content
+  - Multilingual
+migration_group: izid7
+label: 'Menu links'
+source:
+  plugin: d7_menu_link_translation
+process:
+  exists:
+    -
+      plugin: migration_lookup
+      migration: upgrade_d7_menu_links
+      source: mlid
+    -
+      plugin: skip_on_empty
+      method: row
+  id:
+    -
+      plugin: get
+      source: mlid
+  langcode:
+    -
+      plugin: get
+      source: language
+  title:
+    -
+      plugin: callback
+      source:
+        - title_translated
+        - link_title
+      callable: array_filter
+    -
+      plugin: callback
+      callable: current
+  description:
+    -
+      plugin: callback
+      source:
+        - description_translated
+        - description
+      callable: array_filter
+    -
+      plugin: callback
+      callable: current
+destination:
+  plugin: 'entity:menu_link_content'
+  default_bundle: menu_link_content
+  no_stub: true
+  translations: true
+migration_dependencies:
+  required:
+    - upgrade_language
+    - upgrade_d7_language_content_menu_settings
+    - upgrade_d7_menu_links
+  optional:
+    - upgrade_d7_menu_links

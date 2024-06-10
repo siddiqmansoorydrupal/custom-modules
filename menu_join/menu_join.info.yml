@@ -1,0 +1,7 @@
+name: 'Menu Join'
+description: 'Allows joining active trail breadcrumbs from different menus using Context.'
+type: module
+package: 'S360'
+dependencies:
+  - context_active_trail
+core_version_requirement: ^8 || ^9 || ^10

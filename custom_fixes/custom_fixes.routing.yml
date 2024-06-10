@@ -1,0 +1,111 @@
+custom_fixes.product_variation_fix_controller_main:
+  path: '/admin/custom_fixes/main'
+  defaults:
+    _controller: '\Drupal\custom_fixes\Controller\ProductVariationFixController::main'
+    _title: 'main'
+  requirements:
+    _permission: 'access content'
+
+custom_fixes.open_modal_form:
+  path: '/admin/config/request_update/{id}'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\custom_fixes\Controller\ModalFormController::openModalForm'
+  requirements:
+    _role: 'authenticated'
+  options:
+    _admin_route: TRUE
+
+custom_fixes.open_modal_form_offlin_product:
+  path: '/admin/config/offline_product/{id}'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\custom_fixes\Controller\ModalFormController::openModalFormReplicate'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
+
+custom_fixes.ananymous_download:
+  path: '/download-pdf'
+  defaults:
+    _title: 'Download Pdf'
+    _controller: '\Drupal\custom_fixes\Controller\ModalFormController::downloadPdf'
+  requirements:
+     _role: 'authenticated'
+
+
+custom_fixes.update_products:
+  path: '/batch-example/delete'
+  defaults:
+    _form: '\Drupal\custom_fixes\Form\UpdateProductForm'
+    _title: 'Batch'
+  requirements:
+    _permission: 'access content'
+
+custom_fixes.import_shipment_tracking:
+  path: '/admin/structure/shipping_tracking/import'
+  defaults:
+    _title: 'Upload sheet'
+    _form: '\Drupal\custom_fixes\Form\ImporShippingTrackingForm'
+  requirements:
+    _permission: 'administer site configuration'
+
+custom_fixes.import_offline_item_image:
+  path: '/admin/structure/offline-item-image/import'
+  defaults:
+    _title: 'Upload sheet'
+    _form: '\Drupal\custom_fixes\Form\ImportOfflineItemImageForm'
+  requirements:
+    _permission: 'administer site configuration'
+
+custom_fixes.product_cross_refrence:
+  path: '/admin/structure/product-cross-reference/import'
+  defaults:
+    _title: 'Update Product Cross Reference'
+    _form: '\Drupal\custom_fixes\Form\ProductCrossRefrence'
+  requirements:
+    _permission: 'administer site configuration'
+
+custom_fixes.import_ban_ip:
+  path: '/admin/structure/import/ban-ip'
+  defaults:
+    _title: 'Upload sheet'
+    _form: '\Drupal\custom_fixes\Form\ImportBanIPForm'
+  requirements:
+    _permission: 'administer site configuration'
+
+custom_fixes.facet_settings:
+  path: '/admin/config/cde-search/facets'
+  defaults:
+    _form: '\Drupal\custom_fixes\Form\CdeSearchFacets'
+    _title: 'CDE Search Facets configuration'
+  requirements:
+    _permission: 'administer site configuration'
+
+custom_fixes.user_display:
+  path: '/user/{user}/display'
+  defaults:
+    _controller: '\Drupal\custom_fixes\Controller\User::display'
+    _title: 'Manage Display'
+  requirements:
+    _role: 'super_administrator'
+
+
+custom_fixes.delete_offline_product:
+  path: '/admin/config/delete_offline_product'
+  defaults:
+    _controller: '\Drupal\custom_fixes\Controller\DeleteOfflineProduct::DeleteProduct'
+    _title: 'Delete Offline product'
+  requirements:
+    _permission: 'access content'
+
+custom_fixes.offline_notify_customer:
+  path: '/admin/config/notify-customer/{uid}'
+  defaults:
+    _title: 'Notify Customer Modal Form'
+    _controller: '\Drupal\custom_fixes\Controller\ModalFormController::NotifyCustomerModalForm'
+  requirements:
+    _role: 'authenticated'
+  options:
+    _admin_route: TRUE

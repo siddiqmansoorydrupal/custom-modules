@@ -1,0 +1,9 @@
+name: IZI Commerce
+type: module
+description: 'Provides customization for the commerce.'
+core_version_requirement: ^10
+package: IZI Travel
+
+dependencies:
+  - cognito
+  - commerce

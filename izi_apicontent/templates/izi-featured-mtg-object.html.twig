@@ -1,0 +1,27 @@
+<div class="featured-main-item lazyload" data-src="{{ image_url }}" data-original="{{ image_url }}">
+  <div class="{{ object_type }}">
+    <a href="{{ url }}" class="featured-main-item-image-wrapper"></a>
+    <div class="featured-main-item-content-wrapper">
+      <h3 class="featured-main-item-title-wrapper">
+        <a href="{{ url }}" class="featured-main-item-title" data-role="enableDotdotdot">
+          {{ title }}
+        </a>
+      </h3>
+      <div class="featured-main-item-location">
+        {{ city_link }}, {{ country_link }}
+      </div>
+      <div class="featured-main-item-info--dark">
+        <div class="featured-main-item-info-content-provider">
+          {{ content_provider | raw}}
+        </div>
+        {% if object_type == 'tour' %}
+          <div class="featured-main-item-info-type--tour">
+          </div>
+        {% elseif object_type == 'museum' %}
+          <div class="featured-main-item-info-type--museum">
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

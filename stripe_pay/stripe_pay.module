@@ -1,0 +1,435 @@
+<?php
+
+use Drupal\views\Views;
+/**
+ * Get currency codes available on the stripe
+ */
+function stripe_currency_codes()
+{
+    $currency_codes = array(
+      "USD" => t("United States Dollar($)"),
+      "AED" => t("United Arab Emirates Dirham(د.إ)"),
+      "AFN" => t("Afghan Afghani(؋)"),
+      "ALL" => t("Albanian Lek(L)"),
+      "AMD" => t("Armenian Dram(֏)"),
+      "ANG" => t("Netherlands Antillean Guilder(ƒ)"),
+      "AOA" => t("Angolan Kwanza(Kz)"),
+      "ARS" => t("Argentine Peso($)"),
+      "AUD" => t("Australian Dollar($)"),
+      "AWG" => t("Aruban Florin(ƒ)"),
+      "AZN" => t("Azerbaijani Manat(₼)"),
+      "BAM" => t("Bosnia and Herzegovina Convertible Mark(KM)"),
+      "BBD" => t("Barbadian Dollar($)"),
+      "BDT" => t("Bangladeshi Taka(৳)"),
+      "BGN" => t("Bulgarian Lev(лв)"),
+      "BHD" => t("Bahraini Dinar(.د.ب)"),
+      "BIF" => t("Burundian Franc(Fr)"),
+      "BMD" => t("Bermudian Dollar($)"),
+      "BND" => t("Brunei Dollar($)"),
+      "BOB" => t("Bolivian Boliviano(Bs.)"),
+      "BRL" => t("Brazilian Real(R$)"),
+      "BSD" => t("Bahamian Dollar($)"),
+      "BWP" => t("Botswana Pula(P)"),
+      "BYN" => t("Belarusian Ruble(Br)"),
+      "BZD" => t("Belize Dollar(BZ$)"),
+      "CAD" => t("Canadian Dollar($)"),
+      "CDF" => t("Congolese Franc(Fr)"),
+      "CHF" => t("Swiss Franc(Fr)"),
+      "CLP" => t("Chilean Peso($)"),
+      "CNY" => t("Chinese Yuan(¥)"),
+      "COP" => t("Colombian Peso($)"),
+      "CRC" => t("Costa Rican Colón(₡)"),
+      "CVE" => t("Cape Verdean Escudo($)"),
+      "CZK" => t("Czech Koruna(Kč)"),
+      "DJF" => t("Djiboutian Franc(Fr)"),
+      "DKK" => t("Danish Krone(kr)"),
+      "DOP" => t("Dominican Peso(RD$)"),
+      "DZD" => t("Algerian Dinar(د.ج)"),
+      "EGP" => t("Egyptian Pound(£)"),
+      "ETB" => t("Ethiopian Birr(Br)"),
+      "EUR" => t("Euro(€)"),
+      "FJD" => t("Fijian Dollar($)"),
+      "FKP" => t("Falkland Islands Pound(£)"),
+      "GBP" => t("British Pound(£)"),
+      "GEL" => t("Georgian Lari(₾)"),
+      "GIP" => t("Gibraltar Pound(£)"),
+      "GMD" => t("Gambian Dalasi(D)"),
+      "GNF" => t("Guinean Franc(Fr)"),
+      "GTQ" => t("Guatemalan Quetzal(Q)"),
+      "GYD" => t("Guyanese Dollar($)"),
+      "HKD" => t("Hong Kong Dollar($)"),
+      "HNL" => t("Honduran Lempira(L)"),
+      "HRK" => t("Croatian Kuna(kn)"),
+      "HTG" => t("Haitian Gourde(G)"),
+      "HUF" => t("Hungarian Forint(Ft)"),
+      "IDR" => t("Indonesian Rupiah(Rp)"),
+      "ILS" => t("Israeli New Shekel(₪)"),
+      "INR" => t("Indian Rupee(₹)"),
+      "ISK" => t("Icelandic Króna(kr)"),
+      "JMD" => t("Jamaican Dollar(J$)"),
+      "JOD" => t("Jordanian Dinar(د.ا)"),
+      "JPY" => t("Japanese Yen(¥)"),
+      "KES" => t("Kenyan Shilling(KSh)"),
+      "KGS" => t("Kyrgyzstani Som(som)"),
+      "KHR" => t("Cambodian Riel(៛)"),
+      "KMF" => t("Comorian Franc(₣)"),
+      "KRW" => t("South Korean Won(₩)"),
+      "KWD" => t("Kuwaiti Dinar(ك)"),
+      "KYD" => t("Cayman Islands Dollar($)"),
+      "KZT" => t("Kazakhstani Tenge(₸)"),
+      "LAK" => t("Lao Kip(₭)"),
+      "LBP" => t("Lebanese Pound(ل.ل)"),
+      "LKR" => t("Sri Lankan Rupee(Rs)"),
+      "LRD" => t("Liberian Dollar($)"),
+      "LSL" => t("Lesotho Loti(L)"),
+      "MAD" => t("Moroccan Dirham(د.م.)"),
+      "MDL" => t("Moldovan Leu(L)"),
+      "MGA" => t("Malagasy Ariary(Ar)"),
+      "MKD" => t("Macedonian Denar(ден)"),
+      "MMK" => t("Burmese Kyat(K)"),
+      "MNT" => t("Mongolian Tugrik(₮)"),
+      "MOP" => t("Macanese Pataca(P)"),
+      "MRO" => t("Mauritanian Ouguiya(أوقية)"),
+      "MUR" => t("Mauritian Rupee(₨)"),
+      "MVR" => t("Maldivian Rufiyaa(MRF)"),
+      "MWK" => t("Malawian Kwacha(MKw)"),
+      "MXN" => t("Mexican Peso($)"),
+      "MYR" => t("Malaysian Ringgit(RM)"),
+      "MZN" => t("Mozambican Metical(MTn)"),
+      "NAD" => t("Namibian Dollar($)"),
+      "NGN" => t("Nigerian Naira(₦)"),
+      "NIO" => t("Nicaraguan Córdoba(C$)"),
+      "NOK" => t("Norwegian Krone(kr)"),
+      "NPR" => t("Nepalese Rupee(Rs)"),
+      "NZD" => t("New Zealand Dollar($)"),
+      "OMR" => t("Omani Rial(ر.ع.)"),
+      "PAB" => t("Panamanian Balboa(B/.)"),
+      "PEN" => t("Peruvian Sol(S/)"),
+      "PGK" => t("Papua New Guinean Kina(K)"),
+      "PHP" => t("Philippine Peso(₱)"),
+      "PKR" => t("Pakistani Rupee(Rs)"),
+      "PLN" => t("Polish Złoty(zł)"),
+      "PYG" => t("Paraguayan Guarani(₲)"),
+      "QAR" => t("Qatari Riyal(ر.ق)"),
+      "RON" => t("Romanian Leu(lei)"),
+      "RSD" => t("Serbian Dinar(РСД)"),
+      "RUB" => t("Russian Ruble(₽)"),
+      "RWF" => t("Rwandan Franc(FRw)"),
+      "SAR" => t("Saudi Riyal(ر.س)"),
+      "SBD" => t("Solomon Islands Dollar($)"),
+      "SCR" => t("Seychellois Rupee(₨)"),
+      "SEK" => t("Swedish Krona(kr)"),
+      "SGD" => t("Singapore Dollar($)"),
+      "SHP" => t("Saint Helena Pound(£)"),
+      "SLE" => t("Sierra Leonean Leone(Le)"),
+      "SOS" => t("Somali Shilling(S)"),
+      "SRD" => t("Surinamese Dollar($)"),
+      "STD" => t("São Tomé and Príncipe Dobra(₺)"),
+      "SZL" => t("Swazi Lilangeni(L)"),
+      "THB" => t("Thai Baht(฿)"),
+      "TJS" => t("Tajikistani Somoni(ЅМ)"),
+      "TND" => t("Tunisian Dinar(د.ت)"),
+      "TOP" => t("Tongan Pa'anga(T$)"),
+      "TRY" => t("Turkish Lira(₺)"),
+      "TTD" => t("Trinidad and Tobago Dollar(TT$)"),
+      "TWD" => t("New Taiwan Dollar(NT$)"),
+      "TZS" => t("Tanzanian Shilling(TSh)"),
+      "UAH" => t("Ukrainian Hryvnia(₴)"),
+      "UGX" => t("Ugandan Shilling(USh)"),
+      "UYU" => t("Uruguayan Peso(\$U)"),
+      "UZS" => t("Uzbekistani Som(soʻm)"),
+      "VND" => t("Vietnamese Dong(₫)"),
+      "VUV" => t("Vanuatu Vatu(VT)"),
+      "WST" => t("Samoan Tala(WS$)"),
+      "XAF" => t("Central African CFA Franc(FCFA)"),
+      "XCD" => t("East Caribbean Dollar(EC$)"),
+      "XOF" => t("West African CFA Franc(CFA)"),
+      "XPF" => t("CFP Franc(CFP)"),
+      "YER" => t("Yemeni Rial(﷼)"),
+      "ZAR" => t("South African Rand(R)"),
+      "ZMW" => t("Zambian Kwacha(ZK)"),
+      "USDC" => t("USD Coin($)"),
+      "BTN" => t("Bhutanese Ngultrum(Nu.)"),
+      "GHS" => t("Ghanaian Cedi(GH₵)"),
+      "EEK" => t("Estonian Kroon(KR)"),
+      "LVL" => t("Latvian Lats(Ls)"),
+      "SVC" => t("Salvadoran Colón(₡)"),
+      "VEF" => t("Venezuelan Bolívar(Bs.F)"),
+      "LTL" => t("Lithuanian Litas(Lt)"),
+      "SLL" => t("Sierra Leonean Leone(Le)"),
+        );
+    return $currency_codes;
+}
+
+/**
+ * Get currency codes available on the stripe
+ */
+function stripe_currency_sign($currency_code)
+{
+    $currency_signs = array(
+          "USD" => "$",
+          "AED" => "د.إ",
+          "AFN" => "؋",
+          "ALL" => "L",
+          "AMD" => "֏",
+          "ANG" => "ƒ",
+          "AOA" => "Kz",
+          "ARS" => "$",
+          "AUD" => "$",
+          "AWG" => "ƒ",
+          "AZN" => "₼",
+          "BAM" => "KM",
+          "BBD" => "$",
+          "BDT" => "৳",
+          "BGN" => "лв",
+          "BHD" => ".د.ب",
+          "BIF" => "Fr",
+          "BMD" => "$",
+          "BND" => "$",
+          "BOB" => "Bs.",
+          "BRL" => "R$",
+          "BSD" => "$",
+          "BWP" => "P",
+          "BYN" => "Br",
+          "BZD" => "BZ$",
+          "CAD" => "$",
+          "CDF" => "Fr",
+          "CHF" => "Fr",
+          "CLP" => "$",
+          "CNY" => "¥",
+          "COP" => "$",
+          "CRC" => "₡",
+          "CVE" => "$",
+          "CZK" => "Kč",
+          "DJF" => "Fr",
+          "DKK" => "kr",
+          "DOP" => "RD$",
+          "DZD" => "د.ج",
+          "EGP" => "£",
+          "ETB" => "Br",
+          "EUR" => "€",
+          "FJD" => "$",
+          "FKP" => "£",
+          "GBP" => "£",
+          "GEL" => "₾",
+          "GIP" => "£",
+          "GMD" => "D",
+          "GNF" => "Fr",
+          "GTQ" => "Q",
+          "GYD" => "$",
+          "HKD" => "$",
+          "HNL" => "L",
+          "HRK" => "kn",
+          "HTG" => "G",
+          "HUF" => "Ft",
+          "IDR" => "Rp",
+          "ILS" => "₪",
+          "INR" => "₹",
+          "ISK" => "kr",
+          "JMD" => "J$",
+          "JOD" => "د.ا",
+          "JPY" => "¥",
+          "KES" => "KSh",
+          "KGS" => "som",
+          "KHR" => "៛",
+          "KMF" => "₣",
+          "KRW" => "₩",
+          "KWD" => "ك",
+          "KYD" => "$",
+          "KZT" => "₸",
+          "LAK" => "₭",
+          "LBP" => "ل.ل",
+          "LKR" => "Rs",
+          "LRD" => "$",
+          "LSL" => "L",
+          "MAD" => "د.م.",
+          "MDL" => "L",
+          "MGA" => "Ar",
+          "MKD" => "ден",
+          "MMK" => "K",
+          "MNT" => "₮",
+          "MOP" => "P",
+          "MRO" => "أوقية",
+          "MUR" => "₨",
+          "MVR" => "MRF",
+          "MWK" => "MKw",
+          "MXN" => "$",
+          "MYR" => "RM",
+          "MZN" => "MTn",
+          "NAD" => "$",
+          "NGN" => "₦",
+          "NIO" => "C$",
+          "NOK" => "kr",
+          "NPR" => "Rs",
+          "NZD" => "$",
+          "OMR" => "ر.ع.",
+          "PAB" => "B/.",
+          "PEN" => "S/",
+          "PGK" => "K",
+          "PHP" => "₱",
+          "PKR" => "Rs",
+          "PLN" => "zł",
+          "PYG" => "₲",
+          "QAR" => "ر.ق",
+          "RON" => "lei",
+          "RSD" => "РСД",
+          "RUB" => "₽",
+          "RWF" => "FRw",
+          "SAR" => "ر.س",
+          "SBD" => "$",
+          "SCR" => "₨",
+          "SEK" => "kr",
+          "SGD" => "$",
+          "SHP" => "£",
+          "SLE" => "Le",
+          "SOS" => "S",
+          "SRD" => "$",
+          "STD" => "₺",
+          "SZL" => "L",
+          "THB" => "฿",
+          "TJS" => "ЅМ",
+          "TND" => "د.ت",
+          "TOP" => "T$",
+          "TRY" => "₺",
+          "TTD" => "TT$",
+          "TWD" => "NT$",
+          "TZS" => "TSh",
+          "UAH" => "₴",
+          "UGX" => "USh",
+          "UYU" => "\$U",
+          "UZS" => "soʻm",
+          "VND" => "₫",
+          "VUV" => "VT",
+          "WST" => "WS$",
+          "XAF" => "FCFA",
+          "XCD" => "EC$",
+          "XOF" => "CFA",
+          "XPF" => "CFP",
+          "YER" => "﷼",
+          "ZAR" => "R",
+          "ZMW" => "ZK",
+          "USDC" => "$",
+          "BTN" => "Nu.",
+          "GHS" => "GH₵",
+          "EEK" => "KR",
+          "LVL" => "Ls",
+          "SVC" => "₡",
+          "VEF" => "Bs.F",
+          "LTL" => "Lt",
+          "SLL" => "Le",
+        );
+
+    return $currency_signs[$currency_code]??'';
+}
+/**
+ * Price format
+ */
+function stripe_price_formats($currency_code, $currency_sign)
+{
+    $price_formats = array(
+          '' => t('None'),
+          'format1' => t('Price: '.$currency_sign.'1234 '.$currency_code),
+          'format2' => t('Price '.$currency_sign.'1234 '.$currency_code),
+          'format3' => t('Price '.$currency_sign.'1234'),
+          'format4' => t('Price '.$currency_code. '1234'),
+          'format5' => t($currency_sign.'1234 '.$currency_code),
+          'format6' => t($currency_sign.'1234'),
+          'format7' => t($currency_code. ' 1234'),
+          'format8' => t($currency_sign.' 1234'),
+          'format9' => t($currency_sign.'. 1234'),
+        );
+    return $price_formats;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function stripe_pay_theme($existing, $type, $theme, $path)
+{
+    return array(
+      'stripe_payment' => array(
+        'variables' => array(
+          'stripe_payment_data' => null,
+          'other_data' => null,
+        )
+      )
+    );
+}
+
+/**
+* Log messages on the system
+* @param  $log_type type of the error message
+* @param  $message  message body
+* @return
+*/
+function log_stripe_pay_messages($log_type, $message)
+{
+    switch ($log_type) {
+        case 'alert':
+            \Drupal::logger('stripe_pay')->alert($message);
+            break;
+
+        case 'warning':
+            \Drupal::logger('stripe_pay')->warning($message);
+            break;
+
+        case 'debug':
+            \Drupal::logger('stripe_pay')->debug($message);
+            break;
+
+        default:
+            \Drupal::logger('stripe_pay')->info($message);
+            break;
+    }
+}
+
+
+/**
+ * Implements hook_token_info()
+ */
+
+function stripe_pay_token_info()
+{
+  $info['tokens']['commerce_order']['field_voucher_file'] = array(
+    'name' => t('Voucher File'),
+    'description' => t('Voucher File'),
+  );
+  return $info;
+}
+
+
+/**
+ * Implements hook_tokens().
+ */
+function stripe_pay_tokens($type, $tokens, array $data, array $options) {
+  $replacements = [];
+
+  if ($type === 'commerce_order' && !empty($data['commerce_order'])) {
+
+    $order_data = $data['commerce_order'];
+    $order = \Drupal::entityTypeManager()->getStorage('commerce_order')->load($order_data->id());
+	
+
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+		  
+        case 'field_voucher_file':
+		
+			$args = [$order->id()];
+			$view = Views::getView('order_view');
+			$view->setDisplay('default');
+			$view->setArguments($args);
+			$view->execute();
+			$rendered = $view->render();
+			$checkout_order_complete_summary_email = \Drupal::service('renderer')->render($rendered);			
+			$replacements[$original] = Drupal\Core\Render\Markup::create($checkout_order_complete_summary_email);
+
+      break;
+		  
+		  
+      }
+    }
+  }
+
+  return $replacements;
+}

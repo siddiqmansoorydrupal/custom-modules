@@ -1,0 +1,7 @@
+izi_maps.settings_form:
+  path: '/admin/config/system/izi-maps'
+  defaults:
+    _title: 'izi_maps settings'
+    _form: 'Drupal\izi_maps\Form\SettingsForm'
+  requirements:
+    _permission: 'administer izi_maps configuration'

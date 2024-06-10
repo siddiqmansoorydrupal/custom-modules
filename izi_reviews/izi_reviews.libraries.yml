@@ -1,0 +1,9 @@
+izi_reviews.form_and_listing_block:
+  version: 1.x
+  js:
+    js/izi_reviews.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+    - core/drupal.ajax

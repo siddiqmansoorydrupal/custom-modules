@@ -1,0 +1,20 @@
+<div class="s-output-item">
+  <div class="s-output-item-bg">
+    <a href="{{ url }}" alt="{{ title }}" class="img lazyload" data-original="{% if image['image_small'] is not empty %}{{ image['image_small'] }}{% endif %}" title="{{ title }}">
+    </a>
+  </div>
+  {{ languages }}
+  <div class="s-output-item-data-block">
+    <div class="s-output-item-location" data-role="enableDotdotdot" style="word-wrap: break-word;">
+     {{ country}} &nbsp;•&nbsp; {{ city }}
+    </div>
+    <div class="s-output-item-title" data-role="enableDotdotdot" style="word-wrap: break-word;">
+      <a href="{{ url }}">{{ title }}</a>
+    </div>
+    <div class="s-output-item-info">
+      <div class="s-output-item-info-{{ type }}">
+        {{ type|t }}
+      </div>
+    </div>
+  </div>
+</div>

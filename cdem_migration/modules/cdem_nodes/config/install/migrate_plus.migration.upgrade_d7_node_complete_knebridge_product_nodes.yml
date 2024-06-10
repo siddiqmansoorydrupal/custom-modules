@@ -1,0 +1,187 @@
+uuid: ffb3a38e-ea95-40fa-8abf-d31354893dcb
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_node_complete_knebridge_product_nodes
+class: Drupal\node\Plugin\migrate\D7NodeTranslation
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Content
+migration_group: cde_nodes
+label: 'Node complete (Kanebridge Product Nodes)'
+source:
+  plugin: d7_node_complete
+  node_type: knebridge_product_nodes
+process:
+  nid:
+    -
+      plugin: get
+      source: tnid
+  vid:
+    -
+      plugin: get
+      source: vid
+  langcode:
+    -
+      plugin: default_value
+      source: language
+      default_value: und
+  title:
+    -
+      plugin: get
+      source: title
+  uid:
+    -
+      plugin: get
+      source: node_uid
+  status:
+    -
+      plugin: get
+      source: status
+  created:
+    -
+      plugin: get
+      source: created
+  changed:
+    -
+      plugin: get
+      source: timestamp
+  promote:
+    -
+      plugin: get
+      source: promote
+  sticky:
+    -
+      plugin: get
+      source: sticky
+  revision_uid:
+    -
+      plugin: get
+      source: revision_uid
+  revision_log:
+    -
+      plugin: get
+      source: log
+  revision_timestamp:
+    -
+      plugin: get
+      source: timestamp
+  content_translation_source:
+    -
+      plugin: get
+      source: source_langcode
+  comment_node_knebridge_product_nodes/0/status:
+    -
+      plugin: get
+      source: comment
+  body:
+    -
+      plugin: get
+      source: body
+  field_category_taxonomy:
+    -
+      plugin: sub_process
+      source: field_category_taxonomy
+      process:
+        target_id: tid
+  field_description_node:
+    -
+      plugin: get
+      source: field_description_node
+  field_domestic_import_node:
+    -
+      plugin: get
+      source: field_domestic_import_node
+  field_in_stock_node:
+    -
+      plugin: get
+      source: field_in_stock_node
+  field_item_description_node:
+    -
+      plugin: get
+      source: field_item_description_node
+  field_live_item_node:
+    -
+      plugin: get
+      source: field_live_item_node
+  field_long_description_node:
+    -
+      plugin: get
+      source: field_long_description_node
+  field_price:
+    -
+      plugin: commerce1_migrate_commerce_price
+      source: field_price
+  field_price_break_1_node:
+    -
+      plugin: commerce1_migrate_commerce_price
+      source: field_price_break_1_node
+  field_price_break_3_node:
+    -
+      plugin: commerce1_migrate_commerce_price
+      source: field_price_break_3_node
+  field_product_category_node:
+    -
+      plugin: get
+      source: field_product_category_node
+  field_product_code_node:
+    -
+      plugin: get
+      source: field_product_code_node
+  field_product_field_node:
+    -
+      plugin: get
+      source: field_product_field_node
+  field_product_sku:
+    -
+      plugin: get
+      source: field_product_sku
+  field_product_subcategory_node:
+    -
+      plugin: get
+      source: field_product_subcategory_node
+  field_quantity_per_box_node:
+    -
+      plugin: get
+      source: field_quantity_per_box_node
+  field_status:
+    -
+      plugin: get
+      source: field_status
+  field_tele_part_node:
+    -
+      plugin: get
+      source: field_tele_part_node
+  field_unit_of_measure_node:
+    -
+      plugin: get
+      source: field_unit_of_measure_node
+  field_weight_node:
+    -
+      plugin: get
+      source: field_weight_node
+  field_product_reference:
+    -
+      plugin: sub_process
+      source: field_product_reference
+      process:
+        target_id: product_id
+  field_metatag:
+    -
+      plugin: d7_metatag_entities
+      source: pseudo_metatag_entities
+destination:
+  plugin: 'entity_complete:node'
+  translations: true
+  default_bundle: knebridge_product_nodes
+migration_dependencies:
+  required:
+    - upgrade_d7_user
+    - upgrade_d7_node_type
+    - upgrade_language
+  optional:
+    - upgrade_d7_field_instance
+    - upgrade_d7_comment_field_instance

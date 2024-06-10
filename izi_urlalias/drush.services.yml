@@ -1,0 +1,6 @@
+services:
+  izi_urlalias.commands:
+    class: \Drupal\izi_urlalias\Commands\IziUrlaliasCommands
+    arguments: ['@queue', '@izi_libizi.libizi', '@izi_apicontent.language_service', '@izi_apicontent.izi_object_service']
+    tags:
+      - { name: drush.command }

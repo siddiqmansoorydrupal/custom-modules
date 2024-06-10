@@ -1,0 +1,36 @@
+<div class="strip" id="reviews">
+  <div class="contained">
+    <h2 class="strip__title">{{ 'Reviews'|t }}</h2>
+    <div class="reviews">
+
+      <div class="reviews__header">
+        {% if count > 0 %}
+        <p class="reviews__total">{{ number_of_reviews_text }}</p>
+        <a class="reviews__add-button button button--cta js-toggle" data-target="#izi-reviews-form" href="#">
+          {{ 'Review this tour'|t }}
+        </a>
+        {% else %}
+        <p class="reviews__total">{{ 'No reviews yet'|t }}</p>
+        <a class="reviews__add-button button button--cta js-toggle" data-target="#izi-reviews-form" href="#">
+          {{ 'Write the first review'|t }}
+        </a>
+        {% endif %}
+      </div>
+
+      {{ form }}
+
+      <ul class="reviews__list">
+        {{ reviews }}
+      </ul>
+
+      <div class="reviews__footer">
+        {% if load_more_count > 0 %}
+        <button class="button button--secondary" type="button" data-offset="{{ offset }}" data-uuid="{{ uuid }}">
+          {{ 'Load %amount% more reviews'|trans({'%amount%': load_more_count}) }}
+        </button>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</div>

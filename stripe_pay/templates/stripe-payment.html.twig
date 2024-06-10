@@ -1,0 +1,90 @@
+{#
+/**
+ * @file
+ *
+ * Default template for stripe payment field.
+ *
+ * Available variables:
+ * - stripe_payment_data: Array of related details.
+ *   use {{ stripe_payment_data.price_format }} for price_format
+ *   use {{ stripe_payment_data.currency_sign }} for currency_sign
+ *   use {{ stripe_payment_data.price }} for price
+ *   use {{ stripe_payment_data.currency_code }} for currency_code
+ *   use {{ stripe_payment_data.show_quantity }} for show_quantity to show quantity field
+ *   use {{ stripe_payment_data.title }} for entity title
+ *   use {{ stripe_payment_data.nid }} for entity entity id
+ *   use {{ stripe_payment_data.button_text }} for button_text
+ *   use {{ stripe_payment_data.current_url }} for current_url
+ *
+ * @ingroup themeable
+ */
+ #}
+<div class="stripe-payment-wrapper">
+	{% set price_format = stripe_payment_data.price_format %}
+	{% if price_format == 'format1' %}
+	<div class="stipe-price-wrapper">
+		<span class="stripe-price-label">Price:</span>
+		<span class="stripe-currency-sign">{{ stripe_payment_data.currency_sign }}</span>
+		<span class="stripe-price">{{ stripe_payment_data.price }}</span>
+		<span class="stripe-currency-code">{{ stripe_payment_data.currency_code }}</span>
+	</div>
+	{% elseif price_format == 'format2' %}
+	<div class="stipe-price-wrapper">
+		<span class="stripe-price-label">Price</span>
+		<span class="stripe-currency-sign">{{ stripe_payment_data.currency_sign }}</span>
+		<span class="stripe-price">{{ stripe_payment_data.price }}</span>
+		<span class="stripe-currency-code">{{ stripe_payment_data.currency_code }}</span>
+	</div>
+	{% elseif price_format == 'format3' %}
+	<div class="stipe-price-wrapper">
+		<span class="stripe-price-label">Price:</span>
+		<span class="stripe-currency-sign">{{ stripe_payment_data.currency_sign }}</span>
+		<span class="stripe-price">{{ stripe_payment_data.price }}</span>
+	</div>
+	{% elseif price_format == 'format4' %}
+	<div class="stipe-price-wrapper">
+		<span class="stripe-price-label">Price:</span>
+		<span class="stripe-currency-code">{{ stripe_payment_data.currency_code }}</span>
+		<span class="stripe-currency-sign">{{ stripe_payment_data.currency_sign }}</span>
+		<span class="stripe-price">{{ stripe_payment_data.price }}</span>
+	</div>
+	{% elseif price_format == 'format5' %}
+	<div class="stipe-price-wrapper">
+		<span class="stripe-currency-sign">{{ stripe_payment_data.currency_sign }}</span>
+		<span class="stripe-price">{{ stripe_payment_data.price }}</span>
+		<span class="stripe-currency-code">{{ stripe_payment_data.currency_code }}</span>
+	</div>
+	{% elseif price_format == 'format6' %}
+	<div class="stipe-price-wrapper">
+		<span class="stripe-currency-sign">{{ stripe_payment_data.currency_sign }}</span>
+		<span class="stripe-price">{{ stripe_payment_data.price }}</span>
+	</div>
+	{% elseif price_format == 'format7' %}
+	<div class="stipe-price-wrapper">
+		<span class="stripe-currency-code">{{ stripe_payment_data.currency_code }}</span>
+		<span class="stripe-price">{{ stripe_payment_data.price }}</span>
+	</div>
+	{% elseif price_format == 'format8' %}
+	<div class="stipe-price-wrapper">
+		<span class="stripe-currency-sign">{{ stripe_payment_data.currency_sign }} </span>
+		<span class="stripe-price">{{ stripe_payment_data.price }}</span>
+	</div>
+	{% elseif price_format == 'format9' %}
+	<div class="stipe-price-wrapper">
+		<span class="stripe-currency-sign">{{ stripe_payment_data.currency_sign }}. </span>
+		<span class="stripe-price">{{ stripe_payment_data.price }}</span>
+	</div>
+	{% else %}
+	{% endif %}
+	<div class="stripe-pay-wrap">
+		{% if stripe_payment_data.show_quantity %}
+		<div class="stripe-payment-quantity">
+			<input class="quantity" type="number" name="quantity" value="1" min="1">
+		</div>
+		{% endif %}
+		<button class="button button--primary stripe-button payButton" data-amount='{{ stripe_payment_data.price }}' data-title='{{ stripe_payment_data.title }}' data-url='{{ stripe_payment_data.current_url }}' data-id='{{ stripe_payment_data.nid }}'>
+			<span class="buttonText">{{ stripe_payment_data.button_text }}</span>
+		</button>
+		<div class="paymentResponse" class="hidden"></div>
+	</div>
+</div>

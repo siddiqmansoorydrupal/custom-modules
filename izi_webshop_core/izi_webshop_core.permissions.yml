@@ -1,0 +1,4 @@
+administer izi_webshop_core configuration:
+  title: 'Administer izi_webshop_core configuration'
+  description: 'IZI Webshop Settings'
+  restrict access: true

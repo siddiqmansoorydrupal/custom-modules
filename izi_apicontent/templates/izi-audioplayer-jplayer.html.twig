@@ -1,0 +1,24 @@
+<div class="share_browse_app">
+    <div class="preview-text">
+      <div class="preview-text--inner">
+        {% trans %} Listen to audio {% endtrans %}
+      </div>
+    </div>
+</div>
+
+<div id="{{ 'jquery_jplayer_' ~ uuid | clean_id }}" class="jp-jplayer" data-url="{{ url }}" data-uuid="{{ uuid }}"></div>
+
+<div class="audio" id="{{ 'jp_container_' ~ uuid | clean_id }}">
+  <div class="audio__wrapper jp-gui">
+
+    <button class="audio__button audio__button--play jp-play">Play</button>
+    <button class="audio__button audio__button--pause jp-pause">Pause</button>
+
+    <div class="audio__seekbar">
+      <div class="audio__slider jp-progress-slider"></div>
+      <div class="audio__time audio__time--played jp-current-time"></div>
+      <div class="audio__time audio__time--duration jp-duration"></div>
+    </div>
+  </div>
+  <div class="audio__legacy jp-no-solution"> <span>Update Required</span> To play the media you will need to either update your browser to a recent version or update your <a href="http://get.adobe.com/flashplayer/" target="_blank">Flash plugin</a>. </div>
+</div>

@@ -1,0 +1,7 @@
+izi_urlalias.settings:
+  path: '/admin/config/system/izi_urlalias'
+  defaults:
+    _title: 'IZI UrlAlias Settings'
+    _form: 'Drupal\izi_urlalias\Form\SettingsForm'
+  requirements:
+    _permission: 'administer site configuration'

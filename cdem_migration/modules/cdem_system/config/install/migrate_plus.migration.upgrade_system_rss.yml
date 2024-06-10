@@ -1,0 +1,31 @@
+uuid: 007319a3-1b31-4056-aec4-d149f1cc8dff
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_system_rss
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 6'
+  - 'Drupal 7'
+  - Configuration
+migration_group: cde_system
+label: 'RSS configuration'
+source:
+  plugin: variable
+  variables:
+    - feed_item_length
+  source_module: system
+process:
+  items/view_mode:
+    -
+      plugin: get
+      source: feed_item_length
+destination:
+  plugin: config
+  config_name: system.rss
+migration_dependencies:
+  required: {  }
+  optional: {  }

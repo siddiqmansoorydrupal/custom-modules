@@ -1,0 +1,7 @@
+name: 'cdem_menues'
+type: module
+description: 'Module for migration menues'
+core_version_requirement: ^9.2 || ^10
+package: 'CDE migration'
+dependencies:
+  - cdem_migration

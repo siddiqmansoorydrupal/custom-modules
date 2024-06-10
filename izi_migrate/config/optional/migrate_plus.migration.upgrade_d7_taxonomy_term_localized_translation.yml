@@ -1,0 +1,66 @@
+uuid: 5cb5fbe9-b4f3-41cf-8642-77b454c3f771
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_taxonomy_term_localized_translation
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'Drupal 7'
+  - Content
+  - Multilingual
+migration_group: izid7
+label: 'Taxonomy localized term translations'
+source:
+  plugin: d7_term_localized_translation
+  translations: true
+process:
+  tid:
+    -
+      plugin: get
+      source: tid
+  langcode:
+    -
+      plugin: get
+      source: ltlanguage
+  vid:
+    -
+      plugin: migration_lookup
+      migration: upgrade_d7_taxonomy_vocabulary
+      source: vid
+  name:
+    -
+      plugin: callback
+      source:
+        - name_translated
+        - name
+      callable: array_filter
+    -
+      plugin: callback
+      callable: current
+  description:
+    -
+      plugin: callback
+      source:
+        - description_translated
+        - description
+      callable: array_filter
+    -
+      plugin: callback
+      callable: current
+destination:
+  plugin: 'entity:taxonomy_term'
+  translations: true
+migration_dependencies:
+  required:
+    - upgrade_language
+    - upgrade_d7_taxonomy_term_affiliate_partners
+    - upgrade_d7_taxonomy_term_service_providers
+    - upgrade_d7_taxonomy_term_blog_categories
+    - upgrade_d7_taxonomy_term_frontpage_images
+    - upgrade_d7_taxonomy_term_benefits
+    - upgrade_d7_taxonomy_term_testimonial_cs_categories
+    - upgrade_d7_taxonomy_term_academy
+  optional:
+    - upgrade_d7_taxonomy_vocabulary

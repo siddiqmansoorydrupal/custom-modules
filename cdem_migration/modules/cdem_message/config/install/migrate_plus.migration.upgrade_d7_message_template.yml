@@ -1,0 +1,53 @@
+uuid: ccc2cfc7-3378-4cc3-912d-59832f6caf62
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_message_template
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+migration_group: cde_message
+label: 'Drupal 7 message types.'
+source:
+  plugin: d7_message_template_source
+process:
+  template:
+    -
+      plugin: get
+      source: name
+  label:
+    -
+      plugin: get
+      source: description
+  description:
+    -
+      plugin: get
+      source: category
+  langcode:
+    -
+      plugin: default_value
+      source: language
+      default_value: und
+  status:
+    -
+      plugin: get
+      source: status
+  text:
+    -
+      plugin: d7_message_template_text
+      source:
+        - arguments
+        - data
+        - argument_keys
+        - message_text_value
+        - message_text_format
+        - delta
+destination:
+  plugin: 'entity:message_template'
+migration_dependencies:
+  required:
+    - upgrade_d7_filter_format
+  optional: {  }

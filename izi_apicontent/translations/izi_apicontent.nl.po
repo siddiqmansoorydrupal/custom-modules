@@ -1,0 +1,63 @@
+# $Id$
+#
+# Dutch translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  izi_apicontent.render.inc: n/a
+#  templates/izi-tour-children.tpl.php: n/a
+#  izi_apicontent.module: n/a
+#  izi_apicontent.variable.inc: n/a
+#  izi_apicontent.info: n/a
+#  js/izi-apicontent-mtg-new.js: n/a
+#  templates/izi-mtg-object-openinghours.tpl.php: n/a
+#  templates/izi-apicontent-tour-stop-ajax.tpl.php: n/a
+#  templates/izi-mtg-object-child-exhibit.tpl.php: n/a
+#  templates/izi-audioplayer-jplayer-paid.tpl.php: n/a
+#  templates/izi-audioplayer-paid.tpl.php: n/a
+#  templates/izi-audioplayer.tpl.php: n/a
+#  templates/izi-collection-children.tpl.php: n/a
+#  templates/izi-mtg-object.tpl.php: n/a
+#  templates/izi-mtg-tour-quest.tpl.php: n/a
+#  templates/izi-featured-city.tpl.php: n/a
+#  templates/izi-featured-main-city.tpl.php: n/a
+#  templates/izi-featured-content.tpl.php: n/a
+#  templates/izi-featured-mtg-object.tpl.php: n/a
+#  templates/izi-mtg-collection.tpl.php: n/a
+#  templates/izi-mtg-tour.tpl.php: n/a
+#  templates/izi-mtg-object-child-tour-save.tpl.php: n/a
+#  templates/izi-publisher.tpl.php: n/a
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2016-08-29 19:38+0200\n"
+"PO-Revision-Date: 2016-08-29 19:38+0200\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Dutch <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+#: izi_apicontent.render.inc:1706
+msgid "Explore"
+msgstr "Ontdek"
+
+msgid "Popular destinations"
+msgstr "Populaire bestemmingen"
+
+msgid "Featured audio guides"
+msgstr "Geselecteerde audiogidsen"
+
+msgid "by"
+msgstr "door"
+
+msgid "Testimonials"
+msgstr "Referenties"
+
+msgid "Get the best experience on your smartphone!"
+msgstr "Werkt het best op je smartphone!"
+
+msgid "<h4>Testimonials</h4>"
+msgstr "<h4>Referenties</h4>"

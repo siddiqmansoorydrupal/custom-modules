@@ -1,0 +1,6 @@
+izi_libizi.settings_form:
+  title: 'IZI Libizi'
+  description: 'Configure IZI Libizi.'
+  parent: system.admin_config_services
+  route_name: izi_libizi.settings_form
+  weight: 10

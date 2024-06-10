@@ -1,0 +1,11 @@
+<div class="featured-main-block clearfix owl-lazy">
+  {% if title %}
+    <h2 class="featured-content-title">{{ title }}</h2>
+  {% endif %}
+  <div class="featured-content-item-list">
+    {{ featured_items }}
+  </div>
+  {% if title %}
+    {{ load_more }}
+  {% endif %}
+</div>

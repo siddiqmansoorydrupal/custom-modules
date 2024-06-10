@@ -1,0 +1,39 @@
+uuid: 8c868916-b802-4ae3-9064-56fe3ad3c300
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_language_prefixes_and_domains
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 6'
+  - 'Drupal 7'
+  - Configuration
+migration_group: cde_language
+label: 'Language prefixes and domains'
+source:
+  plugin: language
+  fetch_all: true
+  domain_negotiation: true
+process:
+  url/prefixes:
+    -
+      plugin: array_build
+      source: languages
+      key: language
+      value: prefix
+  url/domains:
+    -
+      plugin: language_domains
+      source: languages
+      key: language
+      value: domain
+destination:
+  plugin: config
+  config_name: language.negotiation
+migration_dependencies:
+  required:
+    - upgrade_language
+  optional: {  }

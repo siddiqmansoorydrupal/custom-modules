@@ -1,0 +1,214 @@
+<div class="izi-mtg-tour-quest">
+  <!-- Title -->
+  <div class="strip strip--white masthead questTitle mtg-tour-page">
+    <div class="contained">
+      <div class="divLeft">
+            <span class="masthead__subtitle masthead__subtitle--mobile">
+              {{ 'Audio tour'|t }}
+            </span>
+        <div class="masthead__image" style="background-image: url({{ header_image }});"></div>
+
+        <h1 class="masthead__title">
+          <span class="masthead__subtitle">
+            {{ 'Audio tour'|t }}
+          </span>
+          {{ title | truncate(74, true) }}
+        </h1>
+
+        <ul class="meta">
+          <li class="meta__item meta__item--reviews">
+            <span class="rating rating--{{ reviews_score is not empty ? reviews_score : 0  }}"></span>
+            <a class="details__number-of-reviews js-scrollto" href="#reviews">
+              {{ number_of_reviews_text }}
+            </a>
+          </li>
+          <li class="meta__item meta__item--city">
+            {{ museum_path }}
+          </li>
+          {% if is_free %}
+            <li class="meta__item meta__item--price">
+            <span class="label">
+              {{ 'Free'|t }}
+            </span>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="divRight">
+        <ul class="applinks desktop-hide">
+          <li class="applinks__label">
+            {{ 'Download the app'|t }}
+          </li>
+          <li class="applinks__item applinks__item--ios">
+            <a href="{{ app_url }}">
+              {{ 'iOS'|t }}
+            </a>
+          </li>
+          <li class="applinks__item applinks__item--android">
+            <a href="{{ app_url }}">
+              {{ 'Android'|t }}
+            </a>
+          </li>
+          <li class="applinks__item applinks__item--windows">
+            <a href="{{ app_url }}">
+              {{ 'Windows Phone'|t }}
+            </a>
+          </li>
+        </ul>
+        <div class="button__container">
+          <div class="typeicon typeicon--audiotour"></div>
+          {% if language_selector is not empty %}
+            {{ language_selector }}
+          {% endif %}
+          <div class="dropdown__group">
+            <a class="button button--secondary button--icon-share dropdown__toggle js-dropdown-toggle">
+              {{ 'Share'|t }}
+            </a>
+            <div class="dropdown__menu">
+              <div class="social">
+                {{ drupal_block('addtoany_block') }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="qr-code-block desktop-show">
+          <div class="qr-code">
+            <label class="qr-label">
+              {{ 'Download Tour to your Phone' |t }}
+            </label>
+            {{ qr_code }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info -->
+  <div class="strip" id="questInfo">
+    <div class="contained">
+      <h2 class="strip__title">
+        {{ 'Quest info'|t }}
+      </h2>
+      <div class="tab__group">
+        <a class="tab__button tab__button--active" href="#aboutTab">
+          <span>
+            {{ 'About the quest'|t }}
+          </span>
+        </a>
+        {% if news is not empty %}
+          <a class="tab__button" href="#newsTab">
+          <span>
+            {{ 'What\'s new'|t }}
+          </span>
+          </a>
+        {% endif %}
+        <a class="tab__button" href="#visitTab">
+          <span>
+            {{ 'Plan your visit'|t }}
+          </span>
+        </a>
+      </div>
+
+      <div class="grid">
+        <!-- Museum About -->
+        <div class="grid__column tab well well--primary" id="aboutTab">
+          <h3>
+            {{ 'About the quest'|t }}
+          </h3>
+
+          {% if audioplayer is not empty %}{{ audioplayer }}{% endif %}
+          {% if video is not empty %}{{ video }}{% endif %}
+          <div class="js-tour-truncate-fancybox" data-more-txt="{{ 'Read more'|t }}" data-less-txt="Read less">
+            {{ description }}
+          </div>
+        </div>
+        <!-- Museum News -->
+        {% if news is not empty %}
+          {{ audioplayer }}
+          <div class="grid__column tab well well--primary" id="newsTab">
+            <h3>
+              {{ 'What\'s new'|t }}
+            </h3>
+            <div class="js-tour-truncate-fancybox" data-more-txt="{{ 'Read more'|t }}" data-less-txt="Read less">
+              {{ news|raw }}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Museum Info -->
+        <div class="grid__column tab well well--primary" id="visitTab">
+          <h3>
+            {{ 'Quest location'|t }}
+          </h3>
+          {% if latitude is not empty and longitude is not empty %}
+            {% set map_href = "#{server_protocol}://www.google.com/maps/place/#{latitude},#{longitude}/@#{latitude},#{longitude},15z" %}
+            <a class="mapthumb" href="{{ map_href }}" target="_blank">
+              {% set static_map_url = "/themes/custom/izi_travel/src/images/staticmap.png" %}
+              <img class="mapthumb--tablet mapthumb--desktop" src="{{ static_map_url }}" />
+              <img class="mapthumb--mobile" src="{{ static_map_url }}" />
+            </a>
+          {% endif %}
+          <ul class="iconlist">
+            <li class="iconlist__item iconlist__item--location">
+              {% if address is not empty %} {{ address }} {% endif %}
+            </li>
+            {% if opening is not empty %}
+              <li class="iconlist__item iconlist__item--time">
+                {{ opening }}
+              </li>
+            {% endif %}
+
+            {% if website is not empty %}
+              <li class="iconlist__item iconlist__item--url">
+                <a href="{{ website }}" target="_blank">{{ website }}</a>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exhibitions -->
+  <div class="strip">
+    <div class="contained contained--no-padding">
+      <div class="collection__intro js-truncate-inline" data-more-txt="Read more" data-less-txt="Read less">
+        <p class="strip__subtitle strip__subtitle--narrow">
+          {{ quest_message|raw }}
+        </p>
+      </div>
+      <div class="button__container button__container--middle">
+        <a class="button button--cta button--icon-next" href="{{ app_url }}">
+          {{ 'Download the app'|t }}
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- Provided by -->
+  {{ publisher }}
+  <!-- Related content -->
+  {{ related_content }}
+  <!-- Reviews -->
+  {{ reviews }}
+  <!-- App button -->
+  {{ app_button }}
+
+  {% if sponsors is not empty %}
+    <div class="strip strip--white affiliates">
+      <div class="contained">
+        <h2 class="strip__title affiliates__title">
+          {{ 'Sponsors of this tour'|t }}
+        </h2>
+        <div class="affiliates__carousel js-affiliates-carousel">
+          {% for sponsor in sponsors %}
+            <a class="affiliates__link" href="{{ sponsor['url'] }}" target="_blank">
+              <img class="affiliates__image" src="{{ sponsor['image_url'] }}" alt="{{ sponsor['name'] }}">
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+</div>

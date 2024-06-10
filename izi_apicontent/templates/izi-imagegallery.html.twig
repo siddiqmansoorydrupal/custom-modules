@@ -1,0 +1,29 @@
+<div class="images-container">
+  <div class="fotorama-image-gallery">
+    {% if images %}
+      {% for image in images %}
+        <a href="{{ image['image'] }}"></a>
+      {% endfor %}
+    {% else %}
+      <a href="{{ placeholder }}"></a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="slideshow__wrapper">
+  <div class="slideshow js-slideshow">
+    {% if images %}
+      {% for image in images %}
+        <div class="slideshow__slide">
+          {% if image['title'] is not empty %}
+            <a class="slideshow__mask js-fancybox owl-lazy" href="{{ image['image'] }}" data-src="{{ image['image'] }}" rel="{{ id }}" alt="{{ image['title']|e('html') }}" title="{{ image['title']|e('html') }}"></a>
+          {% else %}
+            <a class="slideshow__mask js-fancybox owl-lazy" href="{{ image['image'] }}" data-src="{{ image['image'] }}" rel="{{ id }}"></a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <a href="{{ placeholder }}"></a>
+    {% endif %}
+  </div>
+</div>

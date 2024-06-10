@@ -1,0 +1,23 @@
+# Custom module library for general purposes.
+izi_search.block:
+  js:
+    js/izi-search-block.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+    - core/once
+    - izi_travel/izi_travel.components
+
+izi_search.results:
+  js:
+    js/izi-search-results.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+    - core/once
+
+# Theme library.
+
+# Third-party library (self hosted).
+
+# Third-party library (CDN).

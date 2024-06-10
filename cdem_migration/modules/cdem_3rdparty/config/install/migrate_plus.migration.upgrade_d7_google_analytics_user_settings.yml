@@ -1,0 +1,42 @@
+uuid: 5181d728-f528-4a9d-bb2d-fc996f15fd80
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_google_analytics_user_settings
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+migration_group: cde_3rdparty
+label: 'Google Analytics user settings'
+source:
+  plugin: d7_user
+  constants:
+    key: user_account_users
+    module: google_analytics
+process:
+  uid:
+    -
+      plugin: get
+      source: uid
+  key:
+    -
+      plugin: get
+      source: constants/key
+  module:
+    -
+      plugin: get
+      source: constants/module
+  settings:
+    -
+      plugin: skip_row_if_not_set
+      index: custom
+      source: data/googleanalytics
+destination:
+  plugin: user_data
+migration_dependencies:
+  required:
+    - upgrade_d7_user
+  optional: {  }

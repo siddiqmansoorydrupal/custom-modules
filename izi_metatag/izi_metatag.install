@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * @file
+ */
+
+/**
+ * Implements hook_install().
+ */
+function izi_metatags_install() {
+  \Drupal::messenger()->addStatus(__FUNCTION__);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function izi_metatags_uninstall() {
+  \Drupal::messenger()->addStatus(__FUNCTION__);
+}

@@ -1,0 +1,9 @@
+name: IZI Url Alias
+type: module
+description: Provides URL aliases &amp; Redirects for IZI Objects
+package: izi
+core_version_requirement: ^9 || ^10
+dependencies:
+  - izi_apicontent
+  - pathauto
+  - redirect

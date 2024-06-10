@@ -1,0 +1,26 @@
+entity.izi_object.view:
+  title: 'View'
+  route_name: entity.izi_object.canonical
+  base_route: entity.izi_object.canonical
+entity.izi_object.edit_form:
+  title: 'Edit'
+  route_name: entity.izi_object.edit_form
+  base_route: entity.izi_object.canonical
+entity.izi_object.delete_form:
+  title: 'Delete'
+  route_name: entity.izi_object.delete_form
+  base_route: entity.izi_object.canonical
+  weight: 10
+entity.izi_object.collection:
+  title: 'IZI Objects'
+  route_name: entity.izi_object.collection
+  base_route: system.admin_content
+  weight: 10
+entity.izi_object_type.edit_form:
+  title: 'Edit'
+  route_name: entity.izi_object_type.edit_form
+  base_route: entity.izi_object_type.edit_form
+entity.izi_object_type.collection:
+  title: 'List'
+  route_name: entity.izi_object_type.collection
+  base_route: entity.izi_object_type.collection

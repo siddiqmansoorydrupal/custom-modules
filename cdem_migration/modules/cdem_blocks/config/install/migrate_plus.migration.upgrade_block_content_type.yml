@@ -1,0 +1,40 @@
+uuid: cc24b039-1253-4031-b84a-35f340e0438e
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_block_content_type
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 6'
+  - 'Drupal 7'
+  - Configuration
+  - 'CDEM structure'
+migration_group: cde_structure
+label: 'Block content type'
+source:
+  plugin: embedded_data
+  data_rows:
+    -
+      id: basic
+      label: Basic
+  ids:
+    id:
+      type: string
+  source_module: block
+process:
+  id:
+    -
+      plugin: get
+      source: id
+  label:
+    -
+      plugin: get
+      source: label
+destination:
+  plugin: 'entity:block_content_type'
+migration_dependencies:
+  required: {  }
+  optional: {  }

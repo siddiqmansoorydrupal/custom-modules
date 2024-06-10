@@ -1,0 +1,174 @@
+<?php
+
+/**
+ * @file
+ * Menu Join path module.
+ */
+
+use Drupal\Core\Link;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function menu_join_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the menu_join module.
+    case 'help.page.menu_join_path':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Allows us to join active trail breadcrumbs across menus.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Returns cached list of paths corresponding to submenu parents.
+ *
+ * @return array
+ *   Array of path strings.
+ */
+function menu_join_get_parent_paths() {
+
+  $cache_key = 'menu_join_parents_list';
+  $cache = \Drupal::cache();
+  $parents = [];
+  if ($data = $cache->get($cache_key)) {
+    $parents = $data->data;
+  }
+  else {
+    /** @var \Drupal\context\ContextManager $contextManager */
+    $contextManager = \Drupal::getContainer()->get('context.manager');
+    $contexts = $contextManager->getContexts();
+    foreach ($contexts as $context) {
+      if ($context->hasReaction('menu_join')
+        && $context->hasReaction('active_trail')
+        && $context->hasCondition('in_menu_tree')) {
+
+        $menu_join = $context
+          ->getReaction('menu_join')
+          ->getConfiguration();
+        $active_trail = $context
+          ->getReaction('active_trail')
+          ->getConfiguration();
+
+        $trail_link = explode(':', $active_trail["trail"]);
+        /** @var \Drupal\menu_link_content\MenuLinkContentInterface $menu_link */
+        $menu_link = \Drupal::service('entity.repository')->loadEntityByUuid('menu_link_content', $trail_link[2]);
+        if ($menu_link && $menu_link->getUrlObject()->isRouted()) {
+          $menu_name = $menu_join['menu_1'];
+          $path = $menu_link->getUrlObject()->getInternalPath();
+          $parents[$menu_name] = $path;
+        }
+      }
+    }
+    $cache->set($cache_key, $parents, time() + 86400, ['menu_join:parents']);
+  }
+
+  return $parents;
+}
+
+/**
+ * Returns true if the current path is the parent item of a menu_join submenu.
+ *
+ * @return string
+ *   Strong or False.
+ */
+function menu_join_is_parent() {
+  $parents = menu_join_get_parent_paths();
+  $current_path = \Drupal::service('path.current')->getPath();
+  // Current path has leading '/' menu paths do not.
+  $is_parent = array_search(substr($current_path, 1), $parents);
+  return $is_parent;
+}
+
+/**
+ * Returns true if the current path is the child context of a menu_join submenu.
+ *
+ * @return bool
+ *   Bool.
+ */
+function menu_join_is_child() {
+
+  /** @var \Drupal\context\ContextManager $contextManager */
+  $contextManager = \Drupal::getContainer()->get('context.manager');
+  // Get the parent menu.
+  $activeContexts = $contextManager->getActiveContexts();
+
+  foreach ($activeContexts as $context) {
+    if ($context->hasReaction('menu_join')) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Returns parent link if current path is in a menu_join submenu.
+ *
+ * @return \Drupal\menu_link_content\Entity\MenuLinkContent|bool
+ *   Parent link or false.
+ */
+function menu_join_get_parent() {
+  /** @var \Drupal\context\ContextManager $contextManager */
+  $contextManager = \Drupal::getContainer()->get('context.manager');
+  // Get the parent menu.
+  $activeContexts = $contextManager->getActiveContexts();
+
+  foreach ($activeContexts as $context) {
+    if (
+      $context->hasReaction('menu_join')
+      && $context->hasReaction('active_trail')
+    ) {
+      $active_trail = $context
+        ->getReaction('active_trail')
+        ->getConfiguration();
+      $link_id = substr(
+        $active_trail["trail"],
+        1 + strrpos($active_trail["trail"], ':')
+      );
+      $link = \Drupal::entityTypeManager()
+        ->getStorage('menu_link_content')
+        ->loadByProperties(['uuid' => $link_id]);
+      if ($link) {
+        return reset($link);
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_preprocess_block().
+ */
+function menu_join_preprocess_block(&$variables) {
+  if ($variables["plugin_id"] === 'menu_block') {
+    $block_type = $variables["content"]["#menu_block_configuration"]['provider'];
+    if ($block_type === 'menu_block') {
+      /** @var \Drupal\menu_link_content\Entity\MenuLinkContent $parent_link */
+      $parent_link = menu_join_get_parent();
+      if ($parent_link) {
+        $link = Link::fromTextAndUrl(
+          $parent_link->getTitle(),
+          $parent_link->getUrlObject()
+        );
+        $variables['content']['parent'] = $link;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function menu_join_preprocess_page(&$variables) {
+
+  if (menu_join_is_parent()) {
+    $variables['attributes']['class'][] = 'page--menu-join-is-parent';
+  }
+  if (menu_join_is_child()) {
+    $variables['attributes']['class'][] = 'page--menu-join-is-child';
+  }
+
+  // Get a MenuLInkContent item for parent of MenuJoin (returns false if none).
+  // $link = menu_join_get_parent().
+}

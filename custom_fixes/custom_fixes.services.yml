@@ -1,0 +1,20 @@
+services:
+  custom_fixes.route_subscriber:
+    class: Drupal\custom_fixes\EventSubscriber\MyCustomRouteSubscriber
+    tags:
+      - { name: event_subscriber }
+
+  custom_fixes.redirect_advanced_search:
+    class: Drupal\custom_fixes\EventSubscriber\AjaxResponseSubscriber
+    tags:
+      - { name: event_subscriber }
+  custom_fixes.user_profile_access_subscriber:
+    class: Drupal\custom_fixes\EventSubscriber\UserProfileAccessSubscriber
+    arguments: ['@current_user']
+    tags:
+      - { name: event_subscriber }
+
+  custom_fixes.page_redirect:
+    class: Drupal\custom_fixes\EventSubscriber\PageRedirectSubscriber
+    tags:
+      - { name: event_subscriber }

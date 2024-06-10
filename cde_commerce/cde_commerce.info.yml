@@ -1,0 +1,7 @@
+name: CDE Commerce
+type: module
+description: 'Defines common Commerce functionality for CDE.'
+package: Custom
+core_version_requirement: ^9 || ^10
+dependencies:
+  - commerce:commerce_order

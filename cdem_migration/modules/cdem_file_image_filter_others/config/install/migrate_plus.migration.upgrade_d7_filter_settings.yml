@@ -1,0 +1,30 @@
+uuid: e9af20ce-793a-4fe4-aaf0-f07eaaa84cb5
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_filter_settings
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Configuration
+migration_group: cde_fifothers
+label: 'Drupal 7 filter settings'
+source:
+  plugin: variable
+  variables:
+    - filter_fallback_format
+  source_module: filter
+process:
+  fallback_format:
+    -
+      plugin: get
+      source: filter_fallback_format
+destination:
+  plugin: config
+  config_name: filter.settings
+migration_dependencies:
+  required: {  }
+  optional: {  }

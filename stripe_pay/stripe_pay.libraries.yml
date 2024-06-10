@@ -1,0 +1,7 @@
+stripe_pay:
+  version: VERSION
+  js:
+    https://js.stripe.com/v3/: { type: external, minified: true }
+    js/stripe_pay.js: {}
+  dependencies:
+    - core/once

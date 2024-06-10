@@ -1,0 +1,39 @@
+izi_credit.form:
+  path: '/reseller-coupon'
+  defaults:
+    _form: '\Drupal\izi_credit\Form\ResellerCouponForm'
+    _title: 'Generate Reseller Coupon'  
+  requirements:
+    _permission: 'access content'
+    _role: 'reseller'
+  methods: [GET, POST]
+
+izi_credit.add_to_coupons:
+  path: '/add-to-coupons'
+  defaults:
+    _controller: '\Drupal\izi_credit\Controller\CouponController::addToCoupons'
+    _title: 'Add to Coupons'
+  requirements:
+    _permission: 'access content'
+    _role: 'reseller'
+  methods: [GET]
+  
+izi_credit.delete_coupon:
+  path: '/delete-coupon/{coupon_code}'
+  defaults:
+    _controller: '\Drupal\izi_credit\Controller\DeleteCouponController::deleteCoupon'
+    _title: 'Delete Coupon'
+  requirements:
+    _permission: 'access content'
+    _role: 'reseller'
+  options:
+    _admin_route: TRUE
+    
+izi_credit.apply:
+  path: '/izi-credit/apply-coupon'
+  defaults:
+    _controller: '\Drupal\izi_credit\Controller\CouponController::applyCoupon'
+    _title: 'Apply Coupon'
+  requirements:
+    _permission: 'access content'
+   

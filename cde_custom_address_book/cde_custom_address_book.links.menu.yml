@@ -1,0 +1,13 @@
+cde_custom_address_book.shipping:
+  title: 'Shipping Address'
+  description: 'Manage Shipping Address'
+  parent: 'user.page_address_book'
+  route_name: 'cde_custom_address_book.shipping'
+  weight: 0
+
+cde_custom_address_book.billing:
+  title: 'Billing Address'
+  description: 'Manage Billing Address'
+  parent: 'user.page_address_book'
+  route_name: 'cde_custom_address_book.billing'
+  weight: 1

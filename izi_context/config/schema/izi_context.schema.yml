@@ -1,0 +1,7 @@
+condition.plugin.izi_context:
+  type: condition.plugin
+  label: 'IziContext condition'
+  mapping:
+    subtypes:
+      type: array
+      label: Subtypes

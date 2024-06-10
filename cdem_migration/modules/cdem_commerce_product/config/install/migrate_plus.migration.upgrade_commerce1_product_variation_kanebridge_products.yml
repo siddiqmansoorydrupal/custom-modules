@@ -1,0 +1,554 @@
+uuid: b79b5ce9-5429-44ae-89f4-903a0062e0b2
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_commerce1_product_variation_kanebridge_products
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Commerce
+  - Content
+migration_group: cde_product
+label: 'Commerce product variation (Kanebridge Products)'
+source:
+  plugin: commerce1_product
+  product_variation_type: kanebridge_products
+process:
+  variation_id:
+    -
+      plugin: get
+      source: product_id
+  revision_id:
+    -
+      plugin: get
+      source: revision_id
+  sku:
+    -
+      plugin: get
+      source: sku
+  title:
+    -
+      plugin: get
+      source: title
+  type:
+    -
+      plugin: get
+      source: type
+  language:
+    -
+      plugin: get
+      source: language
+  uid:
+    -
+      plugin: get
+      source: uid
+  status:
+    -
+      plugin: get
+      source: status
+  created:
+    -
+      plugin: get
+      source: created
+  changed:
+    -
+      plugin: get
+      source: changed
+  data:
+    -
+      plugin: get
+      source: data
+  price:
+    -
+      plugin: commerce1_migrate_commerce_price
+      source: commerce_price
+  commerce_price:
+    -
+      plugin: commerce1_migrate_commerce_price
+      source: commerce_price
+  field_tele_part:
+    -
+      plugin: get
+      source: field_tele_part
+  field_product_code:
+    -
+      plugin: get
+      source: field_product_code
+  field_description:
+    -
+      plugin: get
+      source: field_description
+  field_long_description:
+    -
+      plugin: get
+      source: field_long_description
+  field_domestic_import:
+    -
+      plugin: get
+      source: field_domestic_import
+  field_unit_of_measure:
+    -
+      plugin: get
+      source: field_unit_of_measure
+  field_quantity_per_box:
+    -
+      plugin: get
+      source: field_quantity_per_box
+  field_weight:
+    -
+      plugin: get
+      source: field_weight
+  field_live_item:
+    -
+      plugin: get
+      source: field_live_item
+  field_in_stock:
+    -
+      plugin: get
+      source: field_in_stock
+  field_product_field:
+    -
+      plugin: get
+      source: field_product_field
+  field_item_description:
+    -
+      plugin: get
+      source: field_item_description
+  field_product_subcategory:
+    -
+      plugin: get
+      source: field_product_subcategory
+  field_product_category:
+    -
+      plugin: get
+      source: field_product_category
+  field_category_taxonomy:
+    -
+      plugin: sub_process
+      source: field_category_taxonomy
+      process:
+        target_id: tid
+  field_product_size:
+    -
+      plugin: get
+      source: field_product_size
+  field_sort_size:
+    -
+      plugin: get
+      source: field_sort_size
+  field_5price:
+    -
+      plugin: commerce1_migrate_commerce_price
+      source: field_5price
+  field_global_sort:
+    -
+      plugin: get
+      source: field_global_sort
+  field_abnormal_head_diameter:
+    -
+      plugin: sub_process
+      source: field_abnormal_head_diameter
+      process:
+        target_id: tid
+  field_base_diameter:
+    -
+      plugin: get
+      source: field_base_diameter
+  field_blue_devil_item_no:
+    -
+      plugin: get
+      source: field_blue_devil_item_no
+  field_blue_devil_price:
+    -
+      plugin: get
+      source: field_blue_devil_price
+  field_body_material:
+    -
+      plugin: sub_process
+      source: field_body_material
+      process:
+        target_id: tid
+  field_cross_over:
+    -
+      plugin: sub_process
+      source: field_cross_over
+      process:
+        target_id: tid
+  field_cross_over_2:
+    -
+      plugin: sub_process
+      source: field_cross_over_2
+      process:
+        target_id: tid
+  field_cross_over_sub_sub_cat:
+    -
+      plugin: sub_process
+      source: field_cross_over_sub_sub_cat
+      process:
+        target_id: tid
+  field_date_added:
+    -
+      plugin: sub_process
+      source: field_date_added
+      process:
+        value:
+          plugin: format_date
+          from_format: 'Y-m-d H:i:s'
+          to_format: Y-m-d
+          source: value
+  field_diameter:
+    -
+      plugin: sub_process
+      source: field_diameter
+      process:
+        target_id: tid
+  field_distance_across_flats:
+    -
+      plugin: sub_process
+      source: field_distance_across_flats
+      process:
+        target_id: tid
+  field_drive:
+    -
+      plugin: sub_process
+      source: field_drive
+      process:
+        target_id: tid
+  field_external_sleeve:
+    -
+      plugin: sub_process
+      source: field_external_sleeve
+      process:
+        target_id: tid
+  field_finish:
+    -
+      plugin: sub_process
+      source: field_finish
+      process:
+        target_id: tid
+  field_grip_range:
+    -
+      plugin: get
+      source: field_grip_range
+  field_grip_range_taxonomy:
+    -
+      plugin: sub_process
+      source: field_grip_range_taxonomy
+      process:
+        target_id: tid
+  field_head_height:
+    -
+      plugin: get
+      source: field_head_height
+  field_head_style:
+    -
+      plugin: sub_process
+      source: field_head_style
+      process:
+        target_id: tid
+  field_hex_washer:
+    -
+      plugin: sub_process
+      source: field_hex_washer
+      process:
+        target_id: tid
+  field_inner_diameter:
+    -
+      plugin: sub_process
+      source: field_inner_diameter
+      process:
+        target_id: tid
+  field_internal_expander:
+    -
+      plugin: sub_process
+      source: field_internal_expander
+      process:
+        target_id: tid
+  field_length:
+    -
+      plugin: sub_process
+      source: field_length
+      process:
+        target_id: tid
+  field_material:
+    -
+      plugin: sub_process
+      source: field_material
+      process:
+        target_id: tid
+  field_metric_standard:
+    -
+      plugin: sub_process
+      source: field_metric_standard
+      process:
+        target_id: tid
+  field_metric_standard_:
+    -
+      plugin: sub_process
+      source: field_metric_standard_
+      process:
+        target_id: tid
+  field_military_specification:
+    -
+      plugin: sub_process
+      source: field_military_specification
+      process:
+        target_id: tid
+  field_name_overide:
+    -
+      plugin: sub_process
+      source: field_name_overide
+      process:
+        target_id: tid
+  field_national_aerospace_standar:
+    -
+      plugin: sub_process
+      source: field_national_aerospace_standar
+      process:
+        target_id: tid
+  field_outer_diameter:
+    -
+      plugin: sub_process
+      source: field_outer_diameter
+      process:
+        target_id: tid
+  field_pieces_per_lb:
+    -
+      plugin: get
+      source: field_pieces_per_lb
+  field_pin_material:
+    -
+      plugin: sub_process
+      source: field_pin_material
+      process:
+        target_id: tid
+  field_point:
+    -
+      plugin: get
+      source: field_point
+  field_point_type:
+    -
+      plugin: sub_process
+      source: field_point_type
+      process:
+        target_id: tid
+  field_price_break_1:
+    -
+      plugin: get
+      source: field_price_break_1
+  field_price_break_3:
+    -
+      plugin: get
+      source: field_price_break_3
+  field_product_category_taxonomy:
+    -
+      plugin: sub_process
+      source: field_product_category_taxonomy
+      process:
+        target_id: tid
+  field_product_size_taxonomy:
+    -
+      plugin: sub_process
+      source: field_product_size_taxonomy
+      process:
+        target_id: tid
+  field_qty_break_1:
+    -
+      plugin: get
+      source: field_qty_break_1
+  field_screw_material:
+    -
+      plugin: sub_process
+      source: field_screw_material
+      process:
+        target_id: tid
+  field_shaft_diameter:
+    -
+      plugin: sub_process
+      source: field_shaft_diameter
+      process:
+        target_id: tid
+  field_shank:
+    -
+      plugin: sub_process
+      source: field_shank
+      process:
+        target_id: tid
+  field_style:
+    -
+      plugin: sub_process
+      source: field_style
+      process:
+        target_id: tid
+  field_sub_sub_cat:
+    -
+      plugin: sub_process
+      source: field_sub_sub_cat
+      process:
+        target_id: tid
+  field_tab_base:
+    -
+      plugin: get
+      source: field_tab_base
+  field_tek_point:
+    -
+      plugin: sub_process
+      source: field_tek_point
+      process:
+        target_id: tid
+  field_thickness:
+    -
+      plugin: get
+      source: field_thickness
+  field_thickness_taxonomy:
+    -
+      plugin: sub_process
+      source: field_thickness_taxonomy
+      process:
+        target_id: tid
+  field_thread_length:
+    -
+      plugin: sub_process
+      source: field_thread_length
+      process:
+        target_id: tid
+  field_thread_pitch:
+    -
+      plugin: sub_process
+      source: field_thread_pitch
+      process:
+        target_id: tid
+  field_thread_type:
+    -
+      plugin: sub_process
+      source: field_thread_type
+      process:
+        target_id: tid
+  field_type:
+    -
+      plugin: sub_process
+      source: field_type
+      process:
+        target_id: tid
+  field_washer_material:
+    -
+      plugin: sub_process
+      source: field_washer_material
+      process:
+        target_id: tid
+  field_washer_outer_diameter:
+    -
+      plugin: sub_process
+      source: field_washer_outer_diameter
+      process:
+        target_id: tid
+  field_washer_type:
+    -
+      plugin: sub_process
+      source: field_washer_type
+      process:
+        target_id: tid
+  field_weight_per_um:
+    -
+      plugin: get
+      source: field_weight_per_um
+  field_weld_style:
+    -
+      plugin: sub_process
+      source: field_weld_style
+      process:
+        target_id: tid
+  field_wings:
+    -
+      plugin: sub_process
+      source: field_wings
+      process:
+        target_id: tid
+  field_solr_text:
+    -
+      plugin: get
+      source: field_solr_text
+  field_description_long_text:
+    -
+      plugin: get
+      source: field_description_long_text
+  field_field_title_alias_product:
+    -
+      plugin: get
+      source: field_field_title_alias_product
+  field_image_commerce_product:
+    -
+      plugin: sub_process
+      source: field_image_commerce_product
+      process:
+        target_id: fid
+        alt: alt
+        title: title
+        width: width
+        height: height
+  field_offline_item:
+    -
+      plugin: get
+      source: field_offline_item
+  field_eligible_customers:
+    -
+      plugin: get
+      source: field_eligible_customers
+  field_supplier_sku:
+    -
+      plugin: get
+      source: field_supplier_sku
+  field_supplier_cost:
+    -
+      plugin: commerce1_migrate_commerce_price
+      source: field_supplier_cost
+  field_supplier_reference:
+    -
+      plugin: get
+      source: field_supplier_reference
+  field_expiration_date:
+    -
+      plugin: sub_process
+      source: field_expiration_date
+      process:
+        value:
+          plugin: format_date
+          from_format: 'Y-m-d H:i:s'
+          to_format: Y-m-d
+          source: value
+  field_offline_item_status:
+    -
+      plugin: get
+      source: field_offline_item_status
+  field_part_cross_reference:
+    -
+      plugin: get
+      source: field_part_cross_reference
+  field_supplier_2:
+    -
+      plugin: get
+      source: field_supplier_2
+  field_supplier_2_sku:
+    -
+      plugin: get
+      source: field_supplier_2_sku
+  field_supplier_2_cost:
+    -
+      plugin: get
+      source: field_supplier_2_cost
+  field_metatag:
+    -
+      plugin: d7_metatag_entities
+      source: pseudo_metatag_entities
+destination:
+  plugin: 'entity:commerce_product_variation'
+  destination_module: commerce_product
+  default_bundle: kanebridge_products
+migration_dependencies:
+  required:
+    - upgrade_commerce1_product_variation_type
+  optional:
+    - upgrade_d7_field_instance

@@ -1,0 +1,6 @@
+name: IZI Ads
+type: module
+description: Provides functionality for google &amp; tiquets ads
+package: IZI
+core_version_requirement: ^9 || ^10
+configure: entity.izi_ads.collection

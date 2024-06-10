@@ -1,0 +1,4 @@
+administer izi object types:
+  title: 'Administer izi object types'
+  description: 'Maintain the types of izi object entity.'
+  restrict access: true

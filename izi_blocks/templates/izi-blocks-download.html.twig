@@ -1,0 +1,15 @@
+<div class="get-app-block strip strip--white">
+  <div class="contained">
+    <h2 class="promo__title strip__title">{{ 'Download the free izi.TRAVEL app'|t }}</h2>
+    <ul class="promo__download-links">
+      {% for link in links %}
+        <li>{{ link }}</li>
+      {% endfor %}
+    </ul>
+    <div class="promo__image__wrapper">
+      <a href="{{ drupal_url(drupal_config('izi_apicontent.app_settings', 'app_download_page')) }}">
+        <img alt="{{ 'Get App'|t }}" class="promo__image" src="{{ image_path }}" title="{{ 'Download app'|t }}">
+      </a>
+    </div>
+  </div>
+</div>

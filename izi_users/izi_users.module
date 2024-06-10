@@ -1,0 +1,72 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * For adding additional submit handelar to save profile field into cognito.
+ * 
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * @param $form_id
+ */
+function izi_users_form_user_form_alter(&$form, FormStateInterface $form_state) {
+  $access_token = \Drupal::service('cognito.token')->getAccessToken();
+  $response = \Drupal::service('cognito.aws')->getUser($access_token);
+  //$user_data = userAttributeFormatter($response);
+  if (!empty($user_data)) {
+    // Add default value into form field.
+  }
+
+  //https://izi.auth.eu-west-1.amazoncognito.com/login?response_type=code&client_id=7hgt7dtarq26ej9vokmooq7mu0&redirect_uri=http://localhost:8080/web/mo_login
+  /*
+  $base_url = 'https://izi.auth.eu-west-1.amazoncognito.com';
+  $response = \Drupal::httpClient()->post($base_url . '/oauth2/token', [
+    'verify' => true,
+    'form_params' => [
+      'grant_type'=> 'authorization_code',
+      'client_id' => '7hgt7dtarq26ej9vokmooq7mu0',
+      'code'=> 'a236ccc3-c2d0-4bdd-be4b-139f859ccb9e',
+      'redirect_uri'=> 'http://localhost:8080/web/mo_login',
+    ],
+    'headers' => [
+      'Content-type' => 'application/x-www-form-urlencoded',
+      'Authorization' => 'Basic N2hndDdkdGFycTI2ZWo5dm9rbW9vcTdtdTA6MTR1bWpib3E1N2ZybXMwMnFyZjNlamRjMGY4MGowNWhsZm5oZmRnYmRtOTMzMjMzMGRuag==',  // base64(clintid:client secret)
+    ],
+  ])->getBody()->getContents();
+  */
+  
+  $form['#validate'][] = 'izi_users_submit_handler';
+}
+
+/**
+ * Save user profile field to cognito.
+ */
+function izi_users_submit_handler($form, FormStateInterface $form_state) {
+  $user_entity = $form_state->getFormObject()->getEntity();
+  $field_phone = $form_state->getValue('field_phone');
+  $field_name = $form_state->getValue('field_name');
+  $accessToken = \Drupal::service('cognito.token')->getAccessToken();
+  $attributes['phone_number'] = $field_phone[0]['value'];
+  $attributes['name'] = $field_name[0]['value'];
+  $result = \Drupal::service('cognito.aws')->updateUserAttributes($accessToken, formatAttributes($attributes));
+  if ($result->hasError()) {
+    /*$form_state->setErrorByName('field_phone', t($result->getError()));*/
+  }
+}
+
+/**
+ * Format attributes in Name/Value array
+ * 
+ * @param  array $attributes
+ * @return array
+ */
+function formatAttributes(array $attributes) {
+  $userAttributes = [];
+  foreach ($attributes as $key => $value) {
+    $userAttributes[] = [
+      'Name' => $key,
+      'Value' => $value,
+    ];
+  }
+  return $userAttributes;
+}

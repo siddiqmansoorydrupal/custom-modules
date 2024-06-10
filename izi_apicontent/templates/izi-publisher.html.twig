@@ -1,0 +1,108 @@
+<div class="browse-page browse-page--publisher">
+  <div class="brand-head-block">
+    <div class="brand-head-container">
+      <div class="brand-head-image" style="background-image: url('{{ brand_cover_url }}');"></div>
+      <div class="brand-head-information" style="background-image: url('{{ brand_cover_url }}');">
+        <div class="brand-head-information-container">
+          <div class="brand-head-information-all{% if not summary %}' without-description'{% endif %}">
+            <div class="brand-head-information-all-container">
+              <div class="brand-head-information-all-middle">
+                <img class="brand-head-information-logo" src="{{ brand_logo_url }}">
+                <div class="brand-head-information-website" data-role="enableDotdotdot">
+                  <a href="{{ website_url }}" class="brand-head-information-link" data-role="external_link" target="_blank">
+                    {{ website_url }}
+                  </a>
+                </div>
+                <div class="tooltip-wrapper tooltip-top">
+                  <h1 class="brand-head-information-title data-tooltip" data-role="enableDotdotdot" title="{{ title_attribute }}">
+                    {{ title }}
+                  </h1>
+                </div>
+                {% if summary %}
+                  <div class="tooltip-wrapper tooltip-top">
+                    <div class="brand-head-information-short-description data-tooltip" data-role="enableDotdotdot" title="{{ summary }}">
+                      {{ summary }}
+                    </div>
+                  </div>
+                {% endif %}
+
+                {% if description %}
+                  <div class="brand-head-information-more">
+                    <a class="brand-head-information-link" data-role="brandHeadOpen">
+                      {{ 'More information'|t }}
+                    </a>
+                  </div>
+                {% endif %}
+
+                {% if facebook_url or twitter_url or google_plus_url or instagram_url or youtube_url or vkontakte_url %}
+                  <div class="brand-head-information-follow">
+                    <div class="brand-head-information-follow-title">
+                      {{ 'Follow us'|t }}
+                    </div>
+                    <div class="brand-head-information-follow-container">
+                      {% if facebook_url %}
+                        <a href="{{ facebook_url }}" class="brand-head-information-follow-item--facebook" data-role="external_link" target="_blank" title="Facebook"></a>
+                      {% endif %}
+
+                      {% if twitter_url %}
+                        <a href="{{ twitter_url }}" class="brand-head-information-follow-item--twitter" data-role="external_link" target="_blank" title="Twitter"></a>
+                      {% endif %}
+
+                      {% if google_plus_url %}
+                        <a href="{{ google_plus_url }}" class="brand-head-information-follow-item--google" data-role="external_link" target="_blank" title="Google plus"></a>
+                      {% endif %}
+
+                      {% if instagram_url %}
+                        <a href="{{ instagram_url }}" class="brand-head-information-follow-item--instagram" data-role="external_link" target="_blank" title="Instragram"></a>
+                      {% endif %}
+
+                      {% if youtube_url %}
+                        <a href="{{ youtube_url }}" class="brand-head-information-follow-item--youtube" data-role="external_link" target="_blank" title="Youtube"></a>
+                      {% endif %}
+
+                      {% if vkontakte_url %}
+                        <a href="{{ vkontakte_url }}" class="brand-head-information-follow-item--vkontakte" data-role="external_link" target="_blank" title="Vkontakte"></a>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="brand-head-information-description">
+            <div class="brand-head-information-description-close" data-role="brandHeadClose"></div>
+            <div class="brand-head-information-description-wrapper">
+              <div class="brand-head-information-description-container">
+                <div class="brand-head-information-description-text">
+                  <p>
+                    {{ description }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="language-wrapper">
+    {{ language_selector }}
+  </div>
+
+  <div class="content-wrapper">
+    <div class="content">
+      <div class="s-output" data-role="s-output">
+        <div class="s-output-block" data-role="s-output-block">
+          <div class="s-output-results-wrapper">
+            {{ publisher_content }}
+          </div>
+        </div>
+        <div class="text-center mb25" data-role="s-output-show-more-block">
+          {{ more_button }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

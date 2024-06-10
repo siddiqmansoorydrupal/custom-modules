@@ -1,0 +1,660 @@
+<?php
+
+/**
+ * @file
+ * Serves content from the izi.travel API.
+ */
+
+/**
+ * The 'Any language' string.
+ *
+ * @var string
+ */
+
+use Drupal\Core\Url;
+use Drupal\Core\Render\RendererInterface;
+use Drupal\commerce_price\Entity\Currency;
+
+const IZI_APICONTENT_LANGUAGE_ANY = 'any';
+
+/**
+ * Preferred content language languages in descending order.
+ *
+ * @var string
+ */
+// @todo (legacy) in het request moet 'any' meegestuurd worden.
+// Note that other processes rely on a list of all available languages.
+// define('IZI_APICONTENT_LANGUAGE_FALLBACK', 'any');
+const IZI_APICONTENT_LANGUAGE_FALLBACK = 'en ru fr nl sv it de es pt cs fi ro tr ja zh ko hy be he hi sl hr hu da uk el pl et ka vi kk ar lt az bg no lv tt ca eu aa ab ae af ak am an as av ay ba bh bi bm bn bo br bs ce ch co cr cv cy dv dz ee eo fa ff fj fo fy ga gd gl gn gu gv ha ho ht hz ia id ie ig ii ik io is iu jv kg ki kj kl km kn kr ks ku kv kw ky la lb lg li ln lo lu mg mh mi mk ml mn mr ms mt my na nb nd ne ng nn nr nv ny oc oj om or os pa pi ps qu rm rn rw sa sc sd se sg si sk sm sn so sq sr ss st su sw ta te tg th ti tk tl tn to ts tw ty ug ur uz ve vo wa wo xh yi yo za zu';
+
+/**
+ * API content type for city data.
+ *
+ * @var string
+ */
+const IZI_APICONTENT_TYPE_CITY = 'city';
+
+/**
+ * API content type for country data.
+ *
+ * @var string
+ */
+const IZI_APICONTENT_TYPE_COUNTRY = 'country';
+
+/**
+ * API content type for publisher data.
+ *
+ * @var string
+ */
+const IZI_APICONTENT_TYPE_PUBLISHER = 'publisher';
+
+/**
+ * API content type for tour or museum data.
+ *
+ * @var string
+ */
+const IZI_APICONTENT_TYPE_MTG_OBJECT = 'mtg_object';
+
+/**
+ * The number of tour stops to show on tours page on each ajax load.
+ *
+ * @var int
+ */
+const IZI_APICONTENT_TOURIST_ATTRACTIONS_CONTENT_AMOUNT = 12;
+
+/**
+ * The number of contents to show on publisher page on each ajax load.
+ *
+ * @var int
+ */
+const IZI_APICONTENT_PUBLISHER_CONTENT_AMOUNT = 12;
+
+/**
+ * API sub type for museum data.
+ *
+ * @var string
+ */
+const IZI_APICONTENT_SUB_TYPE_MUSEUM = 'museum';
+
+/**
+ * API sub type for tour data.
+ *
+ * @var string
+ */
+const IZI_APICONTENT_SUB_TYPE_TOUR = 'tour';
+
+/**
+ * API sub type for tourist attraction data.
+ *
+ * @var string
+ */
+const IZI_APICONTENT_SUB_TYPE_TOURIST_ATTRACTION = 'tourist_attraction';
+
+/**
+ * API sub type for exhibit data.
+ *
+ * @var string
+ */
+const IZI_APICONTENT_SUB_TYPE_EXHIBIT = 'exhibit';
+
+/**
+ * API sub type for collection data.
+ *
+ * @var string
+ */
+const IZI_APICONTENT_SUB_TYPE_COLLECTION = 'collection';
+
+/**
+ * API Image type map.
+ *
+ * @var string
+ */
+const IZI_APICONTENT_IMAGE_TYPE_MAP = 'map';
+
+/**
+ * API content type for tour or museum data.
+ *
+ * @var string
+ */
+const IZI_APICONTENT_TYPE_MTG_OBJECT_TYPES = [
+  'children',
+  'collections',
+  'publisher',
+  'news',
+  'references',
+];
+
+/**
+ * API content type for tour or museum data.
+ *
+ * @var string
+ */
+const IZI_APICONTENT_TYPE_MTG_OBJECT_INCLUDES = [
+  'city',
+  'country',
+  'translations',
+];
+
+/**
+ * Implements hook_theme().
+ */
+function izi_apicontent_theme($existing, $type, $theme, $path) {
+
+  $lazyload_placeholder = base_path()
+    . \Drupal::service('extension.list.module')->getPath('izi_apicontent')
+    . '/img/white.gif';
+
+  $theme_hooks = [
+
+    // @todo (legacy) Old theme item. Remove when izitravel-new is gone.
+    'izi_audioplayer' => [
+      'template' => 'izi-audioplayer',
+      'variables' => [
+        'url' => '',
+        'audio_uuid' => '',
+        'parent_uuid' => '',
+        'app_url' => '',
+      ],
+    ],
+    'izi_audioplayer_jplayer' => [
+      'template' => 'izi-audioplayer-jplayer',
+      'variables' => [
+        'url' => '',
+        'uuid' => '',
+      ],
+    ],
+    // @todo (legacy) Old theme item. Remove when izitravel-new is gone.
+    'izi_audioplayer_paid' => [
+      'template' => 'izi-audioplayer-paid',
+      'variables' => [
+        'app_url' => '',
+      ],
+    ],
+    'izi_audioplayer_jplayer_paid' => [
+      'template' => 'izi-audioplayer-jplayer-paid',
+      'variables' => [
+        'app_url' => '',
+        'purchased_link' => '',
+        'login_link' => '',
+        'add_to_coupons_url' => '',
+      ],
+    ],
+
+    'izi_home' => [
+      'template' => 'izi-home',
+      'variables' => [
+        'slogan' => '',
+        'featured_content_desktop' => [],
+        'featured_content_mobile' => [],
+        'search_button' => '',
+        'app_button' => '',
+        'create_button' => '',
+        'download_app_block_title' => '',
+        'home_page_main_image' => '',
+      ],
+    ],
+
+    'izi_collections' => [
+      'template' => 'izi-collections',
+      'variables' => [
+        'title' => '',
+        'collections' => '',
+        'img_placeholder' => $lazyload_placeholder,
+      ],
+    ],
+    'izi_collection_children' => [
+      'template' => 'izi-collection-children',
+      'variables' => [
+        'title' => '',
+        'description' => '',
+        'description_audio' => '',
+        'children' => '',
+        'first_has_audio' => TRUE,
+        'brand_modifier' => 'default',
+        'img_placeholder' => $lazyload_placeholder,
+        'video' => '',
+      ],
+    ],
+
+    'izi_children' => [
+      'template' => 'izi-children',
+      'variables' => [
+        'title' => '',
+        'sub_title' => '',
+        'children' => '',
+        'brand_modifier' => 'default',
+        'img_placeholder' => $lazyload_placeholder,
+      ],
+    ],
+
+    'izi_featured_content' => [
+      'template' => 'izi-featured-content',
+      'variables' => [
+        'title' => [],
+        'featured_items' => [],
+        'load_more' => [],
+      ],
+    ],
+    'izi_featured_mtg_object' => [
+      'template' => 'izi-featured-mtg-object',
+      'variables' => [
+        'title' => '',
+        'url' => '',
+        'zebra_class' => '',
+        'image_url' => '',
+        'country_link' => '',
+        'city_link' => '',
+        'object_type' => '',
+        'content_provider' => '',
+      ],
+    ],
+    'izi_featured_main_city' => [
+      'template' => 'izi-featured-main-city',
+      'variables' => [
+        'name' => '',
+        'description' => '',
+        'link_path' => '',
+        'image_url' => '',
+      ],
+    ],
+    'izi_featured_city' => [
+      'template' => 'izi-featured-city',
+      'variables' => [
+        'name' => '',
+        'description' => '',
+        'link_path' => '',
+        'image_url' => '',
+      ],
+    ],
+
+    'izi_imagegallery' => [
+      'template' => 'izi-imagegallery',
+      'variables' => [
+        'images' => [],
+        'placeholder' => '',
+        'lazy' => TRUE,
+        'id' => '',
+      ],
+    ],
+
+    'izi_mtg_object' => [
+      'template' => 'izi-mtg-object',
+      'variables' => [
+        'title' => '',
+        'title_attribute' => '',
+        'is_free' => TRUE,
+        'uuid' => '',
+        'images' => '',
+        'header_image' => '',
+        'app_url' => '',
+        'language' => '',
+        'language_selector' => '',
+        'audioplayer' => '',
+        'description' => '',
+        'news' => '',
+        'latitude' => '',
+        'longitude' => '',
+        'address' => '',
+        'city' => '',
+        'city_path' => '',
+        'country' => '',
+        'opening' => '',
+        'timezone_id' => '',
+        'gmt_offset' => '',
+        'website' => '',
+        'publisher' => '',
+        'collections' => '',
+        'sponsors' => [],
+        'museum_tours' => [],
+        'children' => '',
+        'mtg_type' => '',
+        'brand_modifier' => 'default',
+        'izi_blocks_download_small' => '',
+        'reviews' => '',
+        'number_of_reviews_text' => '',
+        'reviews_score' => '',
+        'googleapi_key' => '',
+        'server_protocol' => 'http',
+        'related_content' => '',
+        'app_button' => '',
+        'video' => '',
+        'qr_code' => '',
+      ],
+    ],
+    'izi_mtg_collection' => [
+      'template' => 'izi-mtg-collection',
+      'path' => $path . '/templates',
+      'variables' => [
+        'title' => '',
+        'title_attribute' => '',
+        'is_free' => TRUE,
+        'uuid' => '',
+        'images' => '',
+        'header_image' => '',
+        'app_url' => '',
+        'museum_path' => '',
+        'language' => '',
+        'language_selector' => '',
+        'audioplayer' => '',
+        'description' => '',
+        'country' => '',
+        'publisher' => '',
+        'collections' => '',
+        'museum_tours' => [],
+        'children' => '',
+        'mtg_type' => '',
+        'brand_modifier' => 'default',
+        'izi_blocks_download_small' => '',
+        'reviews' => '',
+        'number_of_reviews_text' => '',
+        'reviews_score' => '',
+        'googleapi_key' => '',
+        'app_button' => '',
+      ],
+    ],
+    'izi_mtg_tour' => [
+      'template' => 'izi-mtg-tour',
+      'variables' => [
+        'title' => '',
+        'title_attribute' => '',
+        'is_free' => TRUE,
+        'uuid' => '',
+        'images' => '',
+        'header_image' => '',
+        'app_url' => '',
+        'museum_path' => '',
+        'language' => '',
+        'language_selector' => '',
+        'audioplayer' => '',
+        'description' => '',
+        'country' => '',
+        'publisher' => '',
+        'collections' => '',
+        'museum_tours' => [],
+        'tourstops' => '',
+        'sponsors' => [],
+        'mtg_type' => '',
+        'brand_modifier' => 'default',
+        'izi_blocks_download_small' => '',
+        'reviews' => '',
+        'number_of_reviews_text' => '',
+        'reviews_score' => '',
+        'map' => [],
+        'related_content' => '',
+        'app_button' => '',
+        'videos' => '',
+        'qr_code' => '',
+        'add_to_coupons_url' => '',
+      ],
+    ],
+    'izi_mtg_tour_quest' => [
+      'template' => 'izi-mtg-tour-quest',
+      'variables' => [
+        'title' => '',
+        'title_attribute' => '',
+        'is_free' => TRUE,
+        'uuid' => '',
+        'images' => '',
+        'header_image' => '',
+        'app_url' => '',
+        'museum_path' => '',
+        'language' => '',
+        'language_selector' => '',
+        'audioplayer' => '',
+        'description' => '',
+        'latitude' => '',
+        'longitude' => '',
+        'address' => '',
+        'city' => '',
+        'city_path' => '',
+        'country' => '',
+        'publisher' => '',
+        'collections' => '',
+        'museum_tours' => [],
+        'tourstops' => '',
+        'sponsors' => [],
+        'mtg_type' => '',
+        'brand_modifier' => 'default',
+        'izi_blocks_download_small' => '',
+        'reviews' => '',
+        'number_of_reviews_text' => '',
+        'reviews_score' => '',
+        'map' => [],
+        'quest_message' => '',
+        'googleapi_key' => '',
+        'server_protocol' => 'http',
+        'related_content' => '',
+        'app_button' => '',
+        'video' => '',
+        'qr_code' => '',
+        'add_to_coupons_url' => '',
+      ],
+    ],
+    'izi_museum_audiotours' => [
+      'template' => 'izi-museum-audiotours',
+      'variables' => [
+        'title' => '',
+        'audiotours' => [],
+        'img_placeholder' => $lazyload_placeholder,
+      ],
+    ],
+
+    'izi_openinghours' => [
+      'template' => 'izi-mtg-object-openinghours',
+      'variables' => [
+        'openinghours' => [],
+      ],
+    ],
+
+    'izi_publisher' => [
+      'template' => 'izi-publisher',
+      'variables' => [
+        'brand_logo_url' => '',
+        'brand_cover_url' => '',
+        'language' => '',
+        'language_selector' => '',
+        'summary' => '',
+        'description' => '',
+        'title' => '',
+        'title_attribute' => '',
+        'website_url' => '',
+        'facebook_url' => '',
+        'twitter_url' => '',
+        'google_plus_url' => '',
+        'instagram_url' => '',
+        'youtube_url' => '',
+        'vkontakte_url' => '',
+        'publisher_content' => [],
+        'more_button' => [],
+      ],
+    ],
+    'izi_publisher_bar' => [
+      'template' => 'izi-publisher-bar',
+      'variables' => [
+        'bar_prefix' => t('Provided by'),
+        'title' => '',
+        'description' => '',
+        'image' => '',
+        'button_label' => t('View all guides'),
+        'url' => '',
+        'brand_modifier' => 'default',
+      ],
+    ],
+
+    'izi_tour_children' => [
+      'template' => 'izi-tour-children',
+      'variables' => [
+        'title' => '',
+        'description' => '',
+        'audioplayer' => '',
+        'children' => '',
+        'brand_modifier' => 'default',
+        'img_placeholder' => $lazyload_placeholder,
+        'video' => '',
+      ],
+    ],
+    'izi_tour_children_list' => [
+      'template' => 'izi-tour-children-list',
+      'variables' => [
+        'children' => '',
+        'img_placeholder' => $lazyload_placeholder,
+      ],
+    ],
+    'izi_apicontent_tour_stop_ajax' => [
+      'template' => 'izi-apicontent-tour-stop-ajax',
+      'path' => $path . '/templates',
+      'variables' => [
+        'details' => NULL,
+        'previous_id' => NULL,
+        'next_id' => NULL,
+      ],
+    ],
+	'izi_apicontent_currency_modal' => [
+      'variables' => ['items' => []],
+    ],
+  ];
+
+
+
+  // Separate but similar template for child MTG objects.
+  $theme_hooks['izi_mtg_object_child'] = [
+    'template' => 'izi-mtg-object-child',
+  ] + $theme_hooks['izi_mtg_object'];
+
+  // Separate but similar template for child exhibit object.
+  $theme_hooks['izi_mtg_object_child_exhibit'] = $theme_hooks['izi_mtg_object_child'];
+  $theme_hooks['izi_mtg_object_child_exhibit']['template'] = 'izi-mtg-object-child-exhibit';
+  $theme_hooks['izi_mtg_object_child_exhibit']['variables']['image'] = '';
+  $theme_hooks['izi_mtg_object_child_exhibit']['variables']['next_id'] = '';
+  $theme_hooks['izi_mtg_object_child_exhibit']['variables']['previous_id'] = '';
+  $theme_hooks['izi_mtg_object_child_exhibit']['variables']['share_url'] = '';
+
+  // Separate but similar template for child tour object.
+  $theme_hooks['izi_mtg_object_child_tour'] = $theme_hooks['izi_mtg_object_child'];
+  $theme_hooks['izi_mtg_object_child_tour']['template'] = 'izi-mtg-object-child-tour';
+  $theme_hooks['izi_mtg_object_child_tour']['variables']['image'] = '';
+  $theme_hooks['izi_mtg_object_child_tour']['variables']['next_id'] = '';
+  $theme_hooks['izi_mtg_object_child_tour']['variables']['previous_id'] = '';
+
+  // Separate but similar template for child tour object.
+  $theme_hooks['izi_mtg_object_child_tour_save'] = $theme_hooks['izi_mtg_object_child'];
+  $theme_hooks['izi_mtg_object_child_tour_save']['template'] = 'izi-mtg-object-child-tour-save';
+  $theme_hooks['izi_mtg_object_child_tour_save']['variables']['image'] = '';
+  $theme_hooks['izi_mtg_object_child_tour_save']['variables']['next_id'] = '';
+  $theme_hooks['izi_mtg_object_child_tour_save']['variables']['previous_id'] = '';
+  $theme_hooks['izi_mtg_object_child_tour_save']['variables']['share_url'] = '';
+  return $theme_hooks;
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function izi_apicontent_preprocess_breadcrumb(&$variables) {
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function izi_apicontent_preprocess_izi_mtg_object(&$variables) {
+
+  $languagecode = \Drupal::service('izi_apicontent.language_service')
+    ->get_interface_language();
+  $app_url = "/$languagecode/app";
+  $variables['app_url'] = $app_url;
+}
+
+/**
+ *
+ */
+function izi_apicontent_get_uuid_from_url() {
+  $route_params = \Drupal::routeMatch()->getParameters()->all();
+  $route_name = \Drupal::routeMatch()->getRouteName();
+  $uuid = $route_params["uuid"];
+  switch ($route_name) {
+    case 'izi_apicontent.browse':
+      $type = IZI_APICONTENT_TYPE_MTG_OBJECT;
+      break;
+
+    case 'izi_search.city':
+      $type = IZI_APICONTENT_TYPE_CITY;
+      break;
+
+    case 'izi_search.country':
+      $type = IZI_APICONTENT_TYPE_COUNTRY;
+      break;
+
+    case 'izi_apicontent.browse.publishers':
+      $type = IZI_APICONTENT_TYPE_PUBLISHER;
+  }
+
+  return [$uuid, $type];
+}
+
+/**
+ * Implements hook_language_switch_links_alter().
+ *
+ * Language Switcher dropdown will filter out custom routes unless we give them
+ * an explicit URL. If the route is current & belongs to this module, we build
+ * the URL ourselves.
+ */
+function izi_apicontent_language_switch_links_alter(array &$links, $type, Url $url) {
+  $currentRouteName = Drupal::routeMatch()->getRouteName();
+  if (strpos($currentRouteName, 'izi_apicontent') === 0) {
+    foreach ($links as $lang_code => &$link) {
+      if ($link['url']->getRouteName() == '<current>') {
+        $url = Url::createFromRequest(Drupal::request());
+        $url->setRouteParameter('language', $lang_code);
+        $link['url'] = $url;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function izi_apicontent_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // Check if it's the payment form.
+  if ($form_id == 'commerce_checkout_flow_multistep_default') {	
+    // Load the block plugin.
+    /*$block = \Drupal\block\Entity\Block::load('izi_travel_currencyblock');
+    // Render the block content.
+    $block_content = \Drupal::entityTypeManager()
+      ->getViewBuilder('block')
+      ->view($block);
+    // Get the renderer service.
+    $renderer = \Drupal::service('renderer');
+    // Embed the block content into the payment form.
+    $form['payment']['currency_block'] = [
+      '#markup' => $renderer->render($block_content),
+    ];*/
+	
+	
+	// Get the selected currency code and symbol.
+    $selected_currency_code = \Drupal::service('commerce_currency_resolver.current_currency')->getCurrency();
+    $selected_currency = Currency::load($selected_currency_code);
+    // Get the currency symbol.
+    $selected_currency_symbol = $selected_currency->getSymbol();
+
+    // Add currency switcher hyperlink to the payment form.
+    $form['payment']['currency_switcher'] = [
+      '#type' => 'link',
+      '#title' => t('Selected Currency : '.$selected_currency_code.' ( '.$selected_currency_symbol.' )'),
+      '#url' => Url::fromRoute('izi_apicontent.currency_modal'),
+      '#attributes' => ['class' => ['use-ajax']],
+      '#attached' => [
+        'library' => ['core/drupal.dialog.ajax'],
+      ],
+    ];
+
+    
+
+    // Add the currency switcher section after the total.
+    $form['payment']['total']['#prefix'] = '<div class="currency-switcher-wrapper">';
+    $form['payment']['total']['#suffix'] = '</div>';
+
+    // Make sure to include the currency switcher section within the wrapper.
+    $form['payment']['total']['currency_switcher'] = $form['payment']['currency_switcher'];
+    unset($form['payment']['currency_switcher']);
+  }
+}

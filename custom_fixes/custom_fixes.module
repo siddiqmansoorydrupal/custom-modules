@@ -1,0 +1,2018 @@
+<?php
+
+/**
+ * @file
+ * Contains custom_fixes.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\custom_fixes\Functions;
+use Drupal\views\ViewExecutable;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\commerce_product\Entity\Product;
+use Drupal\Core\Url;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\views\Plugin\views\query\QueryPluginBase;
+use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
+use Drupal\physical\Weight;
+use Drupal\physical\WeightUnit;
+use Drupal\commerce_shipping\ShipmentItem;
+use Drupal\commerce_shipping\Entity\Shipment;
+use Drupal\profile\Entity\Profile;
+use Drupal\Core\File\FileSystemInterface;
+use Drupal\user\Entity\User;
+use \Drupal\Core\Link;
+use Drupal\commerce_order\Entity\Order;
+use Drupal\Component\Render\FormattableMarkup;
+
+/**
+ * Implements hook_help().
+ */
+function custom_fixes_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+      // Main module help for the custom_fixes module.
+    case 'help.page.custom_fixes':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Module to fix errors or show errors') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implement hook_entity_presave
+ */
+function custom_fixes_entity_presave(\Drupal\Core\Entity\EntityInterface $entity) {
+  if ($entity->getEntityTypeId() == "feeds_feed" && $entity->bundle() == 'extended_kanebridge_product_impo') {
+    $config = $entity->config->getValue();
+    $title = $entity->label();
+    $uid = $entity->getOwnerId();
+    $source = $entity->source->getValue();
+    $source = isset($source[0]['value']) ? $source[0]['value'] : null;
+    $variant_feeds = $entity->field_variants_importer->referencedEntities();
+    $variant_feed = null;
+    if (count($variant_feeds) == 0) {
+      $variant_feed = \Drupal\feeds\Entity\Feed::create([
+        'type'        => 'master_kanebridge_variant_import',
+      ]);
+    }
+    else {
+      $variant_feed = reset($variant_feeds);
+    }
+    $variant_feed->set('title', $title . ' _variants');
+    $variant_feed->set('uid', $uid);
+    $variant_feed->config->setValue($config);
+    $variant_feed->source->setValue($source);
+    $variant_feed->save();
+    $entity->field_variants_importer->setValue(['target_id' => $variant_feed->id()]);
+  }
+}
+
+/**
+ * Implement hook_preprocess_breadcrumb
+ */
+function custom_fixes_preprocess_breadcrumb(&$variables) {
+  global $product_navigation_terms_parent;
+
+  if (isset($variables['breadcrumb'][0]) && strpos($variables['breadcrumb'][0]['url'], "/order-online") !== false) {
+    if ($product_navigation_terms_parent != null) {
+      if ($product_navigation_terms_parent->value[0] != null) {
+        $variables['#cache']['contexts'][] = 'url';
+        $term = Term::load($product_navigation_terms_parent->value[0]);
+        $crumbs = Functions::termBreadCrumb($term, [], true);
+        $crumbs[] = ["text" => "Products", "url" => "/order-online"];
+        $breadcrumb = array_reverse($crumbs);
+        $last_element_key = count($breadcrumb) -1;
+        $breadcrumb[$last_element_key]['url'] = '';
+        $variables['breadcrumb'] = $breadcrumb;
+      }
+    }
+    else {
+      $current_path = \Drupal::service('path.current')->getPath();
+      $arg = explode('/', $current_path);
+
+      if ($arg[1] == 'order-online' && isset($arg[2]) && !isset($arg[3])) {
+        $crumbs_value = strtolower(str_replace('-', ' ', $arg[2]));
+        $properties = [];
+        $properties['name'] = $crumbs_value;
+        $properties['vid'] = 'products';
+        $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties($properties);
+        $term = reset($terms);
+        $crumbs = Functions::termBreadCrumb($term, [], true);
+        $crumbs[] = ["text" => "Products", "url" => "/order-online"];
+        $breadcrumb = array_reverse($crumbs);
+        $last_element_key = count($breadcrumb) -1;
+        $breadcrumb[$last_element_key]['url'] = '';
+        $variables['breadcrumb'] = $breadcrumb;
+      }
+      if ($arg[1] == 'order-online' && is_numeric($arg[3])) {
+        $query = \Drupal::entityQuery('commerce_product');
+        $query->condition('field_tele_part', $arg[3]);
+        //$query->condition('status', 1);
+        $product_ids = $query->accessCheck(FALSE)->execute();
+        $productID = reset($product_ids);
+        $product = \Drupal\commerce_product\Entity\Product::load($productID);
+        $crumbs_value = strtolower(str_replace('-', ' ', $arg[2]));
+        $properties = [];
+        $properties['name'] = $crumbs_value;
+        $properties['vid'] = 'products';
+        $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties($properties);
+        $term = reset($terms);
+        $crumbs = Functions::termBreadCrumb($term, [], true);
+        $crumbs[] = ["text" => "Products", "url" => "/order-online"];
+        $breadcrumb = array_reverse($crumbs);
+        //$last_element_key = count($breadcrumb) -1;
+        if ($product->hasField('field_product_size')) {
+          $product_size = $product->get('field_product_size')->getString();
+          if (!empty($product_size)) {
+            $breadcrumb[] = ["text" => $product->get('field_product_size')->getString(), "url" => ""];
+            //$last_element_key = count($breadcrumb) -2;
+          }
+        }
+        //$breadcrumb[$last_element_key]['url'] = '';
+        $variables['breadcrumb'] = $breadcrumb;
+      }
+    }
+  }
+  // Shopping cart page.
+  $route_name = \Drupal::routeMatch()->getRouteName();
+  if ($route_name == 'commerce_cart.page') {
+    $breadcrumb[0]['text'] = 'Home';
+    $breadcrumb[0]['url'] = '../';
+    $breadcrumb[1]['text'] = 'Shopping Cart';
+    $breadcrumb[1]['url'] = '';
+    $variables['breadcrumb'] = $breadcrumb;
+  }
+
+  if ($route_name == 'custom_fixes.ananymous_download' ) {
+    $breadcrumb[0]['text'] = 'Home';
+    $breadcrumb[0]['url'] = '../';
+    $breadcrumb[1]['text'] = 'File Download';
+    $breadcrumb[1]['url'] = '';
+    $variables['breadcrumb'] = $breadcrumb;
+  }
+
+  $current_path = \Drupal::service('path.current')->getPath();
+  $arg = explode('/', $current_path);
+  // Order Information page for the checkout.
+  if ($arg[1] == 'checkout' && is_numeric($arg[2]) && $arg[3] == 'order_information') {
+    $breadcrumb_id=0;
+
+    $breadcrumb[$breadcrumb_id]['text'] = 'Home';
+    $breadcrumb[$breadcrumb_id]['url'] = '../';
+    $breadcrumb_id++;
+
+    $breadcrumb[$breadcrumb_id]['text'] = 'Shopping Cart';
+    $breadcrumb[$breadcrumb_id]['url'] = '/cart';
+    $breadcrumb_id++;
+
+    if (!\Drupal::currentUser()->isAuthenticated()) {
+      $breadcrumb[$breadcrumb_id]['text'] = 'Login';
+      $breadcrumb[$breadcrumb_id]['url'] = '/'.$arg[1].'/'.$arg[2].'/login';
+      $breadcrumb_id++;
+    }
+
+    $breadcrumb[$breadcrumb_id]['text'] = 'Checkout';
+    $breadcrumb[$breadcrumb_id]['url'] = '';
+    $breadcrumb_id++;
+    $variables['breadcrumb'] = $breadcrumb;
+  }
+
+  // Order Review Page.
+  if ($arg[1] == 'checkout' && is_numeric($arg[2]) && $arg[3] == 'review') {
+    $checkout_url = '/checkout/' . $arg[2] .'/order_information';
+    $breadcrumb_id=0;
+
+    $breadcrumb[$breadcrumb_id]['text'] = 'Home';
+    $breadcrumb[$breadcrumb_id]['url'] = '../';
+    $breadcrumb_id++;
+
+    $breadcrumb[$breadcrumb_id]['text'] = 'Shopping Cart';
+    $breadcrumb[$breadcrumb_id]['url'] = '/cart';
+    $breadcrumb_id++;
+
+    if (!\Drupal::currentUser()->isAuthenticated()) {
+      $breadcrumb[$breadcrumb_id]['text'] = 'Login';
+      $breadcrumb[$breadcrumb_id]['url'] = '/'.$arg[1].'/'.$arg[2].'/login';
+      $breadcrumb_id++;
+    }
+    $breadcrumb[$breadcrumb_id]['text'] = 'Checkout';
+    $breadcrumb[$breadcrumb_id]['url'] = $checkout_url;
+    $breadcrumb_id++;
+    $breadcrumb[$breadcrumb_id]['text'] = 'Review order';
+    $breadcrumb[$breadcrumb_id]['url'] = '';
+    $breadcrumb_id++;
+    $variables['breadcrumb'] = $breadcrumb;
+  }
+
+   // Checkout Complete.
+  if ($arg[1] == 'checkout' && is_numeric($arg[2]) && $arg[3] == 'complete') {
+		$checkout_url = '/checkout/' . $arg[2] .'/order_information';
+		$breadcrumb_id=0;
+		$breadcrumb[$breadcrumb_id]['text'] = 'Home';
+		$breadcrumb[$breadcrumb_id]['url'] = '../';
+		$breadcrumb_id++;
+		$breadcrumb[$breadcrumb_id]['text'] = 'Shopping Cart';
+		$breadcrumb[$breadcrumb_id]['url'] = '';
+		$breadcrumb_id++;
+		if (!\Drupal::currentUser()->isAuthenticated()) {
+			$breadcrumb[$breadcrumb_id]['text'] = 'Login';
+			$breadcrumb[$breadcrumb_id]['url'] = '';
+			$breadcrumb_id++;
+		}
+
+		$breadcrumb[$breadcrumb_id]['text'] = 'Checkout';
+		$breadcrumb[$breadcrumb_id]['url'] = '';
+		$breadcrumb_id++;
+
+		$breadcrumb[$breadcrumb_id]['text'] = 'Review order';
+		$breadcrumb[$breadcrumb_id]['url'] = '';
+		$breadcrumb_id++;
+
+		$breadcrumb[$breadcrumb_id]['text'] = 'Checkout complete';
+		$breadcrumb[$breadcrumb_id]['url'] = '';
+		$breadcrumb_id++;
+
+		$variables['breadcrumb'] = $breadcrumb;
+  }
+
+  // Order Review Page.
+  if ($arg[1] == 'checkout' && is_numeric($arg[2]) && $arg[3] == 'login') {
+    $breadcrumb[0]['text'] = 'Home';
+    $breadcrumb[0]['url'] = '../';
+    $breadcrumb[1]['text'] = 'Shopping Cart';
+    $breadcrumb[1]['url'] = '/cart';
+    $breadcrumb[2]['text'] = 'Login';
+    $breadcrumb[2]['url'] = '';
+    $variables['breadcrumb'] = $breadcrumb;
+  }
+
+  $_page_title = [
+    'custom-orders',
+    'about-us',
+    'contact',
+    'blog',
+    'faq',
+  ];
+
+  if (in_array($arg[1], $_page_title)) {
+    $request = \Drupal::request();
+    $route_match = \Drupal::routeMatch();
+    $page_title = \Drupal::service('title_resolver')->getTitle($request, $route_match->getRouteObject());
+    $breadcrumb[0]['text'] = 'Home';
+    $breadcrumb[0]['url'] = '../';
+    $breadcrumb[1]['text'] = $page_title;
+    $breadcrumb[1]['url'] = '';
+    $variables['breadcrumb'] = $breadcrumb;
+  }
+
+  if (!empty($arg[1]) && $arg[1] === 'user') {
+    $replace_arg = array(
+      'orders' => "Past Orders",
+      'parts-list' => "Parts List",
+      'spambot' => "Spam",
+      'address-book' => "Address Book",
+    );
+
+    $request = \Drupal::request();
+    $route_match = \Drupal::routeMatch();
+    $page_title = \Drupal::service('title_resolver')->getTitle($request, $route_match->getRouteObject());
+    $breadcrumb[0]['text'] = 'Home';
+    $breadcrumb[0]['url'] = '/';
+
+    if (!empty($arg[2]) && is_numeric($arg[2])) {
+      $profiles = \Drupal::entityTypeManager()
+        ->getStorage('profile')
+        ->loadByProperties([
+            'uid' => $arg[2],
+            'type' => 'customer',
+            'is_default' => '1',
+          ]);
+
+      if (!empty($profiles)) {
+        $profile = reset($profiles);
+        if ($address = $profile->get('address')->getValue()) {
+          $name = '';
+          if (!empty($address[0]['given_name'])) {
+            $name = $address[0]['given_name'];
+          }
+          if (!empty($address[0]['family_name'])) {
+            $name = trim($name . ' ' . $address[0]['family_name']);
+          }
+        }
+      }
+
+      if (empty($name)) {
+        $user = \Drupal\user\Entity\User::load($arg[2]);
+        if($user){
+			$name = $user->name->value;
+		}
+      }
+	  
+	  if (!empty($name)) {
+        $breadcrumb[1]['text'] = t('Hello, @name', ['@name' => $name]);
+		$breadcrumb[1]['url'] = '';
+      }else{
+		  unset($breadcrumb);
+	  }
+
+      
+      $variables['#cache']['contexts'][] = 'url.path';
+    }
+
+    if (array_key_exists('3', $arg)) {
+      $breadcrumb[2]['text'] = $arg[3];
+      if (array_key_exists($arg[3], $replace_arg)){
+        $breadcrumb[2]['text'] = $replace_arg[$arg[3]];
+      }
+      $breadcrumb[2]['url'] = '';
+      $breadcrumb[1]['url'] = '/' . $arg[1] . '/' . $arg[2];
+    }
+
+    if (array_key_exists('4',$arg)) {
+      $breadcrumb[3]['text'] = $arg[4];
+      $breadcrumb[3]['url'] = '';
+      $breadcrumb[2]['url'] = '/'.$arg[1].'/'.$arg[2].'/'.$arg[3];
+    }
+
+    if ($arg[2]==0) {
+      if (array_key_exists('3',$arg)) {
+        unset($breadcrumb[1]);
+      }
+      if (array_key_exists('4',$arg)) {
+        unset($breadcrumb[2]);
+      }
+      if (array_key_exists('5',$arg)) {
+        unset($breadcrumb[3]);
+      }
+      if (array_key_exists('6',$arg)) {
+        unset($breadcrumb[4]);
+      }
+    }
+
+    $variables['breadcrumb'] = $breadcrumb;
+  }
+  elseif(array_key_exists('4',$arg) && $arg[3]=='orders') {
+		$breadcrumb[0]['text'] = 'Home';
+		$breadcrumb[0]['url'] = '/';
+		$breadcrumb[1]['text'] = "Orders";
+		$breadcrumb[1]['url'] = '/'.$arg[1].'/'.$arg[2].'/'.$arg[3];
+		$breadcrumb[2]['text'] = $arg[4];
+		$breadcrumb[2]['url'] = '';
+		$variables['breadcrumb'] = $breadcrumb;
+  }
+}
+
+function custom_fixes_preprocess_page_title(&$variables) {
+	$current_path = \Drupal::service('path.current')->getPath();
+	$arg = explode('/', $current_path);
+	if(array_key_exists('4',$arg) && $arg[3]=='orders'){
+		$variables['title'] = $arg[4];
+	}
+}
+
+/**
+ * Implements hook_views_pre_view
+ */
+function custom_fixes_views_pre_build($view) {
+  if ($view->id() == 'product_navigation_terms') {
+    global $product_navigation_terms_parent;
+    if (isset($view->argument['parent_target_id'])) {
+      $product_navigation_terms_parent = $view->argument['parent_target_id'];
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for views templates.
+ */
+function custom_fixes_preprocess_block(&$variables) {
+  // Normal facets
+  $facet_blocks = [
+    'product_category' => 'field_product_category_taxonomy',
+    'metricstandard' => 'field_metric_standard',
+    'metricspecification' => 'field_metric_specification',
+    'innerdiameter' => 'field_inner_diameter',
+    'diameter' => 'field_diameter',
+    'threadpitch_4' => 'field_thread_pitch',
+    'length' => 'field_lenght',
+    'shaftdiameter' => 'field_shaft_diameter',
+    'outerdiameter' => 'field_outer_diameter',
+    'washerouterdiameter' => 'field_washer_ourter_diameter',
+    'shank' => 'field_shank',
+    'point' => 'field_point',
+    'hexwasher' => 'field_hex_washer',
+    'headheight' => 'field_head_height',
+    'distanceacrossflats' => 'field_disatnce_across_flats',
+    'tekpoint' => 'field_tek_point',
+    'grip_range' => 'field_grip_range',
+    'thickness_2' => 'field_thickness',
+    'tabbase' => 'field_tab_base',
+    'basediameter_2' => 'field_base_diameter',
+    'subsubcat' => 'field_sub_sub_cat',
+    'type' => 'field_type',
+    'headstyle' => 'field_head_style',
+    'abnormalheaddiameter' => 'field_abnormal_head_diameter',
+    'drive' => 'field_drive',
+    'style' => 'field_style',
+    'pointtype' => 'field_point_type',
+    'washertype' => 'field_washer_type',
+    'threadlength' => 'field_thread_lenght',
+    'threadtype' => 'field_thread_type',
+    'weldstyle' => 'field_weld_stlye',
+    'militaryspecification' => 'field_military_specification',
+    'nationalaerospacestandards' => 'field_national_aerospace_standard',
+    'wings' => 'field_wings',
+    'material' => 'field_material',
+    'finish' => 'field_finish',
+    'internalexpander' => 'field_internal_expander',
+    'externalsleeve' => 'field_external_sleeve',
+    'bodymaterial' => 'field_body_material',
+    'pinmaterial' => 'field_pin_material',
+    'screwmaterial' => 'field_screw_material',
+    'washermaterial' => 'field_washer_material',
+  ];
+
+  if ($variables['configuration']['provider'] == 'facets') {
+    $hidden_facet_blocks = [];
+    $current_path = \Drupal::service('path.current')->getPath();
+    $arg = explode('/', $current_path);
+    // getting hidden facets
+    if (isset($arg[1]) && $arg[1] == 'order-online' && isset($arg[2])) {
+      $term_name = str_replace('-', ' ', $arg[2]);
+      $properties = [];
+      $properties['name'] = $term_name;
+      $properties['vid'] = 'products';
+      $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties($properties);
+      $term = reset($terms);
+      if ($term) {
+        $hide_all_facet = $term->get('field_hide_all_filters_view_2')->getString();
+        if ($hide_all_facet == '1') {
+          $variables['attributes']['class'][] = 'hidden';
+        }
+        $hidden_filters = $term->get('field_hide_some_filters_view_2')->getValue();
+        if (!empty($hidden_filters) && is_array($hidden_filters)) {
+          foreach ($hidden_filters as $key_hidden_filters => $hidden_filters_value) {
+            $key = array_search ($hidden_filters_value['value'], $facet_blocks);
+            $hidden_facet_blocks[] = $key;
+          }
+        }
+        if (isset($arg[3]) && is_numeric($arg[3])) {
+          $variables['attributes']['class'][] = 'hidden';
+        }
+      }
+    }
+    //Hidding Block
+    if (in_array($variables['elements']['#id'], $hidden_facet_blocks)) {
+      // Add the Drupal class for hiding this for everyone, including screen
+      // readers. See hidden.module.css in the core system module.
+      $variables['attributes']['class'][] = 'hidden';
+    }
+  }
+}
+
+/**
+ * Implements hook_views_pre_execute().
+ */
+function custom_fixes_views_pre_view(ViewExecutable $view, $display_id, array &$args) {
+  if ($view->id() == "2_product_advanced_search_vsolr") {
+    $current_path = \Drupal::service('path.current')->getPath();
+    $arg = explode('/', $current_path);
+    if (isset($arg[1]) && $arg[1] == 'order-online' && isset($arg[2])) {
+      $term_name = str_replace('-', ' ', $arg[2]);
+      $properties = [];
+      $properties['name'] = $term_name;
+      $properties['vid'] = 'products';
+      $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties($properties);
+      $term = reset($terms);
+
+      if ($term) {
+        $parents = [];
+        foreach ($term->get('parent')->getValue() as $parent) {
+          if ($parent['target_id'] != 0) {
+            $parents[] = $parent['target_id'];
+          }
+        }
+
+        if (!empty($parents)) {
+          $children = \Drupal::entityTypeManager()->getStorage('taxonomy_term')
+            ->loadTree('products', $term->id(), 3);
+          // Add the parent term first.
+          $children_tid[] = $term->id();
+          foreach ($children as $child) {
+            $children_tid[] = $child->tid;
+          }
+          if (is_array($children) && count($children) > 1) {
+            $view->args[0] = implode('+', $children_tid);
+          }
+        }
+      }
+    }
+  }
+
+  // Remove field if not an administartor
+  if ($view->id() == 'product_details_test') {
+    $user_roles = \Drupal::currentUser()->getRoles();
+
+    if (!in_array('super_administrator', $user_roles)) {
+      $view->removeHandler($display_id, 'field', 'nothing_3');
+      $view->removeHandler($display_id, 'field', 'nothing_1');
+    }
+  }
+}
+
+function custom_fixes_preprocess_views_view_field(&$variables) {
+  $view = $variables['view'];
+  $field = $variables['field'];
+
+  if ($view->storage->id() == 'commerce_vbo_views_orders') {
+    if ($field->field == 'nothing') {
+      $order_id = $variables['row']->_entity->order_id->value;
+      $mail = $variables['row']->_entity->mail->value;
+      $user_id = \Drupal::database()->query("SELECT `uid` FROM {commerce_order} WHERE  `order_id` =:order_id", [':order_id' => $order_id])->fetchField();
+      if($user_id > 0) {
+        $profile_id = \Drupal::entityTypeManager()
+          ->getStorage('profile')
+          ->loadByProperties([
+            'uid' => $user_id,
+            'type' => 'customer',
+            'is_default' => '1',
+          ]);
+        if ($profile_id) {
+          $address_values = array_values($profile_id)[0]->get('address')->getValue()[0];
+          $name = $address_values['given_name'].' '.$address_values['family_name'];
+          $output = Link::createFromRoute($name, 'entity.user.canonical', ['user' => $user_id])->toString().'<br>'.$mail;
+        }
+        else {
+          $user = \Drupal\user\Entity\User::load($user_id);
+          $name = $user->name->value;
+          $output = Link::createFromRoute($name, 'entity.user.canonical', ['user' => $user_id])->toString().'<br>'.$mail;
+        }
+      }
+      else {
+        $user = 'Guest User (not verified)';
+        $output = $user.'<br>'.$mail;
+      }
+      $variables['output'] = [
+        '#markup' => $output,
+      ];
+    }
+  }
+
+  if ($view->storage->id() == 'product_taxonomy_navigation_solr' && $view->current_display == 'block_1') {
+    if ($field->field == 'field_supplier_sku') {
+      $field_tele_part = $variables['row']->_entity->get('field_tele_part')->value;
+      $field_category_taxonomy = $variables['row']->_entity->get('field_category_taxonomy')->getValue();
+      if ($field_category_taxonomy) {
+        $term_name = Term::load($field_category_taxonomy[0]['target_id'])->get('name')->value;
+        $path = '/order-online/'.str_replace(' ', '-', strtolower($term_name));
+        $url = $path.'/'.$field_tele_part;
+        $variables['output'] = [
+          '#markup' => '<a href="'.$url.'">'.$field->original_value.'</a>',
+        ];
+      }
+    }
+    // Formatting price
+    if ($field->field == 'number' || $field->field == 'number_1') {
+      if (!is_null($field->original_value)) {
+        $original_price = str_replace("$", "", $field->original_value->__toString());
+        $updated_price = number_format($original_price, 2);
+        $new_price = '$'.$updated_price;
+        $variables['output'] = [
+          '#markup' => $new_price,
+        ];
+      }
+    }
+  }
+
+  if ($view->storage->id() == '2_product_advanced_search_vsolr' && $view->current_display == 'block_1') {
+    if($field->field == 'field_long_description' || $field->field == 'field_product_image') {
+      $field_tele_part = $variables['row']->_entity->get('field_tele_part')->value;
+      $field_category_taxonomy = $variables['row']->_entity->get('field_category_taxonomy')->getValue();
+      if($field_category_taxonomy) {
+        $term_name = Term::load($field_category_taxonomy[0]['target_id'])->get('name')->value;
+        $path = '/order-online/'.str_replace(' ', '-', strtolower($term_name));
+        $url = $path.'/'.$field_tele_part;
+        $variables['output'] = [
+          '#markup' => '<a href="'.$url.'">'.$field->original_value.'</a>',
+        ];
+      }
+    }
+    // Formatting price
+    if ($field->field == 'number' || $field->field == 'number_1') {
+      if (!is_null($field->original_value)) {
+        $original_price = str_replace("$", "", $field->original_value->__toString());
+        $updated_price = number_format($original_price, 2);
+        $new_price = '$'.$updated_price;
+        $variables['output'] = [
+          '#markup' => $new_price,
+        ];
+      }
+    }
+  }
+
+  if ($view->storage->id() == 'advance_search' && $view->current_display == 'page_1') {
+    if ($field->field == 'field_long_description' || $field->field == 'field_product_image') {
+      $field_tele_part = '';
+      $field_tele_part = $variables['row']->_entity->get('field_tele_part')->value;
+      $field_category_taxonomy = $variables['row']->_entity->get('field_category_taxonomy')->getValue();
+      if ($field_category_taxonomy && array_key_exists(0,$field_category_taxonomy) && $field_category_taxonomy[0]['target_id']) {
+        $term = Term::load($field_category_taxonomy[0]['target_id']);
+        if ($term) {
+          $term_name = $term->get('name')->value;
+          $path = '/order-online/'.str_replace(' ', '-', strtolower($term_name));
+          $url = $path;
+          if ($field_tele_part) {
+            $url = $path.'/'.$field_tele_part;
+          }
+
+          if ($field->field == 'field_long_description') {
+            $variables['output'] = [
+              '#markup' => '<div class="long-description"><a href="'.$url.'">'.$field->original_value.'</a></div>',
+            ];
+          }
+          if ($field->field == 'field_product_image') {
+            $variables['output'] = [
+              '#markup' => '<a href="'.$url.'">'.$field->original_value.'</a>',
+            ];
+          }
+        }
+      }
+    }
+    // Formatting price
+    if ($field->field == 'commerce_price' || $field->field == 'field_5price') {
+      if (!is_null($field->original_value)) {
+        $original_price = str_replace("$", "", $field->original_value->__toString());
+        if (!empty($original_price)) {
+          $original_price = str_replace(',', '', $original_price);
+          $updated_price = number_format($original_price, 2);
+          $new_price = '$'.$updated_price;
+          $variables['output'] = [
+            '#markup' => $new_price,
+          ];
+        }
+      }
+    }
+
+    if ($field->field == 'variations') {
+      $site_url = \Drupal::request()->getBaseUrl();
+      $entity = $variables['row']->_entity;
+      $field_offline_item = $entity->get('field_offline_item')->getValue()[0]['value'];
+      if ($field_offline_item == 1) {
+        //if ($field->field == 'field_expiration_date') {
+        $end_date = ($entity->get('field_expiration_date')->date) ? $entity->get('field_expiration_date')->date->getTimestamp() : NULL;
+        /*$offline_item_status = $entity->get('field_offline_item_status')->getString();*/
+        $offline_item_status = $entity->get('field_offline_item')->getString();
+        $now = new DrupalDateTime('now');
+        $now->setTimezone(new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE));
+        $now = $now->getTimestamp();
+
+        $product = Product::load($entity->id());
+        // if($end_date > $now) {
+        //   $product->set('field_offline_item_status', "active");
+        //   $product->save();
+        // }
+
+        if ($product->get('field_offline_item_status')->getString() == 'pending_update') {
+          $variables['output'] = [
+            '#markup' => '<div class="red-highlighted"><em>Pending</em></div>',
+          ];
+        }
+        else {
+          if ($end_date < $now) {
+            $_uid=0;
+            $current_uri = \Drupal::request()->getRequestUri(); // '/url/alias1/path'
+            $current_uri = ltrim($current_uri, '/'); // 'url/alias1/path'
+            $arg = explode('/', $current_uri); // array
+
+            // Check URL to match a certain pattern, and switch the view mode.
+            if ($arg[0] === 'user' && !empty($arg[1])) {
+              $_uid=$arg[1];
+            }
+            $site_url = \Drupal::request()->getBaseUrl();
+            //$original_expiration_date = $field->original_value->getTimestamp();
+            $update_url = $site_url.'/admin/config/request_update/'.$entity->id().'_'.$_uid;
+
+            $new_value = '<div class="red-highlighted expiration-info">'.t('Expired').'</div><a href="'.$update_url.'" class="use-ajax button">Request Update</a>';
+            $variables['output'] = [
+              '#markup' => $new_value,
+            ];
+          }
+          else {
+            if ($offline_item_status == 'active' || $offline_item_status == 1) {
+              $end_date_display = $end_date ? \Drupal::service('date.formatter')->format($end_date, 'custom', 'm/d/y') : '';
+              $commerceProduct = \Drupal::service('commerce_product.lazy_builders');
+              $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+              $cart_array = $commerceProduct->addToCartForm($entity->id(), '_custom', true, $language);
+
+              $str = \Drupal::service('renderer')->render($cart_array);
+              $variables['output'] = [
+                '#type' => 'container',
+              ];
+
+              $variables['output']['expiry_date'] = [
+                '#markup' => '<div class="red-highlighted expiration-info-date">'.'Expires: '.$end_date_display.'</div>',
+              ];
+              $variables['output']['cart_button'] = [
+                '#markup' => $str,
+              ];
+            }
+            else {
+              $variables['output'] = [
+                '#markup' => '<div class="red-highlighted"><em>Pending</em></div>',
+              ];
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if ($view->storage->id() == 'product_as_offline_items') {
+    $entity = $variables['row']->_entity;
+    if ($field->field == 'field_expiration_date') {
+      $end_date = ($entity->get('field_expiration_date')->date) ? $entity->get('field_expiration_date')->date->getTimestamp() : NULL;
+      /*$offline_item_status = $entity->get('field_offline_item_status')->getString();*/
+      $offline_item_status = $entity->get('field_offline_item')->getString();
+      $now = new DrupalDateTime('now');
+      $now->setTimezone(new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE));
+      $now = $now->getTimestamp();
+      $product = Product::load($entity->id());
+      if ($product->get('field_offline_item_status')->getString() == 'pending_update') {
+        $variables['output'] = [
+          '#markup' => '<div class="red-highlighted"><em>Pending</em></div>',
+        ];
+      }
+      else {
+        if($end_date < $now) {
+          $_uid=0;
+          $current_uri = \Drupal::request()->getRequestUri(); // '/url/alias1/path'
+          $current_uri = ltrim($current_uri, '/'); // 'url/alias1/path'
+          $arg = explode('/', $current_uri); // array
+
+          // Check URL to match a certain pattern, and switch the view mode.
+          if ($arg[0] === 'user' && !empty($arg[1])) {
+            $_uid=$arg[1];
+          }
+          $site_url = \Drupal::request()->getBaseUrl();
+          //$original_expiration_date = $field->original_value->getTimestamp();
+          $update_url = $site_url.'/admin/config/request_update/'.$entity->id().'_'.$_uid;
+          $new_value = '<div class="red-highlighted expiration-info">'.t('Expired').'</div><a href="'.$update_url.'" class="use-ajax  button">Request Update</a>';
+          $variables['output'] = [
+            '#markup' => $new_value,
+          ];
+        }
+        else {
+          if ($offline_item_status == 'active' || $offline_item_status == 1) {
+            $end_date_display = $end_date ? \Drupal::service('date.formatter')->format($end_date, 'custom', 'm/d/y') : '';
+            $commerceProduct = \Drupal::service('commerce_product.lazy_builders');
+            $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+            $cart_array = $commerceProduct->addToCartForm($entity->id(), '_custom', true, $language);
+
+            $str = \Drupal::service('renderer')->render($cart_array);
+            $variables['output'] = [
+              '#type' => 'container',
+            ];
+
+            $variables['output']['expiry_date'] = [
+              '#markup' => '<div class="red-highlighted expiration-info-date">'.'Expires: '.$end_date_display.'</div>',
+            ];
+            $variables['output']['cart_button'] = [
+              '#markup' => $str,
+            ];
+
+          }
+          else {
+            $variables['output'] = [
+              '#markup' => '<div class="red-highlighted"><em>Pending</em></div>',
+            ];
+          }
+        }
+      }
+    }
+  }
+
+  $_replace_id_to_name = [];
+  $_replace_id_to_name[] = 'commerce_cart_form';
+  $_replace_id_to_name[] = 'order_item_listing';
+  $_replace_id_to_name[] = 'user_parts_list';
+  $_replace_id_to_name[] = 'pdf_cart_order_summary';
+  $_replace_id_to_name[] = 'checkout_order_complete_summary_email';
+  $_replace_id_to_name[] = 'checkout_order_complete_summary';
+  $_replace_id_to_name[] = 'commerce_checkout_order_summary';
+  $_replace_id_to_name[] = 'product_as_offline_items';
+  $_replace_id_to_name[] = 'commerce_order_item_table';
+  $_replace_id_to_name[] = 'advance_search';
+  $_replace_id_to_name[] = 'checkout_order_review_summary';
+
+  if (in_array($view->storage->id(), $_replace_id_to_name)) {
+    if ($field->field == 'unit_price__number') {
+      if($field->original_value) {
+        $original_price = str_replace('$', '', ($field->original_value) ? $field->original_value->__toString() : null);
+        $original_price = str_replace(',', '', $original_price) * 1;
+
+        $variables['output'] = [
+          '#markup' => '$'.number_format($original_price, 2),
+        ];
+      }
+    }
+
+    if ($field->field == 'product_id') {
+      if ($field->original_value) {
+        $product = Product::load($field->original_value->__toString());
+        $variations = $product->getVariations();
+        $variation = reset($variations);
+        $sku = $product->get('field_supplier_sku')->getString();
+        $link_title = $product->getTitle().' ('.$sku.')';
+        $free_shipping_text = '';
+        $current_path = \Drupal::service('path.current')->getPath();
+        $arg = explode('/', $current_path);
+
+        if ($view && !empty($view->args) && ($view->storage->id() == 'order_item_listing'
+          || $view->storage->id() == 'commerce_cart_form'
+          || $view->storage->id() == 'commerce_checkout_order_summary'
+          || $view->storage->id() == 'checkout_order_review_summary'
+          || $view->storage->id() == 'checkout_order_complete_summary'
+          || $view->storage->id() == 'pdf_cart_order_summary'
+          || $view->storage->id() == 'checkout_order_complete_summary_email')) {
+          // Get the first contextual filter value.
+          $order_id = $view->args[0];
+
+          $order = Order::load($order_id);
+          $line_items = $order->getItems();
+          $freeshipping_id = _cde_free_shipping_product($line_items);
+          if (in_array($field->original_value->__toString(), $freeshipping_id)) {
+            $free_shipping_text = '<br><span class="red-highlighted small">Qualified - Free Shipping</span>';
+          }
+
+        }
+        elseif($view && $view->storage->id() == 'commerce_order_item_table') {
+          $order = Order::load($arg[4]);
+          $line_items = $order->getItems();
+          $freeshipping_id = _cde_free_shipping_product($line_items);
+          if (in_array($field->original_value->__toString(), $freeshipping_id)) {
+            $free_shipping_text = '<br><span class="red-highlighted small">Qualified - Free Shipping</span>';
+          }
+        }
+
+        if ($view->storage->id() == 'advance_search' && $view->current_display == 'page_1') {
+          $link_title = $product->getTitle();
+        }
+        $url = '/product/'.$field->original_value->__toString().'/edit/';
+        $variables['output'] = [
+          '#markup' => '<div class="long-description">'.$link_title.$free_shipping_text.'</div>',
+        ];
+        $roles = \Drupal::currentUser()->getRoles();
+        $field_offline_item = $product->get('field_offline_item')->getString();
+        if ($field_offline_item == 1) {
+          if (in_array('administrator', $roles) || in_array('super_administrator', $roles)) {
+            $variables['output'] = [
+              '#markup' => '<div class="long-description"><a href="'.$url.'" target="_blank">'.$link_title.'</a> '.$free_shipping_text.'</div>',
+            ];
+          }
+        }
+
+        if (!is_null($field->original_value) && $field_offline_item != 1) {
+          /*$product = Product::load($field->original_value->__toString());*/
+          /*$variations = $product->getVariations();*/
+          /*$variation = reset($variations);*/
+          /*$sku = $variation->getSku();*/
+          $product_title = $product->getTitle();
+          $tele_part = $product->get('field_tele_part')->getString();
+          $category_taxonomy = $product->get('field_category_taxonomy')->getString();
+          $term = Term::load($category_taxonomy);
+          if ($term) {
+            $term_name = $term->get('name')->value;
+            $path = '/order-online/'.str_replace(' ', '-', strtolower($term_name));
+            $url = $path;
+            if($tele_part) {
+              $url = $path.'/'.$tele_part;
+            }
+
+            $variables['output'] = [
+              '#markup' => '<div class="long-description"><a href="'.$url.'">'.$link_title.'</a></div>',
+            ];
+          }
+        }
+      }
+    }
+  }
+
+  if ($view->storage->id() == 'user_parts_list' && $view->current_display == 'page') {
+    if ($field->field == 'commerce_price' || $field->field == 'field_5price') {
+      if (!is_null($field->original_value)) {
+        $original_price = str_replace("$", "", $field->original_value->__toString());
+        $original_price = str_replace(",", "", $original_price);
+        $updated_price = number_format($original_price, 2);
+        $new_price = '$'.$updated_price;
+        $variables['output'] = [
+          '#markup' => $new_price,
+        ];
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function custom_fixes_form_user_login_form_alter(&$form, FormStateInterface $form_state) {
+  if (\Drupal::currentUser()->isAnonymous()) {
+    $current_path = \Drupal::service('path.current')->getPath();
+    if (strstr($current_path, 'print/pdf/commerce_order')) {
+      $form['pdf_hidden'] = [
+        '#type' => 'hidden',
+        '#value' => explode('/', $current_path)[4],
+      ];
+      $form['actions']['submit']['#submit'][]  = 'login_submit';
+    }
+  }
+}
+
+// Submit Handler user login form
+function login_submit(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  $uid = \Drupal::service('user.auth')->authenticate($form_state->getValues()['name'], $form_state->getValues()['pass']);
+  if ($uid) {
+    $user = User::load($uid);
+    user_login_finalize($user);
+    $url = Url::fromRoute('custom_fixes.ananymous_download', [], ['query' => ['file'=> $form_state->getValues()['pdf_hidden']]]);
+    $form_state->setRedirectUrl($url);
+  }
+}
+
+function custom_fixes_form_user_register_form_alter(&$form, FormStateInterface $form_state) {
+  $form['mail']['#title'] = t('E-mail address');
+  $form['actions']['submit']['#value'] = t('Register');
+  $form['account']['name']['#weight'] = -10;
+  $form['actions']['submit']['#submit'][] = 'submit_registration';
+}
+
+// Submit Handler for user register .
+function submit_registration($form, FormStateInterface $form_state) {
+  if (!isset($_GET['destination'])) {
+   $url = Url::fromUserInput('/user');
+   $form_state->setRedirectUrl($url);
+  }
+}
+
+
+
+/**
+ * Implements hook_form_alter().
+ */
+function custom_fixes_form_alter(&$form, FormStateInterface $form_state, $form_id) {	
+	
+  if ($form_id == 'views_exposed_form') {
+    $view = $form_state->getStorage('view');
+    if ($view['view']->id() == 'advance_search') {
+      $current_path = \Drupal::service('path.current')->getPath();
+      $form['#validate'][] = 'custom_fixes_advance_search_validation';
+    }
+  }
+
+  // setting default payment method and disabling net 360 option.
+  if ($form_id == 'commerce_checkout_flow_multistep_default') {
+	  $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+	  $field_net_30_eligible = $user->field_net_30_eligible_->value;
+	  if (!$field_net_30_eligible) {
+		  unset($form['payment_information']['payment_method']['#options']['cde_net_30']);
+    }
+  }
+
+  if ($form_id == "commerce_product_knebridge_product_nodes_add_form" && $_GET['eligible-customer']) {
+    if (!array_key_exists('nid',$form) || is_null($form['nid']['#value'])) {
+      $user = \Drupal\user\Entity\User::load($_GET['eligible-customer']);
+      $form['field_eligible_customers']['widget'][0]['target_id']['#default_value'] = $user;
+      $form['field_in_stock']['widget'][0]['value']['#default_value'] = "O";
+      $form['field_offline_item']['widget']['value']['#default_value'] = TRUE;
+    }
+  }
+
+  if ($form_id == 'commerce_product_knebridge_product_nodes_edit_form') {
+    $form['actions']['submit']['#submit'][] = 'product_form_submit_handler';
+  }
+
+  if ($form_id == "commerce_product_knebridge_product_nodes_add_form" || $form_id == "commerce_product_knebridge_product_nodes_edit_form" ) {
+    $form['#attached']['library'][] = 'custom_fixes/custom-fixes-admin-form-js';
+  }
+
+  if ($form_id == 'commerce_order_default_edit_form') {
+    $form['#validate'][] = 'commerce_order_default_edit_form_validation';
+  }
+
+  if ($form_id == 'commerce_shipment_default_edit_form') {
+    $form['#validate'][] = 'commerce_shipment_default_edit_form_validation';
+  }
+
+  if ($form_id == 'user_form') {
+    $form['#validate'][] = 'admin_user_form_validation';
+  }
+}
+
+/**
+ * Validate  handler for admin_user_form_validation.
+ */
+function admin_user_form_validation($form, FormStateInterface $form_state) {
+  $ups_account_number = trim($form_state->getValue(['field_your_ups_account_number', 0, 'value']));
+
+  if (!empty($ups_account_number)) {
+	  if (strlen($ups_account_number) !== 6 && !is_null($ups_account_number)) {
+		  $form_state->setErrorByName('field_your_ups_account_number', 'Please enter a valid UPS number.');
+		  $form_state->setRebuild(TRUE);
+	  }
+	  if (!preg_match('~[0-9]+~', $ups_account_number) && !is_null($ups_account_number)) {
+		  $form_state->setErrorByName('field_your_ups_account_number', 'UPS number must contain number.');
+		  $form_state->setRebuild(TRUE);
+	  }
+	  if (strpos($ups_account_number, 'o') !== false && !is_null($ups_account_number) || strpos($ups_account_number, 'O') !== FALSE) {
+		  $form_state->setErrorByName('field_your_ups_account_number', "Please enter a valid UPS number.");
+		  $form_state->setRebuild(TRUE);
+	  }
+  }
+
+  $fedex_account_number = trim($form_state->getValue(['field_your_fedex_account_number', 0, 'value']));
+  if (!empty($fedex_account_number)) {
+	  if (strlen($fedex_account_number) !== 9 || !is_numeric($fedex_account_number) && !is_null($fedex_account_number)) {
+		  $form_state->setErrorByName('field_your_fedex_account_number', 'Please enter correct FEDEX number.');
+		  $form_state->setRebuild(TRUE);
+	  }
+  }
+}
+
+/**
+ * Submit handller to update the offlie status to active if date is set.
+ */
+function product_form_submit_handler($form, FormStateInterface $form_state) {
+  $entity = $form_state->getFormObject()->getEntity();
+  $end_date = ($entity->get('field_expiration_date')->date) ? $entity->get('field_expiration_date')->date->getTimestamp() : NULL;
+
+  if ($entity->field_offline_item->value == 1) {
+    if ($end_date) {
+      $now = new DrupalDateTime('now');
+      $now->setTimezone(new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE));
+      $now = $now->getTimestamp();
+      if ($end_date > $now) {
+        $entity->set('field_offline_item_status', "active");
+        $entity->save();
+      }
+      else {
+        if ($entity->field_offline_item_status->value == 'active'  || $entity->field_offline_item_status->value== 'expired') {
+          $entity->set('field_offline_item_status', "expired");
+          $entity->save();
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Validate  handler for commerce_shipment_default_edit_form_validation.
+ */
+function commerce_shipment_default_edit_form_validation($form, FormStateInterface $form_state) {
+  $field_commerce_non_ups_tra = $form_state->getValue(['field_commerce_non_ups_tra', 0, 'value']);
+  $tracking_code = $form_state->getValue('tracking_code')[0]['value'];
+
+  if ($field_commerce_non_ups_tra !== '' &&  $tracking_code !== '') {
+    $form_state->setErrorByName('tracking_code', t('Can not fill both UPS and Non UPS field, Choose Only one.'));
+  }
+
+  if ($field_commerce_non_ups_tra !== '') {
+    if(!strstr($field_commerce_non_ups_tra, 'href') ) {
+      $form_state->setErrorByName('field_commerce_non_ups_tra', t('Non UPS Tracking field should be anchor link.'));
+    }
+  }
+}
+
+/**
+ * Validate  handler for commerce edit default form.
+ */
+function commerce_order_default_edit_form_validation($form, FormStateInterface $form_state) {
+  $triggering_element = $form_state->getTriggeringElement();
+  $button_type = $triggering_element['#button_type'] ?? '';
+
+  if ($button_type !== 'primary') {
+    return;
+  }
+
+  if (!$form_state->isValueEmpty('field_net_30_status')) {
+    $field_order_payment_link = $form_state->getValue(['field_order_payment_link', 0, 'value']);
+    $order_state = $form_state->getValue(['state', 0, 'value']);
+    if ($order_state == 'completed' && $field_order_payment_link == '') {
+      $form_state->setErrorByName('field_order_payment_link', t('Please enter the external payment link before invoice shipped.'));
+    }
+  }
+}
+
+/**
+ * Custom callback to get all search replacement nodes.
+ */
+function _cde_get_search_replacement_nodes() {
+  $nids = \Drupal::entityQuery('node')->condition('type','search_replacement')->accessCheck(FALSE)->execute();
+  $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
+  return $nodes;
+}
+
+/**
+ * Custom callback to replace the search query.
+ */
+function _cde_replace_in_search($search, $nodes) {
+  $replacement_done = FALSE;
+  // First, remove ignored words.
+  foreach ($nodes as $i => $node) {
+    $search_for = $node->get('field_search')->getString();
+    if (stripos($search, $search_for) !== FALSE) {
+      $field_replacement = [];
+      if ($node->hasField('field_replacement')) {
+        $field_replacement = $node->get('field_replacement')->getValue();
+      }
+      if (empty($field_replacement)) {
+        $search = preg_replace("/(\b)$search_for\s?(\b)/i", '', $search);
+        unset($nodes[$i]);
+        $replacement_done = TRUE;
+      }
+    }
+  }
+
+  // Replace words.
+  foreach ($nodes as $node) {
+    $search_for = $node->get('field_search')->getString();
+    if (stripos($search, $search_for) !== FALSE) {
+      $field_replacement = [];
+      if ($node->hasField('field_replacement')) {
+        $field_replacement = $node->get('field_replacement')->getValue();
+      }
+
+      $replacement = implode(' ', $replace_with);
+      $replacement = $search_for . ' ' . $replacement;
+
+      if (stripos($search, $replacement) === FALSE) {
+        $search = str_ireplace($search_for, $replacement, $search);
+        $replacement_done = TRUE;
+      }
+    }
+  }
+
+  if ($replacement_done) {
+    return $search;
+  }
+  else {
+    return NULL;
+  }
+}
+
+/**
+ * Implements custom_submit_handler.
+ */
+function custom_fixes_advance_search_validation($form, FormStateInterface $form_state) {
+  $product_ids = [];
+  $values = $form_state->getValues();
+  $fulltext = trim($values['query'], ' ');
+  if (!empty($fulltext)) {
+    $route_name = \Drupal::routeMatch()->getRouteName();
+    if ($route_name != 'views.ajax') {
+      if (is_numeric($fulltext)) {
+        $query = \Drupal::entityQuery('commerce_product');
+        $query->condition('field_tele_part', $fulltext);
+	      $query->accessCheck(FALSE);
+        $product_ids = $query->execute();
+      }
+      else {
+        $query = \Drupal::entityQuery('commerce_product');
+        $query->condition('field_supplier_sku', $fulltext);
+	      $query->accessCheck(FALSE);
+        $product_ids = $query->execute();
+        if (empty($product_ids)) {
+          $query = \Drupal::entityQuery('commerce_product');
+          $query->condition('field_part_cross_reference', $fulltext);
+			    $query->accessCheck(FALSE);
+          $product_ids = $query->execute();
+        }
+      }
+
+      if (!empty($product_ids)) {
+        $productID = reset($product_ids);
+        $product = \Drupal\commerce_product\Entity\Product::load($productID);
+        $tele_part = $product->get('field_tele_part')->value;
+        $category = $product->get('field_category_taxonomy')->getValue();
+        if ($category && $tele_part) {
+          $product_category = Term::load($category[0]['target_id'])->get('name')->value;
+          $path = '/order-online/' . str_replace(' ', '-', strtolower($product_category));
+          $redirect_path = $path . '/' . $tele_part;
+
+          $response = new RedirectResponse($redirect_path);
+          $request = \Drupal::request();
+          // Save the session so things like messages get saved.
+          $request->getSession()->save();
+          $response->prepare($request);
+          // Make sure to trigger kernel events.
+          \Drupal::service('kernel')->terminate($request, $response);
+          $response->send();
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function custom_fixes_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
+  if ($view->id() == 'advance_search') {
+    $current_user = \Drupal::currentUser();
+    $user_roles = $current_user->getRoles();
+    $customer_id = $current_user->id();
+
+    if (!\Drupal::currentUser()->isAuthenticated()) {
+      $query->addWhere(1, 'field_offline_item', 1, '!=');
+    } elseif ($current_user->hasRole('administrator') || $current_user->hasRole('super_administrator')) {
+      /*$query->setWhereGroup('OR', 10);
+      $query->addWhere(10,'field_offline_item',1,'!=');
+      $query->addWhere(10,'field_eligible_customers',$customer_id);*/
+    }
+    else {
+      $query->setWhereGroup('OR', 10);
+      $query->addWhere(10, 'field_offline_item', 1, '!=');
+      $query->addWhere(10, 'field_eligible_customers', $customer_id);
+    }
+
+    $input_value = $query->getKeys();
+    if (!empty($input_value)) {
+      // If multi phase
+      $conjunction = $input_value['#conjunction'];
+      unset($input_value['#conjunction']);
+      $original_query = implode(' ', $input_value);
+      $replacement_nodes = _cde_get_search_replacement_nodes();
+      $new_search = _cde_replace_in_search($original_query, $replacement_nodes);
+      if ($new_search !== NULL) {
+        $new_search = trim($new_search);
+        $new_query = explode(' ', $new_search);
+        $new_query['#conjunction'] = $conjunction;
+        $query->keys($new_query);
+      }
+    }
+  }
+}
+
+/**
+ * Implements batch function.
+ */
+function import_offline_product_image($products, &$context){
+  $message = 'Updating shipments ...';
+  $results = array();
+  foreach ($products as $product) {
+    $query = \Drupal::entityQuery('commerce_product');
+    $query->condition('field_supplier_sku', $product[0]);
+	  $query->accessCheck(FALSE);
+    $product_ids = $query->execute();
+
+    if (!empty($product_ids)) {
+      foreach ($product_ids as $product_id) {
+        $commerce_product = \Drupal\commerce_product\Entity\Product::load($product_id);
+        if ($commerce_product && !empty($commerce_product) && !empty($product[66])) {
+          $commerce_product->set('field_weight',$product[67]);
+          $commerce_product->set('field_unit_of_measure',$product[68]);
+          $commerce_product->set('field_qty_break_1',$product[69]);
+          $commerce_product->set('field_price_break_1',$product[70]);
+          $commerce_product->set('field_price_break_3',$product[71]);
+          $commerce_product->set('field_title_alias',$product[53]);
+          if ($product[73] == 'Expired') {
+            $commerce_product->set('field_offline_item_status','expired');
+          }
+          if ($product[73] == 'Active') {
+            $commerce_product->set('field_offline_item_status','active');
+          }
+
+          $offline_product_image = 'https://cdefasteners.com'. $product[66];
+          $image_chunk = explode('/', $product[66]);
+          $image_file_name = end($image_chunk);
+          //$image_uri = "public://" . $image_file_name;
+          $img_folder = explode('/sites/default/files/', $product[66]);
+          $img_txt = explode('/', $img_folder[1]);
+          $img_txt1 = array_pop($img_txt);
+          $img_txt2 = implode('/',$img_txt);
+          $image_uri = "public://" . $img_folder[1];
+          $directory = 'public://'. $img_txt2;
+          /** @var \Drupal\Core\File\FileSystemInterface $file_system */
+          $file_system = \Drupal::service('file_system');
+          $file_system->prepareDirectory($directory, FileSystemInterface:: CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
+
+          $image_data = file_get_contents($offline_product_image);
+          if (!empty($image_data)) {
+            $file_repository = \Drupal::service('file.repository');
+            $image = $file_repository->writeData($image_data, $image_uri, FileSystemInterface::EXISTS_REPLACE);
+            $commerce_product->set('field_image_commerce_product',$image->id());
+            //$commerce_product->set('title',$product[55]);
+            $commerce_product->set('status',1);
+            $commerce_product->set('default_langcode',1);
+            $variations = $commerce_product->getVariations();
+            foreach ($variations as $key => $value) {
+              $amount = $value->getPrice();
+              if (!$amount) {
+                $variation = \Drupal\commerce_product\Entity\ProductVariation::load($value->get('variation_id')->getString());
+                $product_price = reset($commerce_product->get('commerce_price')->getValue());
+                if (!is_null($product_price['number'])) {
+                  $price = new \Drupal\commerce_price\Price($product_price['number'], 'USD');
+                  $variation->price = $price;
+                }
+                $variation->uid = 1;
+                $variation->status = 1;
+                $variation->default_langcode = 1;
+                $variation->created = strtotime("04/18/2023");
+                $variation->changed = strtotime("04/18/2023");
+                $variation->save();
+              }
+            }
+            $commerce_product->created = strtotime("04/18/2023");
+            $commerce_product->changed = strtotime("04/18/2023");
+          }
+          $commerce_product->save();
+        }
+      }
+    }
+  }
+}
+
+function import_offline_product_image_finished($success, $results, $operations) {
+  // The 'success' parameter means no fatal PHP errors were detected. All
+  // other error management should be handled using 'results'.
+  if ($success) {
+    $message = \Drupal::translation()->formatPlural(count($results), 'One post processed.', '@count posts processed.');
+  }
+  else {
+    $message = t('Finished with an error.');
+  }
+  \Drupal::messenger()->addStatus($message);
+}
+
+/**
+ * Implements batch function.
+ */
+function import_order_billing_track_number($profiles, &$context){
+  $message = 'Updating billing ...';
+  $results = array();
+  foreach ($profiles as $profileArry) {
+    if (is_numeric($profileArry[0])) {
+      // $order = \Drupal::entityTypeManager()->getStorage('commerce_order')->load($orderArry[0]);
+      // if ($order) {
+        //$billing_profile = $order->get('billing_profile')->getValue()[0]['target_id'];
+        if (!empty($profileArry[0])) {
+          $profile = Profile::load($profileArry[0]);
+          $address = $profile->get('address')->getValue()[0];
+          if (!empty($profileArry[2])) {
+            $address['organization'] = $profileArry[2];
+            $profile->set('address', $address);
+          }
+          $profile->set('phone', $profileArry[1]);
+          $profile->save();
+        }
+      //}
+    }
+  }
+}
+
+/**
+ * Implements batch function.
+ */
+function import_order_track_number($orders, &$context){
+  $message = 'Updating shipments ...';
+  $results = array();
+  foreach ($orders as $orderArry) {
+    if (is_numeric($orderArry[0])) {
+      //\Drupal::logger('order_id')->notice('<pre><code>' . print_r($orderArry[0], TRUE) . '</code></pre>' );
+      $order = \Drupal::entityTypeManager()->getStorage('commerce_order')->load($orderArry[0]);
+      if ($order) {
+        $shipments = [];
+        $shipments = $order->get('shipments')->referencedEntities();
+        $old_shipment_ids = [];
+        foreach ($shipments as $shipment) {
+          $old_shipment_ids[] = $shipment->get('field_old_shipment_id')->getString();
+        }
+        if (!in_array($orderArry[11], $old_shipment_ids)) {
+          $uid = 1;
+          $profile = Profile::create([
+            'type' => 'customer',
+            // 'uid' => $user->id(),
+            'uid' => $uid,
+            'address' => [
+              'country_code' => $orderArry[1],
+              'administrative_area' => $orderArry[2],
+              'locality' => $orderArry[3],
+              'postal_code' => $orderArry[4],
+              'address_line1' => $orderArry[16],
+             'address_line2' => $orderArry[5],
+              'organization' => $orderArry[6],
+              'given_name' => $orderArry[7],
+              'family_name' => $orderArry[8],
+            ],
+          ]);
+          $profile->save();
+
+          $tracking_link = '';
+          if (!empty($orderArry[10])) {
+            $tracking_link = 'https://wwwapps.ups.com/WebTracking/track?track=yes&trackNums=' . $orderArry[10];
+          }
+          $line_items = explode(', ', $orderArry[12]);
+          // Shipment
+          $first_shipment = Shipment::create([
+            'shipping_service' => 'cde_ups_ground',
+            'order_id' => $order->id(),
+            'type' => 'default',
+            'title' => 'Shipment',
+            'state' => 'shipped',
+            //'field_commerce_shipment_status' => 'shipped',
+            'field_commerce_shipment_trackin' => $orderArry[10],
+            'tracking_code' => $orderArry[10],
+            'field_commerce_non_ups_tra' => $orderArry[9],
+            'shipping_profile' => $profile,
+            'field_old_shipment_id' => $orderArry[11],
+            'field_commerce_shipment_line_ite' => $line_items,
+          ]);
+
+          foreach ($order->getItems() as $order_item) {
+            $purchased_entity = $order_item->getPurchasedEntity();
+            if (!empty($purchased_entity)) {
+              $sku = $purchased_entity->get('sku')->getString();
+              //$orderItems[$sku] = $order_item;
+              $orderItems[$order_item->id()] = $order_item;
+            }
+          }
+
+          $shipment_item = [];
+          foreach ($line_items as $line_item_id) {
+            $orderItem = $orderItems[$line_item_id];
+            if (!empty($orderItem)) {
+              $quantity = $orderItem->getQuantity();
+              //$quantity = $orderArry[14];
+              //print_r($quantity);exit;
+              $purchased_entity = $orderItem->getPurchasedEntity();
+              if ($purchased_entity) {
+                if ($purchased_entity->get('weight')->isEmpty()) {
+                  $weight = new Weight(1, WeightUnit::GRAM);
+                }
+                else {
+                  $weight_item = $purchased_entity->get('weight')->first();
+                  $weight = $weight_item->toMeasurement();
+                }
+                //
+                if (!empty($orderItem->getTitle())) {
+                  $shipment_item[$line_item_id] = new ShipmentItem([
+                    'order_item_id' => $orderItem->id(),
+                    'title' => $orderItem->getTitle(),
+                    'quantity' => $quantity,
+                    'weight' => $weight->multiply($quantity),
+                    'declared_value' => $orderItem->getTotalPrice(),
+                  ]);
+                  $first_shipment->addItem($shipment_item[$line_item_id]);
+                }
+              }
+            }
+          }
+          $first_shipment->setItems($shipment_item);
+
+          $shipping_method_storage = \Drupal::entityTypeManager()->getStorage('commerce_shipping_method');
+          $shipping_methods = $shipping_method_storage->loadMultipleForShipment($first_shipment);
+          $first_shipment->setShippingMethod(reset($shipping_methods));
+
+          $shipping_method_plugin = reset($shipping_methods)->getPlugin();
+
+          $adjustment = $order->collectAdjustments();
+          if (!empty($adjustment)) {
+            $shipping_service = '';
+            foreach ($adjustment as $key => $adj_value) {
+              $shippingServices = [
+                'cde_ups_ground' => 'UPS Ground Shipping',
+                'cde_ups_ground_collect' => 'UPS Ground - Collect',
+                'cde_ups_3dayair' => 'UPS 3rd Business Day Air - Collect',
+                'cde_ups_2dayair' => 'UPS 2nd Business Day Air - Collect',
+                'cde_ups_nextdayair' => 'UPS Next Business Day Air - Collect',
+                'cde_ups_nextdayair_saturday' => 'UPS Saturday Next Day Air - Collect',
+                'cde_fedex_ground_collect' => "FedEx - Ground - Collect",
+                'cde_fedex_2day_air' => "FedEx - 2nd Day Air - Collect",
+                'cde_fedex_standard_overnight_air' => "FedEx - Standard Overnight Air - Collect",
+                'cde_fedex_freight_economy' => "FedEx - Freight Economy - Collect",
+                'cde_fedex_freight_priority' => "FedEx - Freight Priority - Collect"
+              ];
+              $key = array_search ($adj_value->getLabel(), $shippingServices);
+              if (!empty($key)) {
+                $shipping_service = $key;
+              }
+            }
+          }
+
+          $first_shipment->setShippingService($shipping_service);
+          $first_shipment->save();
+          $shipments[] = $first_shipment;
+          $order->set('shipments', $shipments);
+          $order->save();
+        }
+      }
+    }
+  }
+  $context['message'] = $message;
+  $context['results'] = $results;
+}
+
+/**
+ * Implements batch function.
+ */
+function truncate_order_track_number($orders, &$context){
+  $message = 'Updating shipments ...';
+  $results = array();
+  foreach ($orders as $orderArry) {
+    if (is_numeric($orderArry[0])) {
+      $order = \Drupal::entityTypeManager()->getStorage('commerce_order')->load($orderArry[0]);
+      if ($order) {
+          /** @var \Drupal\commerce_shipping\ShippingOrderManagerInterface $shipping_order_manager */
+          $shipping_order_manager = \Drupal::service('commerce_shipping.order_manager');
+          if ($shipping_order_manager->hasShipments($order)) {
+            $shipment_storage = \Drupal::entityTypeManager()->getStorage('commerce_shipment');
+            $shipment_storage->delete($order->get('shipments')->referencedEntities());
+          }
+      }
+    }
+  }
+  $context['message'] = $message;
+  $context['results'] = $results;
+}
+
+function import_order_track_number_finished($success, $results, $operations) {
+  // The 'success' parameter means no fatal PHP errors were detected. All
+  // other error management should be handled using 'results'.
+  if ($success) {
+      $message = \Drupal::translation()->formatPlural(count($results), 'One post processed.', '@count posts processed.');
+  }
+  else {
+    $message = t('Finished with an error.');
+  }
+  \Drupal::messenger()->addStatus($message);
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function custom_fixes_token_token_info() {
+  $info = [];
+  $info['types']['cde_order'] = ['name' => t('Cde Order'), 'description' => t('Cde Order')];
+  $info['tokens']['cde_order']['cde_order_item'][] = 'A token to extract desired characters from Node body to be used in meta descriptions';
+  return $info;
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function custom_fixes_token_tokens($type, $tokens, array $data, array $options, \Drupal\Core\Render\BubbleableMetadata $bubbleable_metadata) {
+  $replacements = [];
+  if ($type == 'cde_order') {
+    foreach ($tokens as $name => $original) {
+      // Find the desired token by name.
+      switch ($name) {
+        case 'cde_order_item':
+          $replacements[$original] = my_token_value();
+          break;
+      }
+    }
+  }
+  return $replacements;
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function custom_fixes_menu_local_tasks_alter(&$data, $route_name, \Drupal\Core\Cache\RefinableCacheableDependencyInterface &$cacheability) {
+    $my_account=array(
+      'entity.user.canonical',
+      'view.commerce_user_orders.order_page',
+      'view.user_parts_list.page',
+      'entity.user.replicate',
+      'entity.user.edit_form',
+      'spambot.user_spam',
+      'shortcut.set_switch',
+      'commerce_order.address_book.overview',
+      'profile.user_page.single',
+      'entity.webform_submission.user',
+      'entity.commerce_payment_method.collection',
+      'payment.payment.collection_by_owner',
+      'entity.user.contact_form',
+      'replicate_ui.local_tasks:entity.user.replicate',
+      'shortcut.set_switch',
+    );
+
+    if (in_array($route_name,$my_account)) {
+      // Change order
+      $data['tabs'][0]['replicate_ui.local_tasks:entity.user.replicate']['#weight']= -2;
+      $data['tabs'][0]['shortcut.set_switch']['#weight']= -1;
+      $data['tabs'][0]['entity.user.canonical']['#link']['title'] = 'My account';
+      $data['tabs'][0]['entity.user.edit_form']['#link']['title'] = 'Update email/password';
+      $data['tabs'][0]['commerce_order.address_book.overview']['#weight']= 10;
+      unset($data['tabs'][0]['profile.user_page:billing']);
+      unset($data['tabs'][0]['profile.user_page:shipping']);
+      unset($data['tabs'][0]['entity.webform_submission.user']);
+      /*unset($data['tabs'][0]['entity.commerce_payment_method.collection']);*/
+      unset($data['tabs'][0]['payment.payment.collection_by_owner']);
+    }
+}
+
+function custom_fixes_user_logout(\Drupal\Core\Session\AccountInterface $account) {
+  user_cookie_delete('name');
+  user_cookie_delete('mail');
+  user_cookie_delete('homepage');
+}
+
+// Next SKU value of broken box.
+function next_value_sku_field($field_sku) {
+  if ($field_sku) {
+    if (preg_match('/-R$/', $field_sku, $matches)) {
+      $field_sku = str_replace($matches[0], '', $field_sku);
+    }
+    else {
+      if (preg_match('/-R\d+$/', $field_sku, $matches)) {
+        $field_sku = str_replace($matches[0], '', $field_sku);
+      }
+    }
+
+    $counter = 0;
+    $i = 1;
+    while ($i > 0) {
+      $sku_value = $field_sku . '-R' . $i;
+      $sku_found = \Drupal::database()->query("SELECT `field_supplier_sku_value` FROM {commerce_product__field_supplier_sku} WHERE  `field_supplier_sku_value` =:sku", [':sku' => $sku_value])->fetchField();
+      if (empty($sku_found) || $sku_found == NULL) {
+        $counter = $i;
+        break;
+      }
+      $i++;
+    }
+    return $field_sku . '-R' . $counter;
+  }
+  return NULL;
+}
+
+// Next SKU value of broken box.
+function next_value_sku_field_broaken($field_sku) {
+  if ($field_sku) {
+    if (preg_match('/-B$/', $field_sku, $matches)) {
+      $field_sku = str_replace($matches[0], '', $field_sku);
+    }
+    else {
+      if (preg_match('/-B\d+$/', $field_sku, $matches)) {
+        $field_sku = str_replace($matches[0], '', $field_sku);
+      }
+    }
+
+    $counter = 0;
+    $i = 1;
+    while ($i > 0) {
+      $sku_value = $field_sku . '-B' . $i;
+      $sku_found = \Drupal::database()->query("SELECT `field_supplier_sku_value` FROM {commerce_product__field_supplier_sku} WHERE  `field_supplier_sku_value` =:sku", [':sku' => $sku_value])->fetchField();
+      if (empty($sku_found) || $sku_found == NULL) {
+        $counter = $i;
+        break;
+      }
+      $i++;
+    }
+    return $field_sku . '-B' . $counter;
+  }
+  return NULL;
+}
+
+/**
+ * Implements hook_page_attachments().
+ */
+function custom_fixes_page_attachments(array &$page) {
+  $current_user = \Drupal::currentUser();
+  $roles = $current_user->getRoles();
+  if (in_array('super_administrator', $roles) || in_array('administrator', $roles)) {
+    $page['#attached']['drupalSettings']['user_role'] = 'admin';
+  }
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function custom_fixes_page_attachments_alter(array &$attachments) {
+  $current_path = \Drupal::service('path.current')->getPath();
+  $path_explode = explode('/', ltrim($current_path, '/'));
+
+  if ($path_explode[0] == 'order-online' && !empty($path_explode[2]) && is_numeric($path_explode[2])) {
+    $tele_part = $path_explode[2];
+    $query = \Drupal::entityQuery('commerce_product');
+    $query->condition('field_tele_part', $tele_part);
+    $query->accessCheck(FALSE);
+    $product_ids = $query->execute();
+    $productID = reset($product_ids);
+    $product = \Drupal\commerce_product\Entity\Product::load($productID);
+
+    /** @var \Drupal\commerce_price\Price $price */
+    $product_price = $product->get('commerce_price')->first()->toArray();
+    $price = number_format($product_price['number'],2);
+    $product_size = $product->get('field_product_size')->getString();
+    $category_terms = $product->get('field_category_taxonomy')->referencedEntities();
+    $category_term = reset($category_terms);
+    $category_title = $category_term->get('field_title_alias')->getString();
+    if (empty($category_title)) {
+      $category_title = $category_term->get('field_default_alias')->getString();
+    }
+    $box_count = '';
+    $box_count = number_format($product->get('field_quantity_per_box')->getString(), 0);
+
+    // Add meta description.
+    $metatag_description_content = '$' . $price . ' - Order';
+    if (!empty($product_size)) {
+      $metatag_description_content .= ' ' . $product_size;
+    }
+    if (!empty($category_title)) {
+      $metatag_description_content .= ' ' . $category_title;
+    }
+    if (!empty($box_count)) {
+      $metatag_description_content .= ' (' . $box_count . ' Box Count)';
+    }
+    $product_sku = $product->get('field_supplier_sku')->getString();
+    $metatag_description_content .= ' online with nationwide shipping. ' . $product_sku .' - ' . $tele_part . ' available in bulk quantities at wholesale prices.';
+    foreach ($attachments['#attached']['html_head'] as $index => &$parts) {
+      if (!isset($parts[1]) || $parts[1] !== 'description') {
+        continue;
+      }
+      $parts[0]['#attributes']['content'] = $metatag_description_content;
+    }
+  }
+
+  if (isset($attachments['#attached']['html_head']) && $current_path == '/order-online') {
+    foreach ($attachments['#attached']['html_head'] as $index => &$parts) {
+      if (!isset($parts[1]) || $parts[1] !== 'description') {
+        continue;
+      }
+      $parts[0]['#attributes']['content'] = 'Order Products online with nationwide shipping. Bulk quantities at wholesale prices - CDE Fasteners ☎: 732-785-1933';
+    }
+  }
+
+  if (metatag_is_current_route_supported()) {
+    // Look to see if a configuration was assigned for this route.
+    $route_entity_url = str_replace('/', '_', $current_path);
+    if (!empty($route_entity_url)) {
+      $defaults = \Drupal::entityTypeManager()
+        ->getStorage('metatag_defaults')
+        ->load($route_entity_url);
+      if (!empty($defaults)) {
+        $tags = $defaults->get('tags');
+        if (isset($attachments['#attached']['html_head'])) {
+          foreach ($attachments['#attached']['html_head'] as $index => &$parts) {
+            if (!isset($parts[1]) || $parts[1] !== 'description') {
+              continue;
+            }
+            $parts[0]['#attributes']['content'] = $tags['description'];
+          }
+        }
+      }
+      else {
+        $route_entity_url = ltrim($route_entity_url,"_");
+        $defaults = \Drupal::entityTypeManager()
+          ->getStorage('metatag_defaults')
+          ->load($route_entity_url);
+        if (!empty($defaults)) {
+          $tags = $defaults->get('tags');
+          if (isset($attachments['#attached']['html_head'])) {
+            foreach ($attachments['#attached']['html_head'] as $index => &$parts) {
+              if (!isset($parts[1]) || $parts[1] !== 'description') {
+                continue;
+              }
+              $parts[0]['#attributes']['content'] = $tags['description'];
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // adding meta description for view 3
+  if (!empty($path_explode[1])) {
+    $properties = [];
+    $term_name = str_replace('-', ' ', $path_explode[1]);
+    $properties['name'] = $term_name;
+    $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties($properties);
+    $term = reset($terms);
+
+    if ($path_explode[0] == 'order-online' && !empty($term) && !isset($path_explode[2])) {
+      $route_entity_url = str_replace('/', '_', $current_path);
+      if (!empty($route_entity_url)) {
+        $view_3_defaults = \Drupal::entityTypeManager()
+        ->getStorage('metatag_defaults')
+        ->load($route_entity_url);
+        if (empty($view_3_defaults)) {
+          $route_entity_url = ltrim($route_entity_url,"_");
+          $view_3_defaults = \Drupal::entityTypeManager()
+            ->getStorage('metatag_defaults')
+            ->load($route_entity_url);
+        }
+      }
+      if (empty($view_3_defaults)) {
+        $metatag_description_content = t('Order @term_name online with nationwide shipping. Bulk quantities at wholesale prices - CDE Fasteners ☎: 732-785-1933', ['@term_name' => $term->getName()]);
+        foreach ($attachments['#attached']['html_head'] as $index => &$parts) {
+          if (!isset($parts[1]) || $parts[1] !== 'description') {
+            continue;
+          }
+          $parts[0]['#attributes']['content'] = $metatag_description_content;
+        }
+      }
+    }
+  }
+}
+
+function custom_fixes_preprocess_page(&$vars) {
+   $route_name = \Drupal::routeMatch()->getRouteName();
+   if ($route_name == 'system.403' && isset($_GET['destination'])) {
+      $redirect_path = $_GET['destination'];
+      $response = new RedirectResponse($redirect_path);
+      $request = \Drupal::request();
+      // Save the session so things like messages get saved.
+      $request->getSession()->save();
+      $response->prepare($request);
+      // Make sure to trigger kernel events.
+      \Drupal::service('kernel')->terminate($request, $response);
+      $response->send();
+   }
+}
+
+/**
+ * Implements hook_link_alter().
+ */
+function custom_fixes_link_alter(&$variables) {
+  $uid  = \Drupal::currentUser()->id();
+  //Past order
+  if (stripos($variables['text'], 'PastOrders') !== FALSE) {
+    $variables['url'] = Url::fromUri('internal:/user/' . $uid . '/orders');
+    $variables['text'] = '<i class="fa fa-shopping-cart" aria-hidden="true"></i> Past Orders';
+  }
+  //Past List
+  if (stripos($variables['text'], 'PartsList') !== FALSE) {
+    $variables['url'] = Url::fromUri('internal:/user/' . $uid . '/parts-list');
+    $variables['text'] = '<i class="fa fa-cogs" aria-hidden="true"></i> Parts List';
+  }
+  $variables['text'] = new FormattableMarkup($variables['text'], []);
+}
+
+function custom_fixes_knebridge_product_nodes_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // Replace 'knebridge_product_nodes' with the actual machine name of your product type.
+  if ($form['#node']->getType() == 'knebridge_product_nodes') {
+    // Remove the 'Product Information' tab.
+    unset($form['menu']['#available']['product/%product/edit/product-information']);
+  }
+}
+
+/**
+* Implements hook_menu_alter().
+*/
+function custom_order_tab_removal_menu_alter(&$items) {
+  // Check if the 'Cart' tab exists and is part of the 'admin/commerce/orders/%commerce_order' path.
+  if (isset($items['admin/commerce/orders/%commerce_order/cart'])) {
+    // Remove the 'Cart' tab.
+    unset($items['admin/commerce/orders/%commerce_order/cart']);
+  }
+}
+
+/**
+ * Implements hook_preprocess_menu().
+ *
+ * @param array[] $variables
+ */
+function custom_fixes_preprocess_menu(&$variables) {
+  if (in_array('administrator', Drupal::currentUser()->getRoles()) || in_array('super_administrator', Drupal::currentUser()->getRoles())) {
+    // Hide the menu item
+    unset($variables['items']['masquerade.unmasquerade']);
+  }
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function custom_fixes_entity_type_alter(array &$entity_types) {
+  /** @var \Drupal\Core\Entity\EntityTypeInterface[] $entity_types */
+  // During tests, always have order versioning throw an exception.
+  if (drupal_valid_test_ua()) {
+    $entity_types['commerce_order']->set('log_version_mismatch', FALSE);
+  }
+  else {
+    $config = \Drupal::config('commerce_order.settings');
+    $entity_types['commerce_order']->set('log_version_mismatch', $config->get('log_version_mismatch'));
+  }
+  // Remove the "EntityChanged" constraint, our "OrderVersion" constraint
+  // replaces it.
+  $constraints = $entity_types['commerce_order']->getConstraints();
+
+  unset($constraints['OrderVersion']);
+  unset($constraints['EntityChanged']);
+  $entity_types['commerce_order']->setConstraints($constraints);
+}
+
+function _free_cde_cart_weight_get_totals_by_supplier($line_items) {
+  $totals_by_supplier = [];
+
+  foreach ($line_items as $order_item) {
+    $weight = 0;
+    $quantity = $order_item->getQuantity();
+    $purchased_entity = $order_item->getPurchasedEntity();
+
+    if ($purchased_entity) {
+      $ProductId = $purchased_entity->getProductId();
+      $product = \Drupal::entityTypeManager()->getStorage('commerce_product')->load($ProductId);
+
+      if ($product) {
+        if (!$product->hasField('field_supplier_cost') || !$product->hasField('field_supplier_reference') || !$product->hasField('field_offline_item')) {
+          continue;
+        }
+
+        if ($product->hasField('field_offline_item')) {
+          $is_offline = $product->get('field_offline_item')->getString();
+
+          if ($is_offline == 1 && !empty($product->get('field_supplier_reference')->referencedEntities())) {
+            $suppliers = $product->get('field_supplier_reference')->referencedEntities();
+            $supplier = reset($suppliers);
+
+            if (!isset($totals_by_supplier[$supplier->id()])) {
+              $totals_by_supplier[$supplier->id()]['weight'] = 0;
+              $totals_by_supplier[$supplier->id()]['amount'] = 0;
+            }
+
+            // Total Weight.
+            $weight = $product->get('field_weight')->getString();
+            if (is_numeric($weight)) {
+              $totals_by_supplier[$supplier->id()]['weight'] += $weight * $quantity;
+            }
+
+            // Total Cost.
+            $supplier_cost = $product->get('field_supplier_cost')->getValue();
+            if (!empty($supplier_cost[0]['number'])) {
+              $totals_by_supplier[$supplier->id()]['amount'] += $supplier_cost[0]['number'] * $quantity;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return $totals_by_supplier;
+}
+
+function _cde_free_shipping_product($line_items) {
+  $totals_by_supplier = _free_cde_cart_weight_get_totals_by_supplier($line_items);
+  $taxable_weight = 0;
+  $free_shipping_prod = [];
+
+  foreach ($line_items as $order_item) {
+      $weight = 0;
+      $quantity = $order_item->getQuantity();
+      $purchased_entity = $order_item->getPurchasedEntity();
+
+      if ($purchased_entity) {
+        $ProductId = $purchased_entity->getProductId();
+        $product = \Drupal::entityTypeManager()->getStorage('commerce_product')->load($ProductId);
+
+        if ($ProductId) {
+          if (!$product->hasField('field_supplier_cost') || !$product->hasField('field_supplier_reference') || !$product->hasField('field_offline_item')) {
+            continue;
+          }
+
+          if ($product->hasField('field_offline_item')) {
+            $is_offline = $product->get('field_offline_item')->getString();
+            if ($is_offline != 1) {
+              $weight = $product->get('field_weight')->getString();
+            }
+            else {
+              $suppliers = $product->get('field_supplier_reference')->referencedEntities();
+              $supplier = reset($suppliers);
+
+              if ($suppliers && isset($totals_by_supplier[$supplier->id()]) && !empty($totals_by_supplier[$supplier->id()])) {
+                $free_shipping = 0;
+                $min_weight = $supplier->get('field_minimal_weight_fs')->getString();
+                $min_amount_arr = $supplier->get('field_minimal_amount_fs')->getValue();
+
+                if (!empty($min_amount_arr[0]['number'])) {
+                  $min_amount = $min_amount_arr[0]['number'];
+                }
+                else {
+                  $min_amount = 0;
+                }
+
+                if ($min_amount > 0 && $min_amount <= $totals_by_supplier[$supplier->id()]['amount']) {
+                  $free_shipping = 1;
+                }
+
+                if ($min_weight > 0 && $min_weight <= $totals_by_supplier[$supplier->id()]['weight']) {
+                  $free_shipping = 1;
+                }
+
+                if ($free_shipping == 1) {
+                  $free_shipping_prod[] = $ProductId ;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+  return $free_shipping_prod;
+}
+

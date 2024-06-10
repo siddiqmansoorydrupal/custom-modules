@@ -1,0 +1,36 @@
+cde_order_fulfillment:
+  id: cde_order_fulfillment
+  group: commerce_order
+  label: 'CDE Invoice'
+  states:
+    draft:
+      label: Draft
+    fulfillment:
+      label: Invoiced
+    partial:
+      label: Partial Shipped  
+    completed:
+      label: Invoiced Shipped
+    canceled:
+      label: Canceled
+  transitions:
+    place:
+      label: 'Invoiced order'
+      from: [draft]
+      to: fulfillment
+    partial:
+      label: 'Partial Shipped'
+      from: [fulfillment]
+      to: partial  
+    fulfill:
+      label: 'Invoiced Shipped order'
+      from: [fulfillment, partial]
+      to: completed
+    cancel:
+      label: 'Cancel order'
+      from: [draft, fulfillment, partial]
+      to: canceled
+    shippedtoinvice:
+      label: 'Shipped to Invoiced'
+      from: [completed, partial]
+      to: fulfillment  

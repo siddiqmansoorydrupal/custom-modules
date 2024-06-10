@@ -1,0 +1,4 @@
+services:
+  izi_libizi.libizi:
+    class: Drupal\izi_libizi\Libizi
+    arguments: ['@http_client', '@event_dispatcher', '@state', '@logger.factory', '@string_translation']

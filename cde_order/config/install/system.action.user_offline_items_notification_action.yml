@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - user
+id: user_offline_items_notification_action
+label: 'Products offline items notification to the selected user(s)'
+type: user
+plugin: user_offline_items_notification_action
+configuration: {  }

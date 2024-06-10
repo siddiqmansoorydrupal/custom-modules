@@ -1,0 +1,67 @@
+uuid: 523a5c12-d224-4239-b17b-feee1691d47e
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_field_option_translation
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: alterFieldMigration
+cck_plugin_method: null
+migration_tags:
+  - 'Drupal 7'
+  - Configuration
+  - Multilingual
+migration_group: migrate_drupal_7
+label: 'Field option configuration translation'
+source:
+  plugin: d7_field_option_translation
+process:
+  langcode:
+    -
+      plugin: skip_on_empty
+      source: language
+      method: row
+  entity_type:
+    -
+      plugin: get
+      source: entity_type
+  field_name:
+    -
+      plugin: get
+      source: field_name
+  type:
+    -
+      plugin: process_field
+      source: type
+      method: getFieldType
+  results:
+    -
+      plugin: d7_field_option_translation
+      source:
+        - '@type'
+        - data
+  translation:
+    -
+      plugin: extract
+      source: '@results'
+      index:
+        - 1
+    -
+      plugin: skip_on_empty
+      method: row
+  property:
+    -
+      plugin: extract
+      source: '@results'
+      index:
+        - 0
+    -
+      plugin: skip_on_empty
+      method: row
+destination:
+  plugin: 'entity:field_storage_config'
+  translations: true
+migration_dependencies:
+  required:
+    - upgrade_language
+    - upgrade_d7_field
+  optional: {  }

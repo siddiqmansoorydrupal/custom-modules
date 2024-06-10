@@ -1,0 +1,7 @@
+izi_metatag.settings:
+  path: '/admin/config/system/izi_metatag'
+  defaults:
+    _title: 'IZI Metatag Settings'
+    _form: 'Drupal\izi_metatag\Form\SettingsForm'
+  requirements:
+    _permission: 'administer site configuration'

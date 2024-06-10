@@ -1,0 +1,15 @@
+cde_custom_address_book.shipping:
+  path: '/user/{user}/address-book/shippings'
+  defaults:
+    _controller: '\Drupal\cde_custom_address_book\Controller\AddressBookController::shippingPage'
+    _title: 'Shipping Address Book'
+  requirements:
+    _permission: 'access content'
+
+cde_custom_address_book.billing:
+  path: '/user/{user}/address-book/billings'
+  defaults:
+    _controller: '\Drupal\cde_custom_address_book\Controller\AddressBookController::billingPage'
+    _title: 'Billing Address Book'
+  requirements:
+    _permission: 'access content'

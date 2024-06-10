@@ -1,0 +1,22 @@
+
+{{ details | raw }}
+
+<div class="tour__details-actions">
+
+  {% if previous_id == 'tour_details_first' %}
+    <a href="#{{ previous_id }}" onclick="tourDetailsFirstFunction(this)" class="button button--normal button--icon-controller-prev tour__details-prev js-itinerary-button">
+      {{ 'Previous'|t }}
+    </a>
+  {% elseif previous_id is not empty %}
+    <a href="#{{ previous_id }}" class="button button--normal button--icon-controller-prev tour__details-prev js-itinerary-button">
+      {{ 'Previous'|t }}
+    </a>
+  {% endif %}
+
+  {% if next_id is not empty %}
+    <a href="#{{ next_id }}" class="button button--normal button--icon-controller-next tour__details-next js-itinerary-button">
+      {{ 'Next'|t }}
+    </a>
+  {% endif %}
+
+</div>

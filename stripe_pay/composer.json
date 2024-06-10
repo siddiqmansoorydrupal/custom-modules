@@ -1,0 +1,22 @@
+{
+  "name": "drupal/stripe_pay",
+  "type": "drupal-module",
+  "description": "An implementation of Stripe module to integrate Stripe Payment.",
+  "keywords": ["Drupal", "Stripe", "Payment"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/stripe_pay",
+  "authors": [
+        {
+            "name": "Sujan Shrestha",
+            "homepage": "https://www.drupal.org/u/sujan-shrestha",
+            "role": "Maintainer"
+        }
+   ],
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/stripe_pay",
+    "source": "http://cgit.drupalcode.org/stripe_pay"
+  },
+  "require": {
+    "stripe/stripe-php": "^10.15"
+  }
+}

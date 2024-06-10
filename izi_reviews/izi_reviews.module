@@ -1,0 +1,173 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for izi_reviews module.
+ */
+
+const IZI_REVIEWS_COOKIE_NAME = 'drupal_review_posted';
+const IZI_REVIEWS_SHOW_LIMIT = 5;
+const IZI_REVIEWS_RATING_MAX = 10;
+const IZI_REVIEWS_STARS_MAX = 5;
+
+/**
+ * Implements hook_theme().
+ */
+function izi_reviews_theme($existing, $type, $theme, $path) {
+  return [
+    'izi_reviews_form_and_listing_block' => [
+      'template' => 'izi-reviews-block-content',
+      'variables' => [
+        'count' => 0,
+        'number_of_reviews_text' => '',
+        'form' => NULL,
+        'reviews' => NULL,
+        'load_more_count' => 0,
+        'offset' => IZI_REVIEWS_SHOW_LIMIT,
+        'uuid' => NULL,
+      ],
+    ],
+    'izi_reviews_review' => [
+      'template' => 'izi-review',
+      'variables' => [
+        'stars' => 5,
+        'name' => NULL,
+        'text' => NULL,
+        'date' => NULL,
+      ],
+    ],
+    'izi_reviews_post_review_form' => [
+      'render element' => 'form',
+      'template' => 'izi-reviews-post-form',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_date_format_types().
+ */
+function izi_reviews_date_format_types() {
+  return [
+    'post_date' => t('Post date'),
+  ];
+}
+
+/**
+ * Implements hook_date_formats().
+ */
+function izi_reviews_date_formats() {
+  $formats = [];
+  // The following formats will be available for localizing the "Post date"
+  // date format into various language formats.
+  $formats[] = [
+    'type' => 'post_date',
+  // Day Month Year (default)
+    'format' => 'j F Y',
+    'locales' => [],
+  ];
+  $formats[] = [
+    'type' => 'post_date',
+  // Day Month Year (dutch)
+    'format' => 'm-d-Y',
+    'locales' => [],
+  ];
+  $formats[] = [
+    'type' => 'post_date',
+  // Day. Month Year (Norwegian, Danish)
+    'format' => 'j. F Y',
+    'locales' => [],
+  ];
+  $formats[] = [
+    'type' => 'post_date',
+  // Day/ Month Year (German)
+    'format' => 'j/ F Y',
+    'locales' => [],
+  ];
+  $formats[] = [
+    'type' => 'post_date',
+  // Day de Month de Year (Spanish, Portuguese)
+    'format' => 'j \d\e F \d\e Y',
+    'locales' => [],
+  ];
+  $formats[] = [
+    'type' => 'post_date',
+  // Day Month Year r. (Polish, Russian)
+    'format' => 'j F Y \r.',
+    'locales' => [],
+  ];
+  $formats[] = [
+    'type' => 'post_date',
+  // Month Day, Year (US)
+    'format' => 'F j, Y',
+    'locales' => [],
+  ];
+  $formats[] = [
+    'type' => 'post_date',
+  // Month.Day.Year (Finnish)
+    'format' => 'n.j.Y',
+    'locales' => [],
+  ];
+  $formats[] = [
+    'type' => 'post_date',
+  // Year Month Day (APAC)
+    'format' => 'Y F j',
+    'locales' => [],
+  ];
+  $formats[] = [
+    'type' => 'post_date',
+  // Year. Month Day. (Hungarian)
+    'format' => 'Y. F j.',
+    'locales' => [],
+  ];
+  $formats[] = [
+    'type' => 'post_date',
+  // Y M D (Chinese/Taiwan)
+    'format' => 'Y \年 n \月 j \日',
+    'locales' => [],
+  ];
+  $formats[] = [
+    'type' => 'post_date',
+  // Y M D (Japanese)
+    'format' => 'Y\年 n\月 j\日',
+    'locales' => [],
+  ];
+  $formats[] = [
+    'type' => 'post_date',
+  // Y M D (Korean)
+    'format' => 'Y\년 n\월 j\일',
+    'locales' => [],
+  ];
+  return $formats;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function izi_reviews_block_info() {
+  $blocks = [];
+  // Reviews block with the input form and the listing.
+  $blocks['form_and_listing'] = [
+    'info' => t('Izi reviews (form and listing)'),
+    '#cache' => ['max-age' => 0],
+  ];
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function izi_reviews_block_view($delta = '') {
+  $block = [];
+  // Remove this when izi_tweaks integration.
+  $delta = '';
+  switch ($delta) {
+    case 'form_and_listing':
+      [$uuid, $type] = izi_apicontent_get_uuid_from_url();
+      if ($uuid && $type == IZI_APICONTENT_TYPE_MTG_OBJECT) {
+        $block['subject'] = t('Reviews');
+        $block['content'] = izi_reviews_form_and_listing_render_block_content($uuid);
+      }
+      break;
+  }
+  return $block;
+}

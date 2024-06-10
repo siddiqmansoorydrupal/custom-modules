@@ -1,0 +1,10 @@
+administer izi_ads configuration:
+  title: 'Administer izi_ads configuration'
+  description: 'Optional description.'
+  restrict access: true
+
+administer izi_ads:
+  title: 'Administer izi ads'
+
+administer izi_ads_exclusion:
+  title: 'Administer izi ads exclusion'

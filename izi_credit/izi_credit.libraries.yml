@@ -1,0 +1,6 @@
+izi_credit:
+  dependencies:
+    - core/jquery
+    - core/drupal.dialog.ajax
+  js:
+    js/izi_credit.js: {}

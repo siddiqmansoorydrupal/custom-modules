@@ -1,0 +1,24 @@
+div.marker {
+  border-radius: 50%;
+  border: 1px solid #0e5671;
+  color: #525252;
+  background-color: white;
+  font-size: 1.2em;
+}
+
+div.marker:hover,
+div.marker.marker-active {
+  color: white;
+  background-color: #0e5671;
+  z-index: 1024;
+}
+
+/*div.tour__map.overlay__present {*/
+/*margin-left: 43.75em;*/
+/*width: calc(100% - 43.75em);*/
+/*}*/
+
+div.marker p {
+  text-align: center;
+  line-height: 30px;
+}

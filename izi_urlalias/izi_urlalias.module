@@ -1,0 +1,770 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for IZI Url Alias module.
+ */
+
+use Drupal\Core\Entity\EntityStorageException;
+use Drupal\Core\Language\LanguageInterface;
+use Drupal\izi_urlalias\Plugin\QueueWorker\CityAlias;
+use Drupal\izi_urlalias\Plugin\QueueWorker\CountryAlias;
+use Drupal\izi_urlalias\Plugin\QueueWorker\TourAlias;
+use Drupal\path_alias\Entity\PathAlias;
+use Drupal\redirect\Entity\Redirect;
+
+/**
+ * Implements hook_cron.
+ * Logs current state of alias processing.
+ *
+ * @return void
+ */
+function izi_urlalias_cron(): void {
+
+  /** @var \Drupal\Core\Queue\QueueFactory $queue_factory */
+  $queue_factory = Drupal::service('queue');
+  $queue_counts = [];
+  $queue_total = 0;
+  $queue_names = [
+    CountryAlias::QUEUE_NAME,
+    CityAlias::QUEUE_NAME,
+    TourAlias::QUEUE_NAME,
+  ];
+  $last_run = Drupal::state()->get('izi_urlalias_cron_last_run', 0);
+
+  // Get number of items in the queue.
+  foreach ($queue_names as $queue_name) {
+    $queue = $queue_factory->get($queue_name);
+    $queue_count = $queue->numberOfItems();
+    $queue_total += $queue_count;
+    $queue_counts[$queue_name] = $queue_count;
+  }
+
+  if ($queue_total > 0) {
+    Drupal::logger('izi_urlalias')->notice("Cron clean up aliases - %count items in queues, skipping.", ['%count' => $queue_total]);
+    foreach ($queue_counts as $queue => $queue_count) {
+      Drupal::logger('izi_urlalias')->notice("Queue %queue has %count items.", ['%queue' => $queue, '%count' => $queue_count]);
+    }
+  }
+  else {
+    $cron_threshold = Drupal::config('izi_urlalias.settings')
+      ->get('cron_threshold') ?: 60 * 5;
+    if ($last_run < $_SERVER['REQUEST_TIME'] - $cron_threshold) {
+      Drupal::logger('izi_urlalias')->notice("Cron clean up aliases.");
+      izi_urlalias_queue_task_clean_up();
+      Drupal::state()
+        ->set('izi_urlalias_cron_last_run', $_SERVER['REQUEST_TIME']);
+    }
+  }
+}
+
+/**
+ * Returns the history status of one object.
+ *
+ * @param $uuid
+ *   The UUID of the object.
+ * @param string $langcode
+ *   Language code of the item.
+ *
+ * @return false|object
+ *   The history object. FALSE if the UUID does not exist in the history table.
+ *
+ * @see izi_urlalias_schema()
+ */
+function izi_urlalias_get_status($uuid, $langcode) {
+  $result = izi_urlalias_get_status_multiple("$uuid:$langcode");
+  return empty($result) ? FALSE : reset($result);
+}
+
+/**
+ * Returns the history status of objects.
+ *
+ * @param string|array $ids
+ *   Id or array of id strings. Id string: [uuid]:[language code].
+ * @param int $verified
+ *   (optional) Verification status to filter on. 0: not verified; 1: verified.
+ *
+ * @return false|object
+ *   The history object. FALSE no results were found.
+ *
+ * @see izi_urlalias_schema()
+ */
+function izi_urlalias_get_status_multiple($ids, $verified = NULL) {
+
+  $connection = Drupal::database();
+  $query = $connection->select('izi_urlalias_status', 'status')
+    ->condition('uuid', $ids)
+    ->fields('status');
+  if (isset($verified)) {
+    $query->condition('verified', $verified);
+  }
+  $result = $query->execute()->fetchAllAssoc('uuid');
+
+  return empty($result) ? FALSE : $result;
+}
+
+/**
+ * Delete an item from the status table.
+ *
+ * @param $uuid
+ * @param $lang
+ *
+ * @return int
+ */
+function izi_urlalias_clear_status_item($uuid, $lang) {
+  $connection = Drupal::database();
+  $uuid_lang = "$uuid:$lang";
+  $query = $connection->delete('izi_urlalias_status')
+    ->condition('uuid', $uuid_lang);
+  return $query->execute();
+}
+
+/**
+ * Helper: Provides the CountryCity translations array of language code keys.
+ *
+ * @param array $data
+ *   CountryCity translations.
+ *
+ * @return \Triquanta\IziTravel\DataType\CountryCityTranslation[]
+ *   CountryCity translations keyed by language code.
+ */
+function _izi_urlalias_keyed_translations($data) {
+  $translations = [];
+
+  /** @var \Triquanta\IziTravel\DataType\CountryCityTranslation[] $data */
+  foreach ($data as $translation) {
+    $translations[$translation->getLanguageCode()] = $translation;
+  }
+  return $translations;
+}
+
+/**
+ * Gets the Drupal language code that maps to the iziTravel language code.
+ *
+ * @param string $izi_language
+ *   An izi travel ISO 639-1 language code.
+ *
+ * @return string
+ *   The corresponding Drupal language code.
+ */
+function izi_urlalias_izi_to_drupal_language($izi_langcode) {
+
+  $langcode_map = &drupal_static(__FUNCTION__);
+
+  if (!isset($langcode_map)) {
+    $preferred_languages = izi_apicontent_get_preferred_content_languages();
+    $langcode_map = array_combine($preferred_languages, $preferred_languages);
+    foreach (_izi_apicontent_languages_map() as $langcode => $data) {
+      $langcode_map[$data['code']] = $langcode;
+      $langcode_map[$langcode] = $langcode;
+    }
+  }
+  return $langcode_map[$izi_langcode];
+}
+
+/**
+ * Prepares a UUID for using it in a URL.
+ *
+ * @param $title
+ *
+ * @return string
+ */
+function _izi_urlalias_prepare_url_string($title): string {
+  return Drupal::service('pathauto.alias_cleaner')
+    ->cleanString($title);
+}
+
+/**
+ * Prepares a UUID for using it in a URL.
+ *
+ * @param string $uuid
+ *   Object UUID.
+ *
+ * @return string
+ */
+function _izi_urlalias_prepare_uuid($uuid): string {
+  return substr($uuid, 0, 4);
+}
+
+/**
+ * Convenience function to retrieve language map from language service.
+ *
+ * @return array|\string[][]
+ */
+function _izi_apicontent_languages_map(): array {
+  /** @var \Drupal\izi_apicontent\LanguageService $languages */
+  $languages = Drupal::service('izi_apicontent.language_service');
+  return $languages->languages_map();
+}
+
+/**
+ * Convenience function to retrieve preferred languages.
+ *
+ * @return array
+ */
+function izi_apicontent_get_preferred_content_languages(): array {
+  /** @var \Drupal\izi_apicontent\LanguageService $languages */
+  $languages = Drupal::service('izi_apicontent.language_service');
+  return $languages->get_preferred_content_languages();
+}
+
+/**
+ * Create or update a Drupal URL alias.
+ *
+ * @param string $uuid
+ *   UUID of item.
+ * @param string $subtype
+ *   Subtype of item (eg 'country' 'city' 'tour' 'publisher').
+ * @param string $source
+ *   Source URL.
+ * @param string $target_alias
+ *   URL alias.
+ * @param string $path_language
+ *   (optional) Drupal interface language code.
+ * @param bool $xmlsitemap
+ *   Whether to update sitemap.
+ * @param string $xmlsitemap_language
+ *   Sitemap Language (Can deprecate?)
+ * @param string $log_category
+ *   LC.
+ *
+ * @throws \Exception
+ */
+function izi_urlalias_update_alias($uuid, $subtype, $source, $target_alias, string $path_language = LanguageInterface::LANGCODE_NOT_SPECIFIED, $xmlsitemap = FALSE): void {
+
+  if (Drupal::state()->get('izi.urlalias.disable_alias_gen', FALSE)) {
+    return;
+  }
+
+  /** @var \Drupal\path_alias\AliasRepository $path_alias_repository */
+  $entity_type_manager = Drupal::entityTypeManager();
+  $path_storage = $entity_type_manager->getStorage('path_alias');
+
+  // Double-check our paths & aliases always start with '/'.
+  if (!str_starts_with($source, '/')) {
+    $source = '/' . $source;
+  }
+  if (!str_starts_with($target_alias, '/')) {
+    $target_alias = '/' . $target_alias;
+  }
+
+  $existing_paths = $path_storage->loadByProperties([
+    'path' => $source,
+    'langcode' => $path_language,
+  ]);
+
+  $saved_path = FALSE;
+
+  if (empty($existing_paths)) {
+
+    if (_dbg_izi_alias()) {
+      Drupal::logger('izi_urlalias')->notice("Saving alias (%l) %s : %d", [
+        '%s' => $source,
+        '%d' => $target_alias,
+        '%l' => $path_language,
+      ]);
+    }
+
+    $new_path_alias = PathAlias::create([
+      'path' => $source,
+      'alias' => $target_alias,
+      'langcode' => $path_language,
+    ]);
+    $saved = $new_path_alias->save();
+    if ($xmlsitemap) {
+      izi_urlalias_xmlsitemap_save($uuid, $subtype, $source, $path_language);
+    }
+    $saved_path = TRUE;
+  }
+  else {
+    /** @var \Drupal\path_alias\Entity\PathAlias $path_alias */
+    $path_alias = reset($existing_paths);
+    $old_path = $path_alias->getAlias();
+
+    if (_dbg_izi_alias()) {
+      Drupal::logger('izi_urlalias')->notice("Updating alias (%l) %s: %d \n Old: %o", [
+        '%s' => $source,
+        '%o' => $old_path,
+        '%d' => $target_alias,
+        '%l' => $path_language,
+      ]);
+    }
+
+    // If an alias for this $source exists and the alias differs from to the
+    // current $url. Create a redirect.
+    if ($old_path !== $target_alias) {
+      izi_urlalias_redirect_save($path_alias->getAlias(), $target_alias, $path_language);
+
+      if ($xmlsitemap) {
+        izi_urlalias_xmlsitemap_remove($uuid, $subtype, $old_path, $path_language);
+        izi_urlalias_xmlsitemap_save($uuid, $subtype, $source, $path_language);
+      }
+    }
+  }
+
+  // Check if the same $url already exists as alias for a different source.
+  // In practice this is only likely to happen for cities since they do not
+  // have a unique alias.
+  $conflicting_aliases = $path_storage->loadByProperties([
+    'alias' => $target_alias,
+    'langcode' => $path_language,
+  ]);
+
+  /** @var \Drupal\path_alias\Entity\PathAlias $conflicting_path_alias */
+  foreach ($conflicting_aliases as $conflicting_path_alias) {
+    $conflicting_path = $conflicting_path_alias->getPath();
+    if ($conflicting_path === $source) {
+      $message = t("IZI Url Alias - Duplicate alias found for new source: Alias @alias; Old source: @old_source; New source: @new_source; Language: @language", [
+        '@alias' => $target_alias,
+        '@old_source' => $conflicting_path,
+        '@new_source' => $source,
+        '@language' => $path_language,
+      ]);
+
+    }
+  }
+
+  // Save the (new) path alias.
+  if ($saved_path) {
+    // Delete redirects if needed.
+    // If we are saving a new path_alias then we can redirect any redirects that
+    // will take us from the alias to another location.
+    $ids = Drupal::entityQuery('redirect')
+      ->condition('redirect_source', $target_alias)
+      ->execute();
+
+    if (count($ids)) {
+      Drupal::logger('izi_urlalias')->notice("Deleting %c redirects from outdated source %url", [
+        '%c' => count($ids),
+        '%url' => $target_alias,
+      ]);
+      $entities = Redirect::loadMultiple($ids);
+      Drupal::entityTypeManager()->getStorage('redirect')->delete($entities);
+    }
+  }
+}
+
+/**
+ * Creates a redirect.
+ *
+ * Will prevent simple redirects of the form A -> B -> A.
+ *
+ * @param $from
+ *   Redirect source URL.
+ * @param $to
+ *   Redirect destination URL.
+ * @param string $language
+ *   (optional) Redirect language.
+ */
+function izi_urlalias_redirect_save($from, $to, string $language = LanguageInterface::LANGCODE_NOT_SPECIFIED) {
+
+  $redirectRepository = Drupal::getContainer()->get('redirect.repository');
+
+  // First delete any reverse redirect which would cause a loop.
+  $ids = Drupal::entityQuery('redirect')
+    ->condition('redirect_source.path', $to)
+    ->condition('redirect_redirect.uri', $from)
+    ->condition('language', $language)
+    ->execute();
+  $entities = Redirect::loadMultiple($ids);
+
+  Drupal::entityTypeManager()->getStorage('redirect')->delete($entities);
+
+  $same_redirect_already_exists = Drupal::entityQuery('redirect')
+    ->condition('redirect_source.path', $from)
+    ->condition('language', $language)
+    ->execute();
+
+  if (!empty($same_redirect_already_exists)) {
+    $entities = Redirect::loadMultiple($same_redirect_already_exists);
+    Drupal::entityTypeManager()->getStorage('redirect')->delete($entities);
+  }
+
+  // Now create new redirect.
+  try {
+    $message = t('IZI Url Alias - Creating Redirect from @from to @to (@lang)', [
+      '@from' => $from,
+      '@to' => $to,
+      '@lang' => $language,
+    ]);
+    Drupal::logger('izi_urlalias')->notice($message);
+
+    Redirect::create([
+      'redirect_source' => [
+        'path' => $from,
+      ],
+      'redirect_redirect' => $to,
+      'language' => $language,
+      'status_code' => '301',
+    ])->save();
+  }
+  catch (EntityStorageException $e) {
+    Drupal::logger('izi_urlalias')->error('IZI Url Alias - Error creating from @from to @to (@lang). | @message', [
+      '@from' => $from,
+      '@to' => $to,
+      '@lang' => $language,
+      '@message' => $e->getMessage(),
+    ]);
+
+  }
+
+}
+
+/**
+ * Mark UUID(s) as verified.
+ *
+ * @param string $uuid
+ *   UUID of item to marked as verified.
+ * @param string $langcode
+ *   .
+ *   Language code of the item.
+ * @param string|null $hash
+ *   (optional) Object revision hash.
+ */
+function izi_urlalias_status_set_verified(string $uuid, string $langcode, string $hash = NULL): void {
+  $id = "$uuid:$langcode";
+
+  $connection = Drupal::database();
+
+  $fields = [
+    'deleted' => 0,
+    'verified' => 1,
+    'hash' => $hash ?? NULL,
+  ];
+
+  $connection->merge('izi_urlalias_status')
+    ->key('uuid', $id)
+    ->fields($fields)
+    ->execute();
+
+}
+
+/**
+ *
+ */
+function izi_urlalias_status_delete($uuid): void {
+  $connection = Drupal::database();
+  $connection->update('izi_urlalias_status')
+    ->condition('uuid', '%' . $uuid . '%', 'LIKE')
+    ->fields([
+      'deleted' => 2,
+    ])
+    ->execute();
+}
+
+/**
+ * Queue task: Cleans the history table and removes old items.
+ *
+ * This task should be added as final task of sub-processes. (When the 'pager'
+ * has reached the last page.)
+ */
+function izi_urlalias_queue_task_clean_up(): void {
+  // When the complete queue process is finished, do some wrapping up.
+  izi_urlalias_clean_up_queue_tasks();
+  izi_urlalias_clean_up_old_items();
+  izi_urlalias_clean_up_redirect_loops();
+  Drupal::logger('izi_urlalias')->notice('Completed update of URL Aliases.');
+}
+
+/**
+ * Resets the history and queue status. Unlocks the queue process.
+ *
+ * This must only be called when ALL queue tasks are executed successfully.
+ */
+function izi_urlalias_clean_up_queue_tasks(): void {
+  // Mark items that were not found in the API as being deleted.
+  izi_urlalias_status_check_deleted();
+  // Reset all verified flags.
+  izi_urlalias_reset_verified();
+}
+
+/**
+ * Removes history and aliases of items that were deleted.
+ */
+function izi_urlalias_clean_up_old_items() {
+
+  // Delete status history and aliases of items older than the threshold.
+  $delete_threshold = Drupal::config('izi_urlalias.settings')->get('delete_threshold') ?: (60 * 60 * 24 * 7);
+  $threshold = $_SERVER['REQUEST_TIME'] - $delete_threshold;
+
+  $connection = Drupal::database();
+  $uuids = $connection->select('izi_urlalias_status', 'status')
+    ->fields('status', ['uuid'])
+    ->condition('deleted', $threshold, '<')
+    ->condition('deleted', 0, '<>')
+    ->execute()
+    ->fetchCol();
+
+  if ($uuids) {
+    $delete_limit = Drupal::config('izi_urlalias.settings')->get('delete_batch_limit') ?: 1000;
+
+    $limited_uuids = array_splice($uuids, 0, $delete_limit);
+
+    // Log: Process alias deletions and xmlsitemap deletions.
+    Drupal::logger('izi_urlalias')->notice('Deleting @num of @total objects marked for deletion.', [
+      '@num' => count($limited_uuids),
+      '@total' => count($uuids),
+    ]);
+
+    $paths_to_delete = [];
+    $time = time();
+    foreach ($limited_uuids as $id) {
+      [$uuid, $langcode] = explode(':', $id);
+      $source = "%$uuid%";
+
+      $result = $connection->select('path_alias', 'p')
+        ->fields('p', ['id'])
+        ->condition('path', $source, 'LIKE')
+        ->execute();
+
+      $pids = $result->fetchCol();
+
+      $paths_to_delete = array_merge($paths_to_delete, $pids);
+    }
+
+    $elapsed = time() - $time;
+
+    // Log: Process alias deletions and xmlsitemap deletions.
+    Drupal::logger('izi_urlalias')->notice('Deleting @num aliases from objects marked for deletion.', [
+      '@num' => count($limited_uuids),
+    ]);
+
+    // Delete paths from sitemap
+    // TechDebt: Better to delete through path service, but for now this is
+    // more performant.
+    if (count($paths_to_delete)) {
+      $num_deleted = $connection->delete('path_alias')
+        ->condition('id', $paths_to_delete, 'IN')
+        ->execute();
+    }
+
+    // Log: Process alias deletions and xmlsitemap deletions.
+    Drupal::logger('izi_urlalias')->notice('Paths deleted.');
+
+    $removed_count = $connection->delete('izi_urlalias_status')
+      ->condition('uuid', $limited_uuids, 'IN')
+      ->execute();
+
+    Drupal::logger('izi_urlalias')->notice('Aliases deleted.');
+
+  }
+}
+
+/**
+ * Remove combination aliases/redirect that can cause loops.
+ */
+function izi_urlalias_clean_up_redirect_loops() {
+
+  // Select redirects which have an opposite alias. This may be caused
+  // by renamed content. We remove them as they cause loops.
+  $connection = Drupal::database();
+  $query = $connection->select('redirect', 're');
+  $query->fields('re', ['rid']);
+  $query->join(
+    'path_alias',
+    'al',
+    "re.redirect_source__path = al.alias AND re.redirect_redirect__uri = al.path AND (re.language = al.langcode OR re.language = 'und' OR al.langcode = 'und')");
+  $result = $query->execute()->fetchAllKeyed();
+
+  if ($result) {
+    $connection->delete('redirect')->condition('rid', array_keys($result))->execute();
+  }
+
+  Drupal::logger('izi_urlalias')->notice('Deleted @count redirect loops.', ['@count' => count($result)]);
+}
+
+/**
+ * Check and mark all items that are not verified as deleted.
+ *
+ * This function should only be executed when the complete batch process is
+ * finished.
+ */
+function izi_urlalias_status_check_deleted() {
+  $connection = Drupal::database();
+  $uuids = $connection->select('izi_urlalias_status', 'status')
+    ->condition('verified', 0)
+    ->fields('status', ['uuid'])
+    ->execute()
+    ->fetchCol();
+
+  if ($uuids) {
+    izi_urlalias_status_set_deleted($uuids);
+    Drupal::logger('izi_urlalias')->notice('@count object(s) marked for deletion.', ['@count' => count($uuids)]);
+  }
+  return $uuids;
+}
+
+/**
+ * Mark UUIDs as deleted.
+ *
+ * @param string[] $uuids
+ *   Array of IDs (UUID:langcode) of item(s) to marked as verified.
+ */
+function izi_urlalias_status_set_deleted($uuids) {
+  $connection = Drupal::database();
+  $query = $connection->update('izi_urlalias_status')
+    ->fields([
+      'deleted' => REQUEST_TIME,
+      'verified' => 1,
+    ])
+    ->condition('uuid', $uuids, 'IN')
+    ->condition('deleted', 0);
+
+  $qs = $query->__toString();
+  $query->execute();
+}
+
+/**
+ * Reset verified state of all items in the history.
+ *
+ * @param int $status
+ *   0 = not verified since last process; 1 = verified during current process;.
+ */
+function izi_urlalias_reset_verified(int $status = 0) {
+  $connection = Drupal::database();
+  $query = $connection->select('izi_urlalias_status', 'status')
+    ->fields('status', ['verified'])
+    ->condition('status.verified', 1)
+    ->countQuery();
+  $verify_count = $query->execute()->fetchField();
+
+  Drupal::logger('izi_urlalias')->notice('@count objects verified. Job completed.', ['@count' => $verify_count]);
+
+  $connection->update('izi_urlalias_status')
+    ->fields(['verified' => $status])
+    ->execute();
+}
+
+/**
+ * Saves path to sitemap. Expects an internal path.
+ *
+ * @param string $uuid
+ *   UUID of IZI object.
+ * @param string $subtype
+ *   Subtype string (.eg. tour/city) for identification.
+ * @param $path
+ *   Internal drupal path eg `/city/29f2e036-b54b-41d5-9dbc-c7e7e5de3fb3`
+ * @param $lang
+ *   Legacy, remove.
+ */
+function izi_urlalias_xmlsitemap_save($uuid, $subtype, $path, $lang): void {
+
+  if (Drupal::state()->get('izi.urlalias.disable_sitemap_gen', FALSE)) {
+    return;
+  }
+
+  if (!Drupal::service('module_handler')->moduleExists('xmlsitemap')) {
+    return;
+  }
+
+  // We need an unique ID subtype pair for each alias.
+  [$id, $type] = izi_urlalias_xmlsitemap_id_type($uuid, $subtype, $path, $lang);
+
+  $link = [
+    'id' => $id,
+    'type' => $type,
+    'subtype' => $subtype,
+    'loc' => $path,
+    'priority' => '1.0',
+  // Weekly.
+    'changefreq' => '604800',
+    'language' => $lang,
+  ];
+
+  if (_dbg_izi_sitemap()) {
+    Drupal::logger('izi_urlalias')->notice('Saving sitemap link %path %lang', [
+      '%path' => $path,
+      '%lang' => $lang,
+    ]);
+  }
+  /** @var \Drupal\xmlsitemap\XmlSitemapLinkStorageInterface $custom_links */
+  $custom_links = Drupal::service('xmlsitemap.link_storage');
+
+  $link = $custom_links->save($link);
+  if (empty($link)) {
+    Drupal::logger('izi_urlalias')->error('Failed to save link.');
+  }
+
+}
+
+/**
+ * Create a unique ID subtype pair for storing in xmlsitemap.
+ *
+ * We need a unique pair for each alias. We need this to store and to delete.
+ * We use the UUID as ID and combine a "type" & language for the subtype.
+ *
+ * @param $uuid
+ *   Object UUID
+ * @param $subtype
+ *   eg Alias type eg Tour City Country Publisher
+ * @param $path
+ *   Path to save to the sitemap
+ * @param $lang
+ *   Language of the link
+ *
+ * @return array
+ */
+function izi_urlalias_xmlsitemap_id_type($uuid, $subtype, $path, $lang) {
+  $id = substr($uuid, 0, 32);
+  $path_segments = explode('/', $path);
+  // Suffix subtype with language, except publishers which do not have language.
+  $subtype = ($subtype != 'publisher' && !empty($path_segments[3]))
+    ? $subtype . '_' . $path_segments[3]
+    : $subtype;
+  $type = 'izi_urlalias:' . $subtype;
+  return [$id, $type];
+}
+
+/**
+ *
+ */
+function izi_urlalias_xmlsitemap_remove($uuid, $subtype, $path, $lang) {
+
+  if (Drupal::state()->get('izi.urlalias.disable_sitemap_gen', FALSE)) {
+    return;
+  }
+
+  if (!Drupal::service('module_handler')->moduleExists('xmlsitemap')) {
+    return;
+  }
+
+  /** @var \Drupal\xmlsitemap\XmlSitemapLinkStorageInterface $custom_links */
+  $custom_links = Drupal::service('xmlsitemap.link_storage');
+  [$id, $type] = izi_urlalias_xmlsitemap_id_type($uuid, $subtype, $path, $lang);
+
+  $count = $custom_links->deleteMultiple([
+    'id' => $id,
+    'type' => $type,
+    'language' => $lang,
+  ]);
+
+  if (_dbg_izi_sitemap()) {
+    if ($count) {
+      Drupal::logger('izi_urlalias')->notice('Removing %path %lang', [
+        '%path' => $path,
+        '%lang' => $lang,
+      ]);
+    }
+    else {
+      Drupal::logger('izi_urlalias')->notice('Failed to remove %path %lang', [
+        '%path' => $path,
+        '%lang' => $lang,
+      ]);
+    }
+  }
+
+}
+
+/**
+ *
+ */
+function _dbg_izi_sitemap() {
+  return Drupal::config('izi_urlalias.settings')->get('debug_sitemap') ?: FALSE;
+}
+
+/**
+ *
+ */
+function _dbg_izi_alias() {
+  return Drupal::config('izi_urlalias.settings')->get('debug_aliases') ?: FALSE;
+}

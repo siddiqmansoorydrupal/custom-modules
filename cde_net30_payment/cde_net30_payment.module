@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * @file
+ * Contains cde_net30_payment.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\commerce_product\Entity\Product;
+use Drupal\commerce_order\Entity\OrderInterface;
+
+/**
+ * Implements hook_help().
+ */
+function cde_net30_payment_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the cde_net30_payment module.
+    case 'help.page.cde_net30_payment':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides a custom CDE payment method.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**/
+function cde_net30_payment_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
+  if ($entity instanceof OrderInterface) {
+    $order = $entity;
+    $previousUrl = \Drupal::request()->server->get('HTTP_REFERER');
+    $payment_gateway = $order->payment_gateway->first();
+    if (!empty($previousUrl) && !strpos($previousUrl, 'admin/commerce/orders')) {
+      // Get all line items for the order.
+      $line_items = $order->getItems();
+      // Loop through each line item and get the associated product.
+      foreach ($line_items as $line_item) {
+        $product = $line_item->getPurchasedEntity();
+        if ($product) {
+          $product_id = $product->get('product_id')->getValue()[0]['target_id'];
+          $product_obj = Product::load($product_id);
+          if ($product_obj->get('field_offline_item')->getString() == 1) {
+            $product_sku = $product_obj->get('field_supplier_sku')->getString();
+            if (substr($product_sku, -2) == '-B' || preg_match('/-B\d+$/', $product_sku)) {
+             // $product_obj->set('field_eligible_customers', []);
+              //$product_obj->save();
+              $customer = $order->getCustomer();
+              if ($customer) {
+               \Drupal::database()->delete('commerce_product__field_eligible_customers')->condition('entity_id', $product_id)->condition('field_eligible_customers_target_id', $customer->id())->execute();
+              }
+
+            }
+          }
+
+        }
+      }
+
+      if ( /*$order->isNew() && */isset($payment_gateway->target_id) && $payment_gateway->target_id == 'cde_net_30') {
+        /*\Drupal::messenger()->addMessage("Net 30 update to net30_open file: ".__FILE__." line ".__LINE__, 'status');*/
+        $order->field_net_30_status->setValue("net30_open"); /*die;*/
+      }
+    }
+  }
+}

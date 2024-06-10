@@ -1,0 +1,62 @@
+uuid: 256825a8-93b5-431a-832f-d7884316152a
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_d7_view_modes
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Configuration
+migration_group: cde_system
+label: 'View modes'
+source:
+  plugin: uc7_view_mode
+process:
+  mode:
+    -
+      plugin: static_map
+      source: view_mode
+      bypass: true
+      map:
+        default: full
+  label:
+    -
+      plugin: static_map
+      source: view_mode
+      bypass: true
+      map:
+        search_index: 'Search index'
+        search_result: 'Search result'
+        rss: RSS
+        print: Print
+        teaser: Teaser
+        full: Full
+        default: Full
+  targetEntityType:
+    -
+      plugin: static_map
+      source: entity_type
+      bypass: 'true'
+      map:
+        product_display: commerce_product
+        commerce_product: commerce_product_variation
+        commerce_customer_profile: skip
+        inline_conditions: skip
+        commerce_discount: skip
+        commerce_discount_offer: skip
+        commerce_line_item: skip
+        commerce_order: skip
+        message: skip
+        message_type: skip
+    -
+      plugin: skip_on_value
+      value: skip
+      method: row
+destination:
+  plugin: 'entity:entity_view_mode'
+migration_dependencies:
+  required: {  }
+  optional: {  }

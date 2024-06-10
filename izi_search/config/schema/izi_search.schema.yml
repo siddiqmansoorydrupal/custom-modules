@@ -1,0 +1,8 @@
+# Schema for the configuration files of the izi_search module.
+izi_search.settings:
+  type: config_object
+  label: 'izi_search settings'
+  mapping:
+    example:
+      type: string
+      label: 'Example'

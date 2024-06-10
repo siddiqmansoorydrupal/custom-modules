@@ -1,0 +1,5 @@
+entity.izi_ads_exclusion.add_form:
+  route_name: 'entity.izi_ads_exclusion.add_form'
+  title: 'Add izi ads exclusion'
+  appears_on:
+    - entity.izi_ads_exclusion.collection

@@ -1,0 +1,6 @@
+izi_cognito.settings:
+  title: Settings
+  parent: system.admin_config_system
+  route_name: izi_cognito.settings
+  weight: 10
+

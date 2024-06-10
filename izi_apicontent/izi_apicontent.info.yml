@@ -1,0 +1,10 @@
+name: IZI TRAVEL API content
+type: module
+description: 'Serves content from the izi.travel API.'
+package: IZI
+core_version_requirement: ^9 || ^10
+configure: izi_apicontent.settings_form
+dependencies:
+  - izi_libizi
+interface translation project: izi_apicontent
+interface translation server pattern: modules/izi_apicontent/translations/%project.%language.po

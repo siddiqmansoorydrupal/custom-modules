@@ -1,0 +1,8 @@
+izi_users.account_credits:
+  path: '/user/{user}/credits'
+  defaults:
+    _form: 'Drupal\izi_users\Form\AccountCreditsInfoForm'
+    _title: 'Tour & Credits'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+    user: \d+

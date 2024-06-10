@@ -1,0 +1,80 @@
+<?php
+
+/**
+ * @file
+ * Hook implementations for the cde_commerce module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\cde_commerce\CdeCustomTaxType;
+
+/**
+ * Implements hook_form_FORM_ID_alter() for 'commerce_order_add_form'.
+ */
+function cde_commerce_form_commerce_order_add_form_alter(array &$form, FormStateInterface $form_state) {
+  if (isset($form['customer'])) {
+    $form['customer']['uid']['#selection_handler'] = 'views';
+    unset($form['customer']['uid']['#selection_settings']['include_anonymous']);
+    $form['customer']['uid']['#selection_settings']['view'] = [
+      'view_name' => 'eligible_customers',
+      'display_name' => 'entity_reference_1',
+      'arguments' => []
+    ];
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function cde_commerce_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form_id == 'commerce_checkout_flow_multistep_default') {
+    switch ($form['#step_id']) {
+      case 'login':
+        // Modify the email registration form.
+        if (isset($form['email_registration_login'])) {
+          $form['email_registration_login']['register']['name']['#type'] = 'textfield';
+          unset($form['email_registration_login']['register']['name']['#value']);
+          $form['email_registration_login']['register']['name']['#weight'] = -10;
+          $form['email_registration_login']['register']['mail']['#weight'] = -5;
+          // Move the captcha to the bottom of the page.
+          if (isset($form['captcha'])) {
+            $form['captcha']['#weight'] = 48;
+            $form['email_registration_login']['register']['captcha'] = $form['captcha'];
+            unset($form['captcha']);
+          }
+        }
+        break;
+
+      case 'review':
+      case 'complete':
+        // Remove the captcha from the review and complete steps.
+        if (isset($form['captcha'])) {
+          unset($form['captcha']);
+        }
+        break;
+    }
+  }
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function cde_commerce_page_attachments_alter(array &$attachments) {
+  // Check if the current page is using the admin theme.
+  if (\Drupal::service('theme.manager')->getActiveTheme()->getName() === 'seven') {
+    // Add your custom CSS file.
+    $attachments['#attached']['library'][] = 'cde_commerce/admin_styles';
+  }
+}
+
+/**
+ * Implements hook_commerce_tax_type_info_alter().
+ */
+function cde_commerce_commerce_tax_type_info_alter(&$definitions) {
+  if (isset($definitions['custom'])) {
+    $definitions['custom']['class'] = CdeCustomTaxType::class;
+  }
+  if (isset($definitions['cde_industrial_zone_tax'])) {
+    $definitions['cde_industrial_zone_tax']['class'] = CdeCustomTaxType::class;
+  }
+}

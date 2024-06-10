@@ -1,0 +1,435 @@
+# $Id$
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  modules/custom/izi_apicontent/izi_apicontent.module: n/a
+#  modules/custom/izi_apicontent/src/Controller/IziApicontentController.php: n/a
+#  modules/custom/izi_apicontent/izi_apicontent.info.yml: n/a
+#  modules/custom/izi_apicontent/izi_apicontent.links.menu.yml: n/a
+#  modules/custom/izi_apicontent/izi_apicontent.permissions.yml: n/a
+#  modules/custom/izi_apicontent/izi_apicontent.routing.yml: n/a
+#  modules/custom/izi_apicontent/config/schema/izi_apicontent.schema.yml: n/a
+#  modules/custom/izi_apicontent/js/izi-apicontent-mtg-new.js: n/a
+#  modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.html.twig: n/a
+#  modules/custom/izi_apicontent/src/IziObjectService.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-tour-children.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-tour-children.html.twig: n/a
+#  modules/custom/izi_apicontent/src/Form/SettingsForm.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-apicontent-tour-stop-ajax.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-mtg-object-child-exhibit.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-apicontent-tour-stop-ajax.html.twig: n/a
+#  modules/custom/izi_apicontent/templates/izi-mtg-object-child-exhibit.html.twig: n/a
+#  modules/custom/izi_apicontent/templates/izi-audioplayer-jplayer-paid.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-audioplayer-jplayer-paid.html.twig: n/a
+#  modules/custom/izi_apicontent/templates/izi-audioplayer-jplayer.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-audioplayer.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-audioplayer-jplayer.html.twig: n/a
+#  modules/custom/izi_apicontent/templates/izi-audioplayer.html.twig: n/a
+#  modules/custom/izi_apicontent/templates/izi-audioplayer-paid.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-audioplayer-paid.html.twig: n/a
+#  modules/custom/izi_apicontent/templates/izi-mtg-object.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-mtg-object.html.twig: n/a
+#  modules/custom/izi_apicontent/templates/izi-collection-children.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-collection-children.html.twig: n/a
+#  modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig: n/a
+#  modules/custom/izi_apicontent/templates/izi-featured-city.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-featured-main-city.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-featured-city.html.twig: n/a
+#  modules/custom/izi_apicontent/templates/izi-featured-main-city.html.twig: n/a
+#  modules/custom/izi_apicontent/templates/izi-mtg-collection.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-mtg-tour.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-mtg-collection.html.twig: n/a
+#  modules/custom/izi_apicontent/templates/izi-mtg-tour.html.twig: n/a
+#  modules/custom/izi_apicontent/templates/izi-mtg-object-child-tour-save.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-mtg-object-child-tour-save.html.twig: n/a
+#  modules/custom/izi_apicontent/templates/izi-publisher.tpl.php: n/a
+#  modules/custom/izi_apicontent/templates/izi-publisher.html.twig: n/a
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2022-08-04 16:13+0000\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: modules/custom/izi_apicontent/izi_apicontent.module:496 modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:1297
+msgid "Provided by"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.module:500 modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:1300
+msgid "View all guides"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.info.yml:0
+msgid "IZI TRAVEL API content"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.info.yml:0
+msgid "Serves content from the izi.travel API."
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.info.yml:0
+msgid "IZI"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.links.menu.yml:0
+msgid "IZI Apicontent Settings"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.links.menu.yml:0
+msgid "Configure IZI Apicontent module."
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.permissions.yml:0
+msgid "View Content"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.permissions.yml:0
+msgid "Allow users to view content pages"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.permissions.yml:0
+msgid "Administer Multilingual Definitions"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.permissions.yml:0
+msgid "Allow users to administer multilingual definitions pages"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.permissions.yml:0
+msgid "Administer Front Page Block"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.permissions.yml:0
+msgid "Allow users to administer front page block"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.routing.yml:0
+msgid "MTG object"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.routing.yml:0
+msgid "Publisher"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.routing.yml:0
+msgid "Publisher content load more"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.routing.yml:0
+msgid "Tourstops load more"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.routing.yml:0
+msgid "Tourstop details"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.routing.yml:0
+msgid "Exhibit details"
+msgstr ""
+
+#: modules/custom/izi_apicontent/izi_apicontent.routing.yml:0
+msgid "IZI Content settings"
+msgstr ""
+
+#: modules/custom/izi_apicontent/config/schema/izi_apicontent.schema.yml:0
+msgid "IZI TRAVEL API content settings"
+msgstr ""
+
+#: modules/custom/izi_apicontent/config/schema/izi_apicontent.schema.yml:0
+msgid "Example"
+msgstr ""
+
+#: modules/custom/izi_apicontent/js/izi-apicontent-mtg-new.js:0 modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.tpl.php:6;7;8;9;10;11;12 modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.html.twig:28;37;46;55;64;73;82
+msgid "Closed"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/IziObjectService.php:109
+msgid "Empty UUID detected for object of type @type."
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/IziObjectService.php:266
+msgid "Object has no parent UUID."
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:437
+msgid "See also"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:499
+msgid "Open in app"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:869
+msgid "Audio tours"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:1115;1116
+msgid "Any language"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:1213
+msgid "Only in @language"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:1330
+msgid "Collections"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:1391
+msgid "Exhibits"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:1392
+msgid "Exhibits featured with audio"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:1719
+msgid "Tour stops"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:1806 modules/custom/izi_apicontent/templates/izi-tour-children.tpl.php:3 modules/custom/izi_apicontent/templates/izi-tour-children.html.twig:6;5
+msgid "Audio tour Summary"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:2036
+msgid "Watch video"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:2111
+msgid "Content language"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:2156
+msgid "Show more"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:1935
+msgid "Attraction objects not found"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:1517
+msgid "Exhibit objects not found. IziApiContentController 2647"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:1643
+msgid "The UUID for parent object @parent_uuid with language @language could not be saved to file."
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:1681
+msgid "The UUID for child object @uuid could not be saved to file."
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Controller/IziApicontentController.php:1776
+msgid "The UUID for child object !uuid could not be saved to file."
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Form/SettingsForm.php:64
+msgid "Google Maps api key"
+msgstr ""
+
+#: modules/custom/izi_apicontent/src/Form/SettingsForm.php:70
+msgid "Quest App Dl Message"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-apicontent-tour-stop-ajax.tpl.php:4;6 modules/custom/izi_apicontent/templates/izi-mtg-object-child-exhibit.tpl.php:9 modules/custom/izi_apicontent/templates/izi-apicontent-tour-stop-ajax.html.twig:10;18;7;15 modules/custom/izi_apicontent/templates/izi-mtg-object-child-exhibit.html.twig:20;19
+msgid "Previous"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-apicontent-tour-stop-ajax.tpl.php:9;11 modules/custom/izi_apicontent/templates/izi-mtg-object-child-exhibit.tpl.php:10 modules/custom/izi_apicontent/templates/izi-tour-children.tpl.php:16;33 modules/custom/izi_apicontent/templates/izi-apicontent-tour-stop-ajax.html.twig:28;36;25;33 modules/custom/izi_apicontent/templates/izi-mtg-object-child-exhibit.html.twig:24;23 modules/custom/izi_apicontent/templates/izi-tour-children.html.twig:41;75;33;40;70;74
+msgid "Next"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-audioplayer-jplayer-paid.tpl.php:3 modules/custom/izi_apicontent/templates/izi-audioplayer-jplayer-paid.html.twig:4
+msgid "This is a paid tour, you can buy <br>the tour in the !izi_travel_app_link_text"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-audioplayer-jplayer-paid.tpl.php:3 modules/custom/izi_apicontent/templates/izi-audioplayer-jplayer-paid.html.twig:4
+msgid "izi.TRAVEL app"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-audioplayer-jplayer.tpl.php:4 modules/custom/izi_apicontent/templates/izi-audioplayer.tpl.php:26 modules/custom/izi_apicontent/templates/izi-audioplayer-jplayer.html.twig:5;4 modules/custom/izi_apicontent/templates/izi-audioplayer.html.twig:35
+msgid "Listen to audio"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-audioplayer-paid.tpl.php:4 modules/custom/izi_apicontent/templates/izi-audioplayer-paid.html.twig:5;4
+msgid "Audio available<br />in mobile audio guide only"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-audioplayer-paid.tpl.php:19 modules/custom/izi_apicontent/templates/izi-audioplayer.tpl.php:37 modules/custom/izi_apicontent/templates/izi-mtg-object.tpl.php:87 modules/custom/izi_apicontent/templates/izi-audioplayer-paid.html.twig:20 modules/custom/izi_apicontent/templates/izi-audioplayer.html.twig:50;49 modules/custom/izi_apicontent/templates/izi-mtg-object.html.twig:28
+msgid "Mobile App"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-collection-children.tpl.php:13 modules/custom/izi_apicontent/templates/izi-mtg-object.tpl.php:194;202 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php:70;78 modules/custom/izi_apicontent/templates/izi-collection-children.html.twig:19 modules/custom/izi_apicontent/templates/izi-mtg-object.html.twig:181;190 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig:165;182;162;179
+msgid "Read more"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-collection-children.tpl.php:13 modules/custom/izi_apicontent/templates/izi-collection-children.html.twig:19
+msgid "Read less"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-collection-children.tpl.php:17 modules/custom/izi_apicontent/templates/izi-collection-children.html.twig:26
+msgid "Play audio tour"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-featured-city.tpl.php:16 modules/custom/izi_apicontent/templates/izi-featured-main-city.tpl.php:14 modules/custom/izi_apicontent/templates/izi-featured-city.html.twig:16 modules/custom/izi_apicontent/templates/izi-featured-main-city.html.twig:14
+msgid "all !city audio guides"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-collection.tpl.php:5;7 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php:12;14 modules/custom/izi_apicontent/templates/izi-mtg-tour.tpl.php:57;60 modules/custom/izi_apicontent/templates/izi-mtg-collection.html.twig:6;11 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig:16;29;15;23 modules/custom/izi_apicontent/templates/izi-mtg-tour.html.twig:62;69;61;67
+msgid "Audio tour"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-collection.tpl.php:12 modules/custom/izi_apicontent/templates/izi-mtg-object.tpl.php:143 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php:19 modules/custom/izi_apicontent/templates/izi-mtg-tour.tpl.php:65 modules/custom/izi_apicontent/templates/izi-mtg-collection.html.twig:26 modules/custom/izi_apicontent/templates/izi-mtg-object.html.twig:108 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig:53;52 modules/custom/izi_apicontent/templates/izi-mtg-tour.html.twig:93;88
+msgid "Free"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-collection.tpl.php:16 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php:30;117 modules/custom/izi_apicontent/templates/izi-mtg-collection.html.twig:32 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig:73;254;72;250;253
+msgid "Download the app"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-collection.tpl.php:24 modules/custom/izi_apicontent/templates/izi-mtg-object-child-exhibit.tpl.php:13 modules/custom/izi_apicontent/templates/izi-mtg-object-child-tour-save.tpl.php:8 modules/custom/izi_apicontent/templates/izi-mtg-object.tpl.php:111;156 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php:38 modules/custom/izi_apicontent/templates/izi-mtg-tour.tpl.php:78 modules/custom/izi_apicontent/templates/izi-mtg-collection.html.twig:51 modules/custom/izi_apicontent/templates/izi-mtg-object-child-exhibit.html.twig:34;33 modules/custom/izi_apicontent/templates/izi-mtg-object-child-tour-save.html.twig:13 modules/custom/izi_apicontent/templates/izi-mtg-object.html.twig:56;120 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig:105 modules/custom/izi_apicontent/templates/izi-mtg-tour.html.twig:122;121
+msgid "Share"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object-child-exhibit.tpl.php:11 modules/custom/izi_apicontent/templates/izi-mtg-object-child-tour-save.tpl.php:17 modules/custom/izi_apicontent/templates/izi-tour-children.tpl.php:13;30 modules/custom/izi_apicontent/templates/izi-mtg-object-child-exhibit.html.twig:28;27 modules/custom/izi_apicontent/templates/izi-mtg-object-child-tour-save.html.twig:23 modules/custom/izi_apicontent/templates/izi-tour-children.html.twig:28;65;27;64
+msgid "Close"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.tpl.php:3 modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.html.twig:17;3
+msgid "Today"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.tpl.php:5
+msgid "Opening hours"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.tpl.php:6
+msgid "Mon"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.tpl.php:7
+msgid "Tue"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.tpl.php:8
+msgid "Wed"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.tpl.php:9
+msgid "Thu"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.tpl.php:10
+msgid "Fri"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.tpl.php:11
+msgid "Sat"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.tpl.php:12
+msgid "Sun"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.tpl.php:15 modules/custom/izi_apicontent/templates/izi-mtg-object-openinghours.html.twig:86
+msgid "Show all opening hours"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object.tpl.php:135;137 modules/custom/izi_apicontent/templates/izi-mtg-object.html.twig:88;91;92 modules/custom/izi_apicontent/templates/izi-mtg-tour.html.twig:70
+msgid "Museum"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object.tpl.php:138 modules/custom/izi_apicontent/templates/izi-mtg-object.html.twig:96
+msgid "Show info"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object.tpl.php:165 modules/custom/izi_apicontent/templates/izi-mtg-object.html.twig:130
+msgid "Download the applinks"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object.tpl.php:181 modules/custom/izi_apicontent/templates/izi-mtg-object.html.twig:156
+msgid "Museum info"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object.tpl.php:183;190 modules/custom/izi_apicontent/templates/izi-mtg-object.html.twig:159;174
+msgid "About the museum"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object.tpl.php:184;201 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php:60;77 modules/custom/izi_apicontent/templates/izi-mtg-object.html.twig:163;189 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig:142;177;176
+msgid "What's new"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object.tpl.php:185;209 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php:61 modules/custom/izi_apicontent/templates/izi-mtg-object.html.twig:167;198 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig:148
+msgid "Plan your visit"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-object.tpl.php:249 modules/custom/izi_apicontent/templates/izi-mtg-object.html.twig:253
+msgid "Sponsors of this museum"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php:31 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig:80;77
+msgid "iOS"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php:32 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig:88;85
+msgid "Android"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php:33 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig:96;93
+msgid "Windows Phone"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php:57 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig:131
+msgid "Quest info"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php:59;66 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig:136;157
+msgid "About the quest"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php:85 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig:194;193
+msgid "Quest location"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.tpl.php:132 modules/custom/izi_apicontent/templates/izi-mtg-tour.tpl.php:120 modules/custom/izi_apicontent/templates/izi-mtg-tour-quest.html.twig:278;277 modules/custom/izi_apicontent/templates/izi-mtg-tour.html.twig:203;189;202
+msgid "Sponsors of this tour"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-tour.tpl.php:98 modules/custom/izi_apicontent/templates/izi-mtg-tour.html.twig:149
+msgid "!count sights"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-tour.tpl.php:100 modules/custom/izi_apicontent/templates/izi-mtg-tour.html.twig:154;153
+msgid "Show list"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-mtg-tour.tpl.php:101 modules/custom/izi_apicontent/templates/izi-mtg-tour.html.twig:156;155
+msgid "Show map"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-publisher.tpl.php:29 modules/custom/izi_apicontent/templates/izi-publisher.html.twig:33
+msgid "More information"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-publisher.tpl.php:35 modules/custom/izi_apicontent/templates/izi-publisher.html.twig:41
+msgid "Follow us"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-audioplayer-jplayer-paid.html.twig:6
+msgid "This is a paid tour, you can buy <br>the tour in the @izi_travel_app_link_text"
+msgstr ""
+
+#: modules/custom/izi_apicontent/templates/izi-featured-city.html.twig:17 modules/custom/izi_apicontent/templates/izi-featured-main-city.html.twig:15
+msgid "all @city audio guides"
+msgstr ""
+

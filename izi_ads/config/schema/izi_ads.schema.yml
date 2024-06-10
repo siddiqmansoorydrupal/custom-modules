@@ -1,0 +1,36 @@
+# Schema for the configuration files of the IZI Ads module.
+izi_ads.settings:
+  type: config_object
+  label: 'IZI Ads settings'
+  mapping:
+    example:
+      type: string
+      label: 'Example'
+
+block.settings.izi_ads_tiqets:
+  type: block_settings
+  label: 'Tiqets block'
+  mapping:
+    foo:
+      type: string
+      label: Foo
+
+
+izi_ads.izi_ads_exclusion.*:
+  type: config_entity
+  label: IZI Ads Exclusion
+  mapping:
+    id:
+      type: string
+      label: ID
+    label:
+      type: label
+      label: Label
+    uuid:
+      type: string
+    path:
+      type: path
+      label: Path
+    expires:
+      type: expires
+      label: Expires

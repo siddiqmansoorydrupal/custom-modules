@@ -1,0 +1,34 @@
+id: cde_migrate_offlineproduct
+label: document Content Migration
+migration_group: cde_migrate
+ 
+# define a forced module dependency. this will cause the migration definition to be reloaded
+# when you uninstall and reinstall your custom module.
+dependencies:
+  enforced:
+    module:
+      - cde_migrate
+
+source:
+  plugin: cde_migrate_offlineproduct
+  # The "target" here refers to the database connection where the source data lives.
+  # You will need to configure this database in your settings.php.
+  target: pantheon
+
+destination:
+  plugin: entity:commerce_product
+  default_bundle: knebridge_product_nodes
+
+process:
+    product_id : product_id
+    langcode : language
+    status : status
+    title : title
+    created : created
+    changed : changed
+    field_eligible_customers : field_eligible_customers
+    field_expiration_date : field_expiration_date
+    field_offline_item_status : field_offline_item_status
+    field_in_stock : field_in_stock
+    field_date_added : field_date_added
+

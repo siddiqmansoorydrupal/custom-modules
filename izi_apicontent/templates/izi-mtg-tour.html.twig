@@ -1,0 +1,142 @@
+<div class="izi-mtg-tour">
+  <!-- Widget Tiqets -->
+  {% set tiqets_block = drupal_block('izi_ads_tiqets') %}
+  {% if tiqets_block.content is not empty %}
+  {{ tiqets_block }}
+  {% elseif izi_ads_show() == 1 %}
+  <div class="izi-google-ads">
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <!-- City page block -->
+      <div class="contained tiqets_widget">
+        <center>
+          <ins class="adsbygoogle"
+               style="display:block; height:100px; margin-bottom:20px;"
+               data-ad-client="ca-pub-2867669674714942"
+               data-ad-slot="5406432940"
+               data-ad-format="fluid"
+               data-full-width-responsive="true">
+          </ins>
+        </center>
+      </div>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+  </div>
+  {% endif %}
+
+  <div class="strip strip--white masthead mtg-tour-page">
+    <div class="contained">
+      <div class="divLeft">
+        <span class="masthead__subtitle masthead__subtitle--mobile">{% trans %} Audio tour {% endtrans %}</span>
+
+        <div class="masthead__image" style="background-image: url({{ header_image }});"></div>
+
+        <h1 class="masthead__title">
+          <span class="masthead__subtitle">{% trans %} Audio tour {% endtrans %}</span>
+          {{ title | truncate(74, true) }}
+        </h1>
+        <ul class="meta">
+          <li class="meta__item meta__item--reviews">
+            <span class="rating rating--{% if reviews_score is not empty %}{{ reviews_score }}{% else %}0{% endif %}"></span>
+            <a class="details__number-of-reviews js-scrollto" href="#reviews">
+              {{ number_of_reviews_text }}
+            </a>
+          </li>
+          <li class="meta__item meta__item--city">{{ museum_path }}</li>
+          {% if is_free %}
+            <li class="meta__item meta__item--price">
+              <span class="label">{% trans %} Free {% endtrans %}</span>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="divRight">
+
+        <div class="button__container">
+          <div class="typeicon typeicon--audiotour"></div>
+          {% if language_selector is not empty %}
+            {{ language_selector }}
+          {% endif %}
+          <div class="dropdown__group">
+            <a class="button button--secondary button--icon-share dropdown__toggle js-dropdown-toggle">
+              {% trans %} Share {% endtrans %}
+            </a>
+            <div class="dropdown__menu">
+              <div class="social">
+                {{ drupal_block('addtoany_block') }}
+
+              </div>
+            </div>
+          </div>
+		  
+			{% if not is_free and add_to_coupons_url %}
+			  <a href="{{ add_to_coupons_url }}" class="button button--secondary">{{ 'Create Coupons'|t }}</a>
+			{% endif %}
+
+		  
+        </div>
+
+        <div class="qr-code-block desktop-show">
+          <div class="qr-code">
+            <label class="qr-label">
+              {{ 'Download Tour to your Phone' | t }}
+            </label>
+            {{ qr_code }}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="strip tourmap">
+    <div class="contained">
+      <div class="tour">
+        <div class="tour__tabs">
+          <p class="tour__tabs-label">
+            {{ '@count sights' | t({'@count': tourstops['#children'] | length}) }}
+          </p>
+          <div class="tour__tabs-container">
+            <button class="tour__tabs-button tour__tabs-button--list tour__tabs-button--active js-tour-view-toggle" data-target="#tourList" title="{{ 'Show list'|t }}"></button>
+            <button class="tour__tabs-button tour__tabs-button--map js-tour-view-toggle" data-target="#tourMap" title="{{ 'Show map'|t }}"></button>
+          </div>
+        </div>
+
+        {{ map }}
+
+        {{ tourstops }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Provided by -->
+  {{ publisher }}
+
+  <!-- Related content -->
+  {{ related_content }}
+
+  <!-- Reviews -->
+  {{ reviews }}
+
+  <!-- App button -->
+  {{ app_button }}
+
+  {% if sponsors is not empty %}
+    <div class="strip strip--white affiliates">
+      <div class="contained">
+        <h2 class="strip__title affiliates__title">
+          {% trans %} Sponsors of this tour {% endtrans %}
+        </h2>
+        <div class="affiliates__carousel js-affiliates-carousel">
+          {% for sponsor in sponsors %}
+            <a class="affiliates__link" href="{{ sponsor['url'] }}" target="_blank">
+              <img class="affiliates__image" src="{{ sponsor['image_url'] }}" alt="{{ sponsor['name'] }}">
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+</div>

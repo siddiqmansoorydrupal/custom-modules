@@ -1,0 +1,23 @@
+<div class="featured-main-item">
+  <div class="featured-main-item-container--reserve">
+    <div class="featured-main-item-image" style="background-image: url('{{ image_url }}')"></div>
+    <div class="featured-main-item-content-wrapper">
+      <div class="featured-main-item-content">
+        <div class="featured-main-item-content-inner">
+          <div class="featured-main-item-content-icon"></div>
+          <h3 style="word-wrap: break-word;" class="featured-main-item-title" data-role="enableDotdotdot">
+            {{ name }}
+          </h3>
+          <div style="word-wrap: break-word;" class="featured-main-item-description" data-role="enableDotdotdot">
+            <p>{{ description }}</p>
+          </div>
+          <div class="featured-main-item-link-wrapper">
+            <a style="word-wrap: break-word;" href="{{ link_path }}" class="featured-main-item-link" data-role="enableDotdotdot">
+              {{ 'all @city audio guides'|t({'@city': name}) }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

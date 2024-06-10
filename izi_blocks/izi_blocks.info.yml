@@ -1,0 +1,5 @@
+name: IZI Blocks
+type: module
+description: Adds custom content blocks.
+package: IZI
+core_version_requirement: ^9 || ^10

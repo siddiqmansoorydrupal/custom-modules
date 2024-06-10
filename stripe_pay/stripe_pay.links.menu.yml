@@ -1,0 +1,11 @@
+stripe_pay.configurations:
+  title: 'Stripe Pay'
+  parent: system.admin_config
+  description: 'Stripe Configurations'
+  route_name: stripe_pay.configurations
+
+stripe_pay.config:
+  title: Stripe API Configurations
+  route_name: stripe_pay.configurations
+  parent: system.admin_config_system
+  description: 'Configure stripe API settings'

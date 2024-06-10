@@ -1,0 +1,7 @@
+name: izi_context
+type: module
+description: Provides plugins to control contexts via context API.
+package: IZI
+core_version_requirement: ^9 || ^10
+dependencies:
+  - context

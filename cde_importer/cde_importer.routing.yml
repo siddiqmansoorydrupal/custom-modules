@@ -1,0 +1,42 @@
+cde_importer.importer:
+  path: '/admin/importer'
+  defaults:
+    _controller: '\Drupal\cde_importer\Controller\ImportController::product' 
+    _title: 'Master Kanebridge Product Importer'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _menu_default_tab: 'product'
+    
+cde_importer.importer.product:
+  path: '/admin/importer/product'
+  defaults:
+    _controller: '\Drupal\cde_importer\Controller\ImportController::product' 
+    _title: 'Master Kanebridge Product Importer'
+  parent_id: 'cde_importer.importer'
+  options:
+    _admin_route: true
+  requirements:
+    _permission: 'administer site configuration'
+    
+cde_importer.importer.weekly:
+  path: '/admin/importer/weekly'
+  defaults:
+    _controller: '\Drupal\cde_importer\Controller\ImportController::weekly' 
+    _title: 'Weekly csv importer for Kanebridge Products'
+  parent_id: 'cde_importer.importer'
+  options:
+    _admin_route: true
+  requirements:
+    _permission: 'administer site configuration'
+    
+cde_importer.importer.offline:
+  path: '/admin/importer/offline'
+  defaults:
+    _controller: '\Drupal\cde_importer\Controller\ImportController::offline' 
+    _title: 'Offline Products'
+  parent_id: 'cde_importer.importer'
+  options:
+    _admin_route: true
+  requirements:
+    _permission: 'administer site configuration'

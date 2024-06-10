@@ -1,0 +1,97 @@
+uuid: 6989651c-dcdb-4833-bc63-93a24092dd0d
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_commerce1_order_item_product
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Commerce
+  - Content
+migration_group: cde_commerce_order
+label: 'Commerce order item ()'
+source:
+  plugin: commerce1_line_item
+  line_item_type: product
+process:
+  order_item_id:
+    -
+      plugin: get
+      source: line_item_id
+  revision_id:
+    -
+      plugin: get
+      source: revision_id
+  type:
+    -
+      plugin: static_map
+      source: type
+      bypass: true
+      map:
+        shipping: false
+        commerce_discount: false
+    -
+      plugin: skip_on_empty
+      method: row
+    -
+      plugin: default_value
+      default_value: default
+  uid:
+    -
+      plugin: get
+      source: uid
+  status:
+    -
+      plugin: get
+      source: status
+  created:
+    -
+      plugin: get
+      source: created
+  changed:
+    -
+      plugin: get
+      source: changed
+  title:
+    -
+      plugin: get
+      source: title
+  purchased_entity:
+    -
+      plugin: custom_purchased_entity
+      source: commerce_product
+  quantity:
+    -
+      plugin: get
+      source: quantity
+  adjustments:
+    -
+      plugin: commerce1_order_item_discount_adjustment
+      source: order_components/0/data/components
+    -
+      plugin: commerce_adjustments
+  uses_legacy_adjustments:
+    -
+      plugin: default_value
+      default_value: false
+  unit_price:
+    -
+      plugin: commerce1_migrate_commerce_price
+      source: commerce_unit_price
+  total_price:
+    -
+      plugin: commerce1_migrate_commerce_price
+      source: commerce_total
+destination:
+  plugin: 'entity:commerce_order_item'
+  destination_module: commerce_order
+  default_bundle: product
+migration_dependencies:
+  required:
+    - upgrade_commerce1_store
+    - upgrade_commerce1_order_item_type
+  optional:
+    - upgrade_d7_field_instance

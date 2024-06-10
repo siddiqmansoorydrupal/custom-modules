@@ -1,0 +1,7 @@
+name: 'cdem_commerce_others'
+type: module
+description: 'Module for migration commerce payment, shipping, store, tax, cart, currency and message'
+core_version_requirement: ^9.2 || ^10
+package: 'CDE migration'
+dependencies:
+  - cdem_migration

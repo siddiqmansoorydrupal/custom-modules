@@ -1,0 +1,1139 @@
+<?php
+
+/**
+ * @file
+ * Contains Order changes.
+ */
+
+use Drupal\commerce_product\Entity\ProductInterface;
+use Drupal\commerce_product\Entity\ProductVariationInterface;
+use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\views\Views;
+use Drupal\reroute_email\RerouteEmailHandlerPluginInterface;
+use Drupal\cde_order\Form\CdeOrderItemInlineForm;
+
+/**
+ * Implements hook_mail().
+ */
+function cde_order_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'commerce_email_shipping_confirmation_user':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('Order @orderid - Shipped - CDE Fasteners', array('@orderid' => $params['order_id']));
+      $message['body'][] = $params['message'];
+      break;
+
+    case 'cde_net30_commerce_email_shipping_confirmation_user':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('[Net 30 Days] Order @orderid - Shipped - CDE Fasteners', array('@orderid' => $params['order_id']));
+      $message['body'][] = $params['message'];
+      break;
+
+    case 'cde_net30_commerce_email_shipping_confirmation_admin':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('[Net 30 Days] Customer Order @orderid - Shipped - CDE Fasteners', array('@orderid' => $params['order_id']));
+      $message['body'][] = $params['message'];
+      break;
+
+    case 'commerce_email_shipping_confirmation_admin':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('[Customer Order @orderid - Shipped - CDE Fasteners', array('@orderid' => $params['order_id']));
+      $message['body'][] = $params['message'];
+      break;
+
+    case 'on_order_complete_to_admin_custom':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('Customer Order @orderid from CDE Fasteners', array('@orderid' => $params['order_id']));
+      $message['body'][] = $params['message'];
+      break;
+
+    case 'on_order_complete_to_user_custom':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('CDE Fasteners – Order @orderid Confirmation ', array('@orderid' => $params['order_id']));
+      $message['body'][] = $params['message'];
+      break;
+
+    case 'new_30_on_order_complete_to_admin_custom':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('[Net 30 Days] Customer Order @orderid from CDE Fasteners', array('@orderid' => $params['order_id']));
+      $message['body'][] = $params['message'];
+      break;
+
+    case 'net_30_on_order_complete_to_user_custom':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('[Net 30 Days] CDE Fasteners Order @orderid Confirmation', array('@orderid' => $params['order_id']));
+      $message['body'][] = $params['message'];
+      break;
+
+    case 'offline_items_notification_for_users':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('Quote List - Update - CDE Fasteners');
+      $message['body'][] = $params['message'];
+      break;
+
+    case 'offline_item_request_update_for_user':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('Offline item request update');
+      $message['body'][] = $params['message'];
+      break;
+
+    case 'offline_item_notify_user':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('Quote List - Updated - CDE Fasteners');
+      $message['body'][] = $params['message'];
+      break;
+
+    case 'account_create_custom':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('@order_user, Welcome to CDE FASTENERS.com', array('@order_user' => $params['order_user']));
+      $message['body'][] = $params['message'];
+      break;
+  }
+}
+
+/**
+ * Implements hook_mail_alter().
+ */
+function cde_order_mail_alter(&$message) {
+  if (isset($message['id']) && $message['id'] == 'cde_order_on_order_complete_to_admin_custom') {
+    if (\Drupal::currentUser()->isAnonymous()) {
+      $order = \Drupal::entityTypeManager()->getStorage('commerce_order')->load($message['params']['order_id']);
+      if ($order->hasField('field_cc_email')) {
+        $email_cc = $order->get('field_cc_email')->getString();
+        if ($email_cc == 'test@test.com') {
+          $order->set('field_cc_email', NULL);
+          $order->save();
+        }
+      }
+    }
+  }
+
+  if (isset($message['id']) && $message['id'] != 'cde_order_on_order_complete_to_admin_custom') {
+    // Remove the cc email if it contains to field also.
+    $to = $message['to'];
+    if (array_key_exists('Cc', $message['headers'])) {
+      $email_cc = $message['headers']['Cc'];
+      if ($email_cc) {
+        if (strpos($email_cc, $to)) {
+          $message['headers']['Cc'] = str_replace($to, '', $email_cc);
+        }
+      }
+    }
+  }
+
+  // Unset CC field if it is going to admin.
+  if (isset($message['id']) && $message['id'] == 'net_30_order_complete_to_admin' || isset($message['id']) && $message['id'] == 'on_order_complete_to_admin') {
+    unset($message['headers']['Cc']);
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function cde_order_entity_update(EntityInterface $entity) {
+  if ($entity->getEntityTypeId() !== 'commerce_order' || ($entity->getEntityTypeId() === 'commerce_order' && $entity->bundle() !== 'default')) {
+    return;
+  }
+
+  $order = $entity;
+  $email_storage = \Drupal::entityTypeManager()->getStorage('commerce_email');
+  if (!$order->isNew() && isset($entity->original)) {
+    $original = $entity->original;
+    $original_state = $original->get('state')->getString();
+    $curent_state = $entity->get('state')->getString();
+    $net_30_status = $order->get('field_net_30_status')->getString();
+    // On order completed.
+    if ($original_state != $curent_state && ($curent_state == 'completed' || $curent_state == 'partial') ) {
+      if ($net_30_status == 'net30_paid' || $net_30_status == 'net30_open') {
+        /** @var \Drupal\commerce_email\Entity\EmailInterface[] $emails */
+        $email = $email_storage->load('ne_30_order_shipping_confirmation_to_user');
+        if ($email) {
+          $mailManager = \Drupal::service('plugin.manager.mail');
+          $module = 'cde_order';
+          $key = 'cde_net30_commerce_email_shipping_confirmation_user';
+          $to = $order->getEmail();
+          global $base_url;
+          $token_service = \Drupal::token(); //get the Drupal token service which replaces tokens with tokens' data
+          $token_data = array(
+            'commerce_order' => $order,
+            '[site:url]' => \Drupal::request()->getSchemeAndHttpHost(),
+          );
+          $token_options = ['clear' => TRUE]; //part of the Token replacement service; A boolean flag indicating that tokens should be removed from the final text if no replacement value can be generated
+          $email_body = '';
+          if (!empty($email->getBody())) {
+            $email_body = $email->getBody();
+          }
+          $params['message'] = $token_service->replace($email_body, $token_data, $token_options); //sets the 'body' key of the $params array equal to the basic body field data plus replaces the tokens in the body field`
+
+          $params['order_id'] = $order->id();
+          // Setting email cc.
+          if ($order->hasField('field_cc_email')) {
+            $email_cc = $order->get('field_cc_email')->getString();
+            if (!empty($email_cc) && $to != $email_cc) {
+              $site_mail = \Drupal::config('system.site')->get('mail');
+              $params['headers']['Cc'] = str_replace($site_mail,'', $email_cc);
+            }
+          }
+          $langcode = \Drupal::currentUser()->getPreferredLangcode();
+          $send = true;
+
+          $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+          if ($result['result'] !== true) {
+            \Drupal::messenger()->addMessage('There was a problem sending your message and it was not sent.');
+          }
+          else {
+            \Drupal::messenger()->addMessage('Your message has been sent.');
+          }
+
+          // Net 30 Shipping confirmation email to Admin.
+          $email_shippping_confirmation_admin = $email_storage->load('net_30_order_shipping_confirmation_to_admin');
+          if ($email_shippping_confirmation_admin) {
+            $email_body_shipping_confirmation = '';
+            if (!empty($email_shippping_confirmation_admin->getBody())) {
+              $email_body_shipping_confirmation = $email_shippping_confirmation_admin->getBody();
+            }
+            $params['message'] = $token_service->replace($email_body_shipping_confirmation, $token_data, $token_options); //sets the 'body' key of the $params array equal to the basic body field data plus replaces the tokens in the body field`
+
+            $result_admin_shipping_confirmation = $mailManager->mail($module, 'cde_net30_commerce_email_shipping_confirmation_admin', \Drupal::config('system.site')->get('mail'), $langcode, $params, NULL, $send);
+            if ($result_admin_shipping_confirmation['result'] !== true) {
+              \Drupal::messenger()->addMessage('There was a problem sending your message and it was not sent.');
+            } else {
+              \Drupal::messenger()->addMessage('Your message has been sent.');
+            }
+          }
+        }
+      }
+      else {
+        /** @var \Drupal\commerce_email\Entity\EmailInterface[] $emails */
+        $order_shipping_confirmation_to_user = $email_storage->load('order_shipping_confirmation_to_user');
+        if ($order_shipping_confirmation_to_user) {
+          $mailManager = \Drupal::service('plugin.manager.mail');
+          $module = 'cde_order';
+          $key = 'commerce_email_shipping_confirmation_user';
+          $to = $order->getEmail();
+
+          $token_service = \Drupal::token(); //get the Drupal token service which replaces tokens with tokens' data
+          $token_data = array(
+            'commerce_order' => $order,
+            '[site:url]' => \Drupal::request()->getSchemeAndHttpHost(),
+          );
+          $token_options = ['clear' => TRUE]; //part of the Token replacement service; A boolean flag indicating that tokens should be removed from the final text if no replacement value can be generated
+          $email_body = '';
+          if (!empty($order_shipping_confirmation_to_user->getBody())) {
+            $email_body = $order_shipping_confirmation_to_user->getBody();
+          }
+          $params['message'] = $token_service->replace($email_body, $token_data, $token_options); //sets the 'body' key of the $params array equal to the basic body field data plus replaces the tokens in the body field`
+          $params['order_id'] = $order->id();
+          // setting email cc.
+          if ($order->hasField('field_cc_email')) {
+            $email_cc = $order->get('field_cc_email')->getString();
+            if (!empty($email_cc) && $to != $email_cc) {
+              $site_mail = \Drupal::config('system.site')->get('mail');
+              $params['headers']['Cc'] = str_replace($site_mail,'', $email_cc);
+            }
+          }
+          $langcode = \Drupal::currentUser()->getPreferredLangcode();
+          $send = true;
+          $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+          if ($result['result'] !== true) {
+            \Drupal::messenger()->addMessage('There was a problem sending your message and it was not sent.');
+          }
+          else {
+            \Drupal::messenger()->addMessage('Your message has been sent.');
+          }
+
+          // Shipping confirmation email to Admin.
+          $email_shippping_confirmation_admin = $email_storage->load('order_shipping_confirmation_to_admin');
+          if ($email_shippping_confirmation_admin) {
+            $email_body_shipping_confirmation = '';
+            if (!empty($email_shippping_confirmation_admin->getBody())) {
+              $email_body_shipping_confirmation = $email_shippping_confirmation_admin->getBody();
+            }
+            $params['message'] = $token_service->replace($email_body_shipping_confirmation, $token_data, $token_options); //sets the 'body' key of the $params array equal to the basic body field data plus replaces the tokens in the body field`
+            $result_admin_shipping_confirmation = $mailManager->mail($module, 'commerce_email_shipping_confirmation_admin', \Drupal::config('system.site')->get('mail'), $langcode, $params, NULL, $send);
+            if ($result_admin_shipping_confirmation['result'] !== true) {
+              \Drupal::messenger()->addMessage('There was a problem sending your message and it was not sent.');
+            }
+            else {
+              \Drupal::messenger()->addMessage('Your message has been sent.');
+            }
+          }
+        }
+      }
+    }
+
+    //On order place to admin.
+    if ($original_state != $curent_state && $curent_state == 'fulfillment' && $original_state == 'draft') {
+      $net_30_status = $order->get('field_net_30_status')->getString();
+      if ($net_30_status != 'net30_open' && $net_30_status != 'net30_paid') {
+        /** @var \Drupal\commerce_email\Entity\EmailInterface[] $emails */
+        $on_order_complete_to_admin = $email_storage->load('on_order_complete_to_admin');
+        if ($on_order_complete_to_admin) {
+          $mailManager = \Drupal::service('plugin.manager.mail');
+          $module = 'cde_order';
+          $key = 'on_order_complete_to_admin_custom';
+          $site_mail = \Drupal::config('system.site')->get('mail');
+          $to = $site_mail;
+
+          $token_service = \Drupal::token(); //get the Drupal token service which replaces tokens with tokens' data
+          $token_data = array(
+            'commerce_order' => $order,
+          );
+          $token_options = ['clear' => TRUE]; //part of the Token replacement service; A boolean flag indicating that tokens should be removed from the final text if no replacement value can be generated
+          $params['message'] = $token_service->replace($on_order_complete_to_admin->getBody(), $token_data, $token_options); //sets the 'body' key of the $params array equal to the basic body field data plus replaces the tokens in the body field`
+          $params['order_id'] = $order->id();
+          $langcode = \Drupal::currentUser()->getPreferredLangcode();
+          $send = true;
+          $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+          if ($result['result'] !== true) {
+            \Drupal::messenger()->addMessage('There was a problem sending your message and it was not sent.');
+          }
+          else {
+            \Drupal::messenger()->addMessage('Your message has been sent.');
+          }
+        }
+      }
+    }
+
+    // On order place to login user.
+    if ($original_state != $curent_state && $curent_state == 'fulfillment' && $original_state == 'draft' && \Drupal::currentUser()->isAuthenticated()) {
+      $current_user = \Drupal::currentUser();
+      $roles = $current_user->getRoles();
+      $net_30_status = $order->get('field_net_30_status')->getString();
+      if ($net_30_status != 'net30_open' && $net_30_status != 'net30_paid') {
+        /** @var \Drupal\commerce_email\Entity\EmailInterface[] $emails */
+        $on_order_complete_to_user = $email_storage->load('on_order_complete_to_user');
+        if ($on_order_complete_to_user) {
+          $mailManager = \Drupal::service('plugin.manager.mail');
+          $module = 'cde_order';
+          $key = 'on_order_complete_to_user_custom';
+          $to = $order->getEmail();
+
+          $token_service = \Drupal::token(); //get the Drupal token service which replaces tokens with tokens' data
+          $token_data = array(
+            'commerce_order' => $order,
+          );
+
+          $token_options = ['clear' => TRUE]; //part of the Token replacement service; A boolean flag indicating that tokens should be removed from the final text if no replacement value can be generated
+          $params['message'] = $token_service->replace($on_order_complete_to_user->getBody(), $token_data, $token_options); //sets the 'body' key of the $params array equal to the basic body field data plus replaces the tokens in the body field`
+          $params['order_id'] = $order->id();
+          // setting email cc.
+          $config = \Drupal::config('reroute_email.settings');
+          if (empty($config->get(RerouteEmailHandlerPluginInterface::REROUTE_EMAIL_ENABLE))) {
+            if ($order->hasField('field_cc_email')) {
+              $email_cc = $order->get('field_cc_email')->getString();
+              if (!empty($email_cc) && $to != $email_cc) {
+                $site_mail = \Drupal::config('system.site')->get('mail');
+                $params['headers']['cc'] = str_replace($site_mail,'', $email_cc);
+              }
+            }
+          }
+
+          $langcode = \Drupal::currentUser()->getPreferredLangcode();
+          $send = true;
+          $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+          if ($result['result'] !== true) {
+            \Drupal::messenger()->addMessage('There was a problem sending your message and it was not sent.');
+          }
+          else {
+            \Drupal::messenger()->addMessage('Your message has been sent.');
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_token_info()
+ */
+function cde_order_token_info() {
+  $info['tokens']['commerce_order']['shipping-langcode'] = array(
+    'name' => t('Shipping Information Language'),
+    'description' => t('Shipping Information Language'),
+  );
+
+  $info['tokens']['commerce_order']['shipping-country-code'] = array(
+    'name' => t('Shipping Information Country Code'),
+    'description' => t('Shipping Information Country Code'),
+  );
+
+  $info['tokens']['commerce_order']['shipping-administrative-area'] = array(
+    'name' => t('Shipping Information Administrative Area'),
+    'description' => t('Shipping Information Administrative Area'),
+  );
+
+  $info['tokens']['commerce_order']['shipping-locality'] = array(
+    'name' => t('Shipping Information Locality'),
+    'description' => t('Shipping Information Locality'),
+  );
+
+  $info['tokens']['commerce_order']['shipping-dependent-locality'] = array(
+    'name' => t('Shipping Information Dependent Locality'),
+    'description' => t('Shipping Information Dependent Locality'),
+  );
+
+  $info['tokens']['commerce_order']['shipping-postal-code'] = array(
+    'name' => t('Shipping Information Postal Code'),
+    'description' => t('Shipping Information Postal Code'),
+  );
+
+  $info['tokens']['commerce_order']['shipping-sorting-code'] = array(
+    'name' => t('Shipping Information Sorting Code'),
+    'description' => t('Shipping Information Sorting Code'),
+  );
+
+  $info['tokens']['commerce_order']['shipping-address-line1'] = array(
+    'name' => t('Shipping Information Address Line 1'),
+    'description' => t('Shipping Information Address Line 1'),
+  );
+
+  $info['tokens']['commerce_order']['shipping-address-line2'] = array(
+    'name' => t('Shipping Information Address Line 2'),
+    'description' => t('Shipping Information Address Line 2'),
+  );
+
+  $info['tokens']['commerce_order']['shipping-organization'] = array(
+    'name' => t('Shipping Information Organization'),
+    'description' => t('Shipping Information Organization'),
+  );
+
+  $info['tokens']['commerce_order']['shipping-given-name'] = array(
+    'name' => t('Shipping Information Given Name'),
+    'description' => t('Shipping Information Given Name'),
+  );
+
+  $info['tokens']['commerce_order']['shipping-additional-name'] = array(
+    'name' => t('Shipping Information Additional Name'),
+    'description' => t('Shipping Information Additional Name'),
+  );
+
+  $info['tokens']['commerce_order']['shipping-family-name'] = array(
+    'name' => t('Shipping Information Family Name'),
+    'description' => t('Shipping Information Family Name'),
+  );
+
+  $info['tokens']['commerce_order']['shipping-phone'] = array(
+    'name' => t('Shipping Information phone'),
+    'description' => t('Shipping Information phone'),
+  );
+
+  // Billing Address.
+  $info['tokens']['commerce_order']['billing-langcode'] = array(
+    'name' => t('Billing Information Language'),
+    'description' => t('Billing Information Language'),
+  );
+
+  $info['tokens']['commerce_order']['billing-country-code'] = array(
+    'name' => t('Billing Information Country Code'),
+    'description' => t('Billing Information Country Code'),
+  );
+
+  $info['tokens']['commerce_order']['billing-administrative-area'] = array(
+    'name' => t('Billing Information Administrative Area'),
+    'description' => t('Billing Information Administrative Area'),
+  );
+
+  $info['tokens']['commerce_order']['billing-locality'] = array(
+    'name' => t('Billing Information Locality'),
+    'description' => t('Billing Information Locality'),
+  );
+
+  $info['tokens']['commerce_order']['billing-dependent-locality'] = array(
+    'name' => t('Billing Information Dependent Locality'),
+    'description' => t('Billing Information Dependent Locality'),
+  );
+
+  $info['tokens']['commerce_order']['billing-postal-code'] = array(
+    'name' => t('Billing Information Postal Code'),
+    'description' => t('Billing Information Postal Code'),
+  );
+
+  $info['tokens']['commerce_order']['billing-sorting-code'] = array(
+    'name' => t('Billing Information Sorting Code'),
+    'description' => t('Billing Information Sorting Code'),
+  );
+
+  $info['tokens']['commerce_order']['billing-address-line1'] = array(
+    'name' => t('Billing Information Address Line 1'),
+    'description' => t('Billing Information Address Line 1'),
+  );
+
+  $info['tokens']['commerce_order']['billing-address-line2'] = array(
+    'name' => t('Billing Information Address Line 2'),
+    'description' => t('Billing Information Address Line 2'),
+  );
+
+  $info['tokens']['commerce_order']['billing-organization'] = array(
+    'name' => t('Billing Information Organization'),
+    'description' => t('Billing Information Organization'),
+  );
+
+  $info['tokens']['commerce_order']['billing-given-name'] = array(
+    'name' => t('Billing Information Given Name'),
+    'description' => t('Billing Information Given Name'),
+  );
+
+  $info['tokens']['commerce_order']['billing-additional-name'] = array(
+    'name' => t('Billing Information Additional Name'),
+    'description' => t('Billing Information Additional Name'),
+  );
+
+  $info['tokens']['commerce_order']['billing-family-name'] = array(
+    'name' => t('Billing Information Family Name'),
+    'description' => t('Billing Information Family Name'),
+  );
+
+  $info['tokens']['commerce_order']['billing-phone'] = array(
+    'name' => t('Billing Information phone'),
+    'description' => t('Billing Information phone'),
+  );
+
+  // Shipping Details.
+  $info['tokens']['commerce_order']['custom_order_shipping_price'] = array(
+    'name' => t('Custom order shipping price token'),
+    'description' => t('Custom commerce-order shipping price token.'),
+  );
+
+  $info['tokens']['commerce_order']['custom_order_shipping_name'] = array(
+    'name' => t('Custom order shipping name token'),
+    'description' => t('Custom commerce-order shipping name token.'),
+  );
+
+  $info['tokens']['commerce_order']['custom_order_shipping_collect_number'] = array(
+    'name' => t('Custom order line items token'),
+    'description' => t('My custom commerce-order tracking token.'),
+  );
+
+  // Order Sub Total.
+  $info['tokens']['commerce_order']['custom_order_subtotal'] = array(
+    'name' => t('Custom order subtotal token'),
+    'description' => t('My custom commerce-order subtotal token.'),
+  );
+
+  // Order Total.
+  $info['tokens']['commerce_order']['custom_order_total'] = array(
+    'name' => t('Custom order total token'),
+    'description' => t('My custom commerce-order total token.'),
+  );
+
+  // Cart Weight
+  $info['tokens']['commerce_order']['total_cart_weight'] = array(
+    'name' => t('Total Cart Weight'),
+    'description' => t('Total cart weight in pounds.'),
+  );
+
+  // Tax Details.
+  $info['tokens']['commerce_order']['custom_order_nj_tax'] = array(
+    'name' => t('Custom order New Jersay sale tax'),
+    'description' => t('Custom order that shows New Jersay sale tax if available.'),
+  );
+
+  // Order Itesm.
+  $info['tokens']['commerce_order']['cde_order_items'] = array(
+    'name' => t('Custom order New Jersay sale tax'),
+    'description' => t('Custom order Items.'),
+  );
+
+  // Order Itesm.
+  $info['tokens']['commerce_order']['site_base_url'] = array(
+    'name' => t('Site_base_url'),
+    'description' => t('Site Base Url'),
+  );
+
+  // Tracking  url .
+  $info['tokens']['commerce_order']['tracking_url'] = array(
+    'name' => t('Tracking Url'),
+    'description' => t('Tracking Url'),
+  );
+
+  return $info;
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function cde_order_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
+  $replacements = [];
+
+  if ($type === 'commerce_order' && !empty($data['commerce_order'])) {
+    $order_data = $data['commerce_order'];
+    $order = \Drupal::entityTypeManager()->getStorage('commerce_order')->load($order_data->id());
+    // Shipping Details.
+    $shipping_address = [];
+    $shipments = [];
+    $shipment = NULL;
+    if ($order->hasField('shipments')) {
+      $shipments = $order->get('shipments')->referencedEntities();
+      $shipment = reset($shipments);
+    }
+    else {
+      //$shipments = $order->get('field_commerce_shipments')->referencedEntities();
+      //$shipment = reset($shipments);
+    }
+
+    if (empty($shipment)) {
+      //$shipments = $order->get('field_commerce_shipments')->referencedEntities();
+      //$shipment = reset($shipments);
+    }
+
+	  $tracking_code_multiple = [];
+    $shipping_service = $tracking_code = $shipping_price = '';
+    if ($shipment) {
+      $shipping_profiles = $shipment->get('shipping_profile')->referencedEntities();
+      if ($shipping_profiles) {
+        $shipping_profile = reset($shipping_profiles);
+        $shipping_addresses = $shipping_profile->get('address')->getValue();
+        $shipping_address = reset($shipping_addresses);
+      }
+
+      $shipping_service = $shipment->get('shipping_service')->getString();
+      $tracking_code = $shipment->get('tracking_code')->getString();
+      $shipping_amount = $shipment->get('amount')->getValue();
+      $shipping_amount_number = number_format($shipping_amount[0]['number'], 2);
+      $shipping_amount_currency_code = $shipping_amount[0]['currency_code'];
+      $shipping_price = $shipping_amount_number . ' ' . $shipping_amount_currency_code;
+      $tracking_code_multiple = [];
+      foreach ($shipments as $shipping_mul) {
+        $tracking_type = [];
+        if ($shipping_mul->field_commerce_non_ups_tra->value) {
+          $tracking_type['nonusp_tracking'] = $shipping_mul->field_commerce_non_ups_tra->value;
+        }
+        elseif ($shipping_mul->tracking_code->value) {
+          $tracking_type['ups_tracking'] = $shipping_mul->tracking_code->value;
+        }
+        $tracking_code_multiple[] = $tracking_type;
+      }
+    }
+
+    // Billing address details.
+    $billing_address = [];
+    $billing_profiles = $order->get('billing_profile')->referencedEntities();
+    $billing_profile = reset($billing_profiles);
+    if ($billing_profile) {
+      $billing_addresses = $billing_profile->get('address')->getValue();
+      $billing_address = reset($billing_addresses);
+    }
+    else {
+      $billing_address = $shipping_address;
+    }
+
+    if (is_null($billing_address) || empty($billing_address)) {
+      $billing_address = $shipping_address;
+    }
+    else {
+      if (is_null($shipping_address) || empty($shipping_address)) {
+        $shipping_address = $billing_address;
+      }
+    }
+
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        // Shipping address.
+        case 'shipping-langcode':
+          if (!empty($shipping_address)) {
+            $replacements[$original] = $shipping_address['langcode'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'shipping-country-code':
+          if (!empty($shipping_address)) {
+            $replacements[$original] = \Drupal::service('country_manager')->getList()[$shipping_address['country_code']];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'shipping-administrative-area':
+          if (!empty($shipping_address)) {
+            $replacements[$original] = $shipping_address['administrative_area'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'shipping-locality':
+          if (!empty($shipping_address)) {
+            $replacements[$original] = $shipping_address['locality'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'shipping-dependent-locality':
+          if (!empty($shipping_address)) {
+            $replacements[$original] = $shipping_address['dependent_locality'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'shipping-postal-code':
+          if (!empty($shipping_address)) {
+            $replacements[$original] = $shipping_address['postal_code'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'shipping-sorting-code':
+          if (!empty($shipping_address)) {
+            $replacements[$original] = $shipping_address['sorting_code'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'shipping-address-line1':
+          if (!empty($shipping_address)) {
+            $replacements[$original] = $shipping_address['address_line1'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'shipping-address-line2':
+          if (!empty($shipping_address)) {
+            $replacements[$original] = $shipping_address['address_line2'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'shipping-organization':
+          if (!empty($shipping_address)) {
+            $replacements[$original] = $shipping_address['organization'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'shipping-given-name':
+          if (!empty($shipping_address)) {
+            $replacements[$original] = ucwords($shipping_address['given_name']);
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'shipping-additional-name':
+          if (!empty($shipping_address)) {
+            $replacements[$original] = $shipping_address['additional_name'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'shipping-family-name':
+          if (!empty($shipping_address)) {
+            $replacements[$original] = ucwords($shipping_address['family_name']);
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'shipping-phone':
+          if (!empty($shipping_profile)) {
+            $replacements[$original] = $shipping_profile->field_phone->value;
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        // Billing address.
+        case 'billing-langcode':
+          if (!empty($billing_address)) {
+            $replacements[$original] = $billing_address['langcode'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'billing-country-code':
+          if (!empty($billing_address)) {
+            $replacements[$original] = \Drupal::service('country_manager')->getList()[$billing_address['country_code']];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'billing-administrative-area':
+          if (!empty($billing_address)) {
+            $replacements[$original] = $billing_address['administrative_area'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'billing-locality':
+          if (!empty($billing_address)) {
+            $replacements[$original] = $billing_address['locality'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'billing-dependent-locality':
+          if (!empty($billing_address)) {
+            $replacements[$original] = $billing_address['dependent_locality'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'billing-postal-code':
+          if (!empty($billing_address)) {
+            $replacements[$original] = $billing_address['postal_code'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'billing-sorting-code':
+          if (!empty($billing_address)) {
+            $replacements[$original] = $billing_address['sorting_code'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'billing-address-line1':
+          if (!empty($billing_address)) {
+            $replacements[$original] = $billing_address['address_line1'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'billing-address-line2':
+          if (!empty($billing_address)) {
+            $replacements[$original] = $billing_address['address_line2'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'billing-organization':
+          if (!empty($billing_address)) {
+            $replacements[$original] = $billing_address['organization'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'billing-given-name':
+          if (!empty($billing_address)) {
+            $replacements[$original] = ucwords($billing_address['given_name']);
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'billing-additional-name':
+          if (!empty($billing_address)) {
+            $replacements[$original] = $billing_address['additional_name'];
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'billing-family-name':
+          if (!empty($billing_address)) {
+            $replacements[$original] = ucwords($billing_address['family_name']);
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        case 'billing-phone':
+          if (!empty($billing_profile)) {
+            $replacements[$original] = $billing_profile->field_phone->value;
+          }
+          else {
+            $replacements[$original] = '';
+          }
+          break;
+
+        // Total Cart Weight.
+        case 'total_cart_weight':
+          $replacements[$original] = cde_order_get_order_items_weight($order);
+          break;
+
+        // Order Sub Total.
+        case 'custom_order_subtotal':
+          $sub_total_price = $order->getSubtotalPrice();
+          if (!empty($sub_total_price)) {
+            $sub_total_amount = number_format($sub_total_price->getNumber(), 2);
+            $sub_total_amount_currancy = $sub_total_price->getCurrencyCode();
+            $replacements[$original] = $sub_total_amount . ' ' . $sub_total_amount_currancy;
+          }
+          break;
+
+        // Order Total.
+        case 'custom_order_total':
+          $total_price = $order->getTotalPrice();
+          $total_amount = number_format($total_price->getNumber(), 2);
+          $total_amount_currancy = $total_price->getCurrencyCode();
+          $replacements[$original] = $total_amount . ' ' . $total_amount_currancy;
+          break;
+
+        // Shipping Details.
+        case 'custom_order_shipping_price':
+          $replacements[$original] = $shipping_price;
+          break;
+
+        case 'custom_order_shipping_name':
+          if ($shipping_service == 'cde_ups_ground') {
+            $shipping_service = 'UPS Ground';
+          }
+          $replacements[$original] = $shipping_service;
+          break;
+
+        case 'custom_order_shipping_collect_number':
+          $replacements[$original] = $tracking_code;
+          break;
+
+        case 'tracking_url':
+          $tracking_url_str = '';
+          $i = 1;
+          foreach ($tracking_code_multiple as $tracking_url) {
+            if (isset($tracking_url['ups_tracking'])) {
+              $tracking_url_str .= '<a href="https://wwwapps.ups.com/WebTracking/track?track=yes&trackNums=' . $tracking_url['ups_tracking'] . '">Package ' . $i . '</a><br>';
+              $i++;
+            }
+            if (isset($tracking_url['nonusp_tracking'])) { /*
+$nonusp_tracking = str_replace(['<p>', '</p>'], '', $tracking_url['nonusp_tracking']);
+if(strstr($nonusp_tracking, 'href') && isHtml($nonusp_tracking)) {
+$aa = new SimpleXMLElement($nonusp_tracking);
+$tracking_url_str .= '<a href="'.$aa['href'].'">Package '.$i.'</a><br>';
+$i++;
+}
+*/
+              $nonusp_tracking = str_replace(['<p>', '</p>'], '', $tracking_url['nonusp_tracking']);
+              $tracking_url_str .= $nonusp_tracking . "<br>";
+            }
+          }
+          $replacements[$original] = Drupal\Core\Render\Markup::create($tracking_url_str);
+          break;
+
+        case 'custom_order_nj_tax':
+          $replacements[$original] = '';
+          break;
+
+        case 'cde_order_items':
+          $args = [$order->id()];
+          $view = Views::getView('checkout_order_complete_summary_email');
+          $view->setDisplay('block_1');
+          $view->setArguments($args);
+          $view->execute();
+          $rendered = $view->render();
+          $checkout_order_complete_summary_email = \Drupal::service('renderer')->render($rendered);
+          //\Drupal::logger('cde_order_mail_alter')->info('<pre><code>' . print_r($checkout_order_complete_summary_email, true) . '</code></pre>' );
+          $checkout_order_complete_summary_email = str_replace('<table class="views-table views-view-table cols-7">', '<div style="border:1px solid gray;width:100%;float:right"><table width="100%" cellspacing="0" cellpadding="5" border="0" style="border-collapse: collapse;">', $checkout_order_complete_summary_email);
+          $checkout_order_complete_summary_email = str_replace('<table class="table table-hover table-striped views-table views-view-table cols-7">', '<div style="border:1px solid gray;width:100%;float:right"><table width="100%" cellspacing="0" cellpadding="5" border="0" style="border-collapse: collapse;">', $checkout_order_complete_summary_email);
+          /*$checkout_order_complete_summary_email=str_replace('<table class="commerce-price-formatted-components table table-hover table-striped">','<table width="270" cellspacing="0" cellpadding="5" border="1" align="right" style="border-collapse: collapse;">',$checkout_order_complete_summary_email);*/
+          $checkout_order_complete_summary_email = str_replace('<table class="commerce-price-formatted-components table table-hover table-striped">', '<table align="right" width="50%" cellspacing="0" cellpadding="5" border="1" style="border-collapse: collapse;">', $checkout_order_complete_summary_email);
+          //\Drupal::logger('some_channel_name')->info($checkout_order_complete_summary_email);
+          $checkout_order_complete_summary_email = str_replace('<td class="component-title">', '<td align="right" width="80%">', $checkout_order_complete_summary_email);
+          $checkout_order_complete_summary_email = str_replace('Order Total</td>', '<strong>Order Total</strong></td>', $checkout_order_complete_summary_email);
+          $checkout_order_complete_summary_email = str_replace('<div class="text-right">', '<div style="text-align:right;">', $checkout_order_complete_summary_email);
+          $checkout_order_complete_summary_email = str_replace('<td class="component-total">', '<td align="right">', $checkout_order_complete_summary_email);
+          $checkout_order_complete_summary_email = str_replace('Net 30 - Paid', '<div style="float:right;">Net 30 - Paid', $checkout_order_complete_summary_email);
+          $checkout_order_complete_summary_email = str_replace('Net 30 - Open', '<div style="float:right;">Net 30 - Open', $checkout_order_complete_summary_email);
+          $replacements[$original] = Drupal\Core\Render\Markup::create($checkout_order_complete_summary_email);
+          break;
+
+        //site_base_url
+        case 'site_base_url':
+          $replacements[$original] = \Drupal::request()->getSchemeAndHttpHost();
+          break;
+      }
+    }
+  }
+
+  return $replacements;
+}
+
+function isHtml($string) {
+  return preg_match("/<[^<]+>/", $string, $m) != 0;
+}
+
+function cde_order_get_order_items_weight($order) {
+  $total_weight = 0;
+  $units = 'lbs';
+
+  foreach ($order->getItems() as $order_item) {
+    $purchased_entity = $order_item->getPurchasedEntity();
+    $product = $purchased_entity->getProduct();
+    $quantity = $order_item->getQuantity();
+    $product_weight = $product->get('field_weight')->getString();
+    if (is_numeric($product_weight)) {
+      $quantity = number_format($quantity);
+      $total_weight += ($product_weight * $quantity);
+    }
+  }
+
+  return number_format($total_weight, 2) . ' ' . $units;
+}
+
+/**
+ * Implements hook_field_widget_WIDGET_TYPE_form_alter().
+ */
+function cde_order_field_widget_commerce_shipping_rate_form_alter(&$element, FormStateInterface $form_state) {
+  // Only sort the options if there is more than 1 available.
+  if (!empty($element['#options']) && count($element['#options']) > 1) {
+    // Loop over each shipping rate and create an array of
+    // shipping amounts.
+    $options = [];
+    foreach (\Drupal\Core\Render\Element::children($element) as $child) {
+      $options[$child] = $element[$child]['#rate']->getAmount()->getNumber();
+    }
+    // Sort the array by amount value.
+    arsort($options);
+    // Replace the options using the keys from the sorted array.
+    $element['#options'] = array_replace($options, $element['#options']);
+  }
+}
+
+/**
+ * Implements hook_preprocess_commerce_order_receipt().
+ */
+function cde_order_preprocess_commerce_order_receipt(&$variables) {
+  /** @var Drupal\commerce_order\Entity\OrderInterface $order */
+  $order = $variables['order_entity'];
+  $variables['order_number'] = $order->id();
+  $variables['po_number'] = $order->get('field_po_number')->getString();
+
+  if (trim($order->get('field_net_30_status')->getString()) == 'net30_open') {
+	  $created_date = $order->getCreatedTime() + 30 * 24 * 60 * 60;
+    $order_created_date = \Drupal::service('date.formatter')->format($created_date, 'us_date_format');
+    $variables['net_30_status'] = Drupal\Core\Render\Markup::create('Net 30 - Open<br>Payment Due: ' . $order_created_date);
+  }
+
+  if (trim($order->get('field_net_30_status')->getString()) == 'net30_paid') {
+    $variables['net_30_status'] = Drupal\Core\Render\Markup::create('Net 30 - Paid');
+  }
+
+  $full_country_list = \Drupal::service('country_manager')->getList();
+  $full_state_list = \Drupal::service('address.subdivision_repository')->getList(['US']);
+
+  $shipments = $order->get('shipments')->referencedEntities();
+  if (!empty($shipments)) {
+    $shipment = reset($shipments);
+    // Shipping Profile
+    $shipping_profile_add = $shipment->getShippingProfile()->address;
+    $shipping_profile_addr_array = [
+      "&nbsp;\n",
+      "\n<b>".$shipping_profile_add->organization . "</b>\n",
+      $shipping_profile_add->given_name . ' ' . $shipping_profile_add->family_name . "\n",
+      $shipping_profile_add->address_line1 ? $shipping_profile_add->address_line1 . "\n" : '',
+      $shipping_profile_add->address_line2 ? $shipping_profile_add->address_line2 . "\n" : '',
+      strlen($shipping_profile_add->administrative_area) > 2 ? $shipping_profile_add->locality . ', ' . $shipping_profile_add->administrative_area . ' ' . $shipping_profile_add->postal_code . "\n" : $shipping_profile_add->locality . ', ' . $shipping_profile_add->administrative_area . ' ' . $shipping_profile_add->postal_code . "\n",
+      $full_country_list[$shipping_profile_add->country_code] . "\n",
+      $shipment->getShippingProfile()->field_phone->value . "\n",
+    ];
+
+    $shipping_str = implode(' ', array_filter($shipping_profile_addr_array));
+    //$variables['shipping_information']  = nl2br($shipping_str) ;
+    if (!is_null($shipment)) {
+      if (!empty($shipment->get('tracking_code')->getString())) {
+        $variables['tracking_code'] = Drupal\Core\Render\Markup::create('<strong>Tracking Number:</strong><br><a href="https://wwwapps.ups.com/WebTracking/track?track=yes&trackNums=' . $shipment->get('tracking_code')->getString() . '">' . $shipment->get('tracking_code')->getString() . '</a>');
+      }
+
+      $shipping_amount = $shipment->get('amount')->getValue();
+      $shipping_amount_number = number_format($shipping_amount[0]['number'], 2);
+      $shipping_amount_currency_code = $shipping_amount[0]['currency_code'];
+      $shipping_price = $shipping_amount_number . ' ' . $shipping_amount_currency_code;
+      $variables['shipping_price'] = $shipping_price;
+      //
+      $shipping_service = $shipment->get('shipping_service')->getString();
+      //$variables['shipping_service'] = $shipping_service;
+    }
+  }
+  //print_r($variables['order_number'], TRUE);
+  $variables['shipping_information_new'] = nl2br($shipping_str);
+  $variables['companey_name'] = $shipping_profile_add->organization;
+
+  $billing_profile_add = $order->getBillingProfile()->address;
+  $billing_profile_addr_array = [
+    "&nbsp;\n",
+    "\n<b>".$billing_profile_add->organization . "</b>\n",
+    $billing_profile_add->given_name . ' ' . $billing_profile_add->family_name . "\n",
+    $billing_profile_add->address_line1 ? $billing_profile_add->address_line1 . "\n" : '',
+    $billing_profile_add->address_line2 ? $billing_profile_add->address_line2 . "\n" : '',
+    strlen($billing_profile_add->administrative_area) > 2 ? $billing_profile_add->locality . ', ' . $billing_profile_add->administrative_area . ' ' . $billing_profile_add->postal_code . "\n" : $billing_profile_add->locality . ', ' . $billing_profile_add->administrative_area . ' ' . $billing_profile_add->postal_code . "\n",
+    $full_country_list[$billing_profile_add->country_code] . "\n",
+    $order->getBillingProfile()->field_phone->value . "\n",
+    //$order->getBillingProfile()->phone,
+  ];
+
+  $billing_str = implode(' ', array_filter($billing_profile_addr_array));
+  $variables['billing_information'] = nl2br($billing_str);
+  $variables['billing_companey_name'] = $billing_profile_add->organization;
+  $created_date = $order->getCreatedTime();
+  $variables['order_created_date'] = \Drupal::service('date.formatter')->format($created_date, 'us_date_format');
+
+  //
+  $sub_total_price = $order->getSubtotalPrice();
+  $sub_total_amount = number_format($sub_total_price->getNumber(), 2);
+  $sub_total_amount_currancy = $sub_total_price->getCurrencyCode();
+  $variables['custom_order_subtotal'] = $sub_total_amount . ' ' . $sub_total_amount_currancy;
+  //
+  $variables['total_cart_weight'] = cde_order_get_order_items_weight($order);
+
+  $args = [$order->id()];
+  $view = Views::getView('pdf_cart_order_summary');
+  $view->setDisplay('default');
+  // contextual relationship filter
+  $view->setArguments($args);
+  $view->execute();
+  $rendered = $view->render();
+  $variables['cart_summary'] = \Drupal::service('renderer')->render($rendered);
+
+  $args = [$order->id()];
+  $view = Views::getView('commerce_shipment_table');
+  $view->setDisplay('block_2');
+  // contextual relationship filter
+  $view->setArguments($args);
+  $view->execute();
+  $rendered = $view->render();
+  $variables['tracking_code'] = \Drupal::service('renderer')->render($rendered);
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function cde_order_entity_type_alter(&$entity_types) {
+  $entity_types['commerce_order_item']->setHandlerClass('inline_form', CdeOrderItemInlineForm::class);
+}

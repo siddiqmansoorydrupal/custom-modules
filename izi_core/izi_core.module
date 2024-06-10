@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for IZI Core module.
+ */
+
+use Drupal\Core\Breadcrumb\Breadcrumb;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_system_breadcrumb_alter().
+ */
+function izi_core_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInterface $route_match, array $context) {
+  $links = $breadcrumb->getLinks();
+  if (!empty($links)) {
+    $links[0]->setText('izi.TRAVEL');
+  }
+}

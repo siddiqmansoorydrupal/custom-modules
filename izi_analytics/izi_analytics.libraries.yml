@@ -1,0 +1,11 @@
+# Custom module library for general purposes.
+izi-analytics:
+  version: 1.0
+  js:
+    js/izi-analytics.js: {}
+  dependencies:
+    - core/drupalSettings
+    - core/jquery
+    - izi_travel/izi_travel.main
+    # We have to load this after the code to initialize jplayers
+    - izi_apicontent/izi_apicontent.museum_exhibits

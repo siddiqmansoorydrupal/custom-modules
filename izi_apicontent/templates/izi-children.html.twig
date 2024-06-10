@@ -1,0 +1,29 @@
+<div class="strip">
+  <div class="contained contained--no-padding">
+    {% if title %}
+      <h2 class="strip__title">
+        {{ title }}
+      </h2>
+    {% endif %}
+    <p class="strip__subtitle">
+      {{ sub_title }}
+    </p>
+    <ul class="gallery">
+      {% for child in children %}
+        <li class="card">
+          <a class="card__toggle" href="{{ child['url'] }}">
+            <div class="card__header">
+              <div class="card__image lazyload" data-original="{{ child['image_small'] }}" style="background-image: url('{{ img_placeholder }}');"></div>
+              <div class="card__title">
+                <p>
+                  {{ child['title'] }}
+                </p>
+              </div>
+            </div>
+          </a>
+          <div class="slideout" data-lang="{{ child['lang'] }}" data-uuid="{{ child['uuid'] }}"></div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

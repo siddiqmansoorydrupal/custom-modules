@@ -1,0 +1,5 @@
+entity.izi_object_type.collection:
+  title: 'IZI Object types'
+  description: 'Manage and CRUD actions on IZI Object type.'
+  parent: system.admin_structure
+  route_name: entity.izi_object_type.collection

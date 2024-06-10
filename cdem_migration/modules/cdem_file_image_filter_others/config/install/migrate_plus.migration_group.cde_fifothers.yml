@@ -1,0 +1,12 @@
+#uuid: 79edd84d-f572-490b-b3bf-5d72bd8dd08f
+langcode: en
+status: true
+dependencies: {  }
+id: cde_fifothers
+label: 'Import from Drupal 7'
+description: 'Migrations originally generated from drush migrate-upgrade --configure-only'
+source_type: 'Drupal 7'
+module: null
+shared_configuration:
+  source:
+    key: migrate

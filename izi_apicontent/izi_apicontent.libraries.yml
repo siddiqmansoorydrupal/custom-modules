@@ -1,0 +1,76 @@
+izi_apicontent.language_select_new:
+  version: 1.x
+  js:
+    js/izi-apicontent-language-select-new.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+
+izi_apicontent.language_select:
+  version: 1.x
+  js:
+    js/izi-apicontent-language-select.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+
+izi_apicontent.mtg_new:
+  version: 1.x
+  js:
+    js/izi-apicontent-mtg-new.js: {}
+  dependencies:
+    - core/jquery
+    - izi_travel/izi_travel.components
+    - izi_apicontent/izi_apicontent.jplayer
+    - izi_travel/izi_travel.bbq
+
+izi_apicontent.museum_exhibits:
+  version: 1.x
+  js:
+    js/izi-apicontent-museum-exhibits.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - izi_apicontent/izi_apicontent.mtg_new
+
+izi_apicontent.publisher:
+  version: 1.x
+  js:
+    js/izi-apicontent-publisher.js: { }
+  dependencies:
+    - core/jquery
+
+# Custom JPlayer code for izi-content
+izi_apicontent.izi-apicontent-jplayer:
+  version: 1.x
+  js:
+    js/izi-apicontent-jplayer.js: { }
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+    - izi_travel/izi_travel.lib
+#    - izi_apicontent/izi_api_content.jplayer-base
+
+# Base JPlayer code in izi-content
+#izi_api_content.jplayer-base:
+#  version: 2.9.2
+#  js:
+#    /libraries/jplayer/dist/jplayer/jquery.jplayer.js: {}
+#  dependencies:
+#    - core/jquery
+#    - core/drupal
+#    - izi_apicontent/jquery-ui
+
+#jquery-ui:
+#  version: 1.11.4
+#  css:
+#    base:
+#      https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css: { type: external, minified: true }
+#  js:
+#    https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js: { type: external, minified: true }
+#  dependencies:
+#    - core/jquery
+
+# File: izi_apicontent.libraries.yml
+    

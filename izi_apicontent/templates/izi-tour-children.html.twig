@@ -1,0 +1,60 @@
+<ol class="tour__itinerary" id="tourList" data-toggle-group="tour">
+  <li class="tour__itinerary-item tour__itinerary-item--summary">
+    <a class="tour__itinerary-link js-itinerary-button" href="#tour_details_first">
+      <span class="tour__itinerary-label">
+        {{ 'Audio tour Summary'|t }}
+      </span>
+    </a>
+  </li>
+  <li class="tour__details-item izi-ajax-done" id="tour_details_first">
+    <div class="tour__details-body">
+      <h3 class="tour__details-title">
+        {{ title }}
+      </h3>
+      {{ audioplayer }}
+      <div class="tour__details__media">
+        {{ video }}
+      </div>
+      <div>
+        {{ description }}
+      </div>
+      <button class="tour__details-close js-itinerary-close">
+        {{ 'Close'|t }}
+      </button>
+    </div>
+    <div class="tour__details-actions">
+      {% set first_child = children['#children'] | first %}
+      {% set uuid = first_child.uuid %}
+      <a href="#{{ uuid }}" class="button button--normal button--icon-controller-next tour__details-next js-itinerary-button">
+        {{ 'Next'|t }}
+      </a>
+    </div>
+  </li>
+  {{ children }}
+</ol>
+<ol class="tour__details">
+  <li class="tour__details-item izi-ajax-done" id="tour_details_first">
+    <div class="tour__details-body">
+      <h3 class="tour__details-title">
+        {{ title }}
+      </h3>
+
+      {{ audioplayer }}
+
+      <div class="tour__details__media">
+        {{ video }}
+      </div>
+
+      <div>{{ description }}</div>
+
+      <button class="tour__details-close js-itinerary-close">
+        {{ 'Close'|t }}
+      </button>
+    </div>
+    <div class="tour__details-actions">
+      <a href="#{{ href }}" class="button button--normal button--icon-controller-next tour__details-next js-itinerary-button controller-first-next">
+        {{ 'Next'|t }}
+      </a>
+    </div>
+  </li>
+</ol>

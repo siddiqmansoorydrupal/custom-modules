@@ -1,0 +1,16 @@
+services:
+  event_subscriber:
+    class: Drupal\izi_commerce\EventSubscriber\RedirectEventSubscriber
+    arguments: ['@current_user']
+    tags:
+      - { name: event_subscriber }
+
+  izi_commerce.credits:
+    class: Drupal\izi_commerce\Services\CommerceCredits
+    arguments: ['@cognito.aws', '@current_user', '@database']
+
+  izi_commerce.order_complete:
+    class: Drupal\izi_commerce\EventSubscriber\OrderCompleteSubscriber
+    arguments: ['@entity_type.manager', '@izi_commerce.credits']
+    tags:
+      - { name: event_subscriber }

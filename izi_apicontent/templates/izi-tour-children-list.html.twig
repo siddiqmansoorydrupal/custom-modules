@@ -1,0 +1,11 @@
+{% for child in children %}
+<li class="tour__itinerary-item {% if child['last_child'] is not empty %}last{% endif%}" data-ta-index="{{ child['child_index'] }}">
+  <span class="badge">
+    {{ child['child_index'] }}
+  </span>
+  <a class="tour__itinerary-link js-itinerary-button" href="#{{ child['uuid'] }}__{{ child['parent_uuid'] }}" data-href="{{ child['url'] }}__{{ child['parent_uuid'] }}" data-iziuuid="{{ child['uuid'] }}__{{ child['parent_uuid'] }}" data-iziprev="{{ child['#previous_id'] }}__{{ child['parent_uuid'] }}" data-izinext="{% if child['#next_id'] is not empty %}{{child['#next_id']}}{% endif %}" data-izilang="{{ child['language'] }}">
+    <span class="tour__itinerary-thumbnail" aria-hidden="true" data-original="{{ child['image_small'] }}" style="background-image: url({{ img_placeholder }});"></span>
+    <span class="tour__itinerary-label">{{ child['title'] }}</span>
+  </a>
+</li>
+{% endfor %}

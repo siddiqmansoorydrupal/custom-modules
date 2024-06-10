@@ -1,0 +1,31 @@
+uuid: 0986ebc3-fa2f-45c7-a9fe-3c624d481534
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_text_settings
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 6'
+  - 'Drupal 7'
+  - Configuration
+migration_group: cde_fifothers
+label: 'Drupal teaser length configuration'
+source:
+  plugin: variable
+  variables:
+    - teaser_length
+  source_module: text
+process:
+  default_summary_length:
+    -
+      plugin: get
+      source: teaser_length
+destination:
+  plugin: config
+  config_name: text.settings
+migration_dependencies:
+  required: {  }
+  optional: {  }

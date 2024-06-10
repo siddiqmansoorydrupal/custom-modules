@@ -1,0 +1,23 @@
+<?php
+
+function izi_cognito_menu() {
+  $items = array();
+
+  $items['ajax/login'] = array(
+    'page callback' => 'izi_login_ajax_login_callback',
+    'access callback' => TRUE, // You might want to restrict access here
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+
+function izi_login_ajax_login_callback() {
+  $form = drupal_get_form('user_login');
+
+  $output = render($form);
+
+  // Return the login form HTML
+  return $output;
+}

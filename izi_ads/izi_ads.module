@@ -1,0 +1,92 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for IZI Ads module.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_theme().
+ */
+function izi_ads_theme($existing, $type, $theme, $path): array {
+  return [
+    'izi_tiqets' => [
+      'template' => 'izi-tiqets',
+      'variables' => [
+        'language' => NULL,
+        'partner' => NULL,
+        'campaign' => NULL,
+        'city' => NULL,
+        'show_widget' => NULL,
+        'google_ad' => NULL,
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function izi_ads_form_node_tiqets_widget_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['field_uuid']['#disabled'] = TRUE;
+}
+
+/**
+ * Implements hook_entity_presave().
+ * Updates Tiqet content types, filling UUID with city value.
+ */
+function izi_ads_entity_presave(EntityInterface $entity) {
+
+  if ($entity->getEntityTypeId() == 'node') {
+    /** @var \Drupal\node\Entity\Node $node */
+    $node = $entity;
+    if ($node->bundle() === 'tiqets_widget') {
+
+      $url_field = $node->get('field_url')->getValue();
+
+      $url = parse_url($url_field[0]["uri"]);
+      $split_path = explode('/', trim($url['path'], '/'));
+
+      $lang = $split_path[0];
+      $path = '/' . implode('/', array_splice($split_path, 1,));
+
+      /** @var \Drupal\path_alias\AliasRepository $path_alias_repository */
+      $entity_type_manager = \Drupal::entityTypeManager();
+      $path_storage = $entity_type_manager->getStorage('path_alias');
+
+      $existing_paths = $path_storage->loadByProperties([
+        'alias' => $path,
+        'langcode' => $lang,
+      ]);
+
+      if (count($existing_paths)) {
+
+        /** @var \Drupal\path_alias\Entity\PathAlias $path_alias */
+        $path_alias = reset($existing_paths);
+
+        $path_alias_path = $path_alias->getPath();
+
+        $uuid_explode = explode("/", $path_alias_path);
+        $uuid = $uuid_explode[2];
+
+        $node->get('field_uuid')->setValue($uuid);
+      }
+      else {
+        $node->get('field_uuid')->setValue('undefined');
+      }
+
+    }
+  }
+}
+
+/**
+ * Check if ads are disabled/enabled.
+ * Deprecated in favour of twig function, left here for documentation.
+ */
+// Function izi_ads_check() {
+//  xdebug_break();
+//  return true;
+// }.

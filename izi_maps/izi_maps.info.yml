@@ -1,0 +1,5 @@
+name: izi_maps
+type: module
+description: Maps implementations
+package: IZI
+core_version_requirement: ^9 || ^10

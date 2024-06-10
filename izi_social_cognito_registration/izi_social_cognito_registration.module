@@ -1,0 +1,102 @@
+<?php
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityMalformedException;
+use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
+use Drupal\Core\Site\Settings;
+use Drupal\externalauth\AuthmapInterface;
+
+/**
+ * Implements hook_entity_presave().
+ */
+function izi_social_cognito_registration_entity_presave(EntityInterface $entity) {
+  // Check if the entity is a user and it is a new registration.
+  if ($entity->getEntityTypeId() === 'user' && $entity->isNew()) {
+    try {
+      // Call the adminSignup function to handle Cognito registration.
+      $cognitoResult = adminSignup(
+        $entity->id(), 
+        $entity->get('mail')->value
+      );
+
+      // If the Cognito registration status is not successful, throw an exception.
+      if ($cognitoResult['status'] === 0) {
+        throw new EntityMalformedException($cognitoResult['message']);
+      }
+    } catch (\Exception $e) {
+      // Handle exceptions by logging them.
+      watchdog_exception('izi_social_cognito_registration', $e);
+    }
+  }
+}
+
+/**
+ * Admin signup function.
+ *
+ * @param string $user_id
+ *   The user ID.
+ * @param string $email
+ *   The user email.
+ *
+ * @return array
+ *   An associative array containing 'status' and 'message'.
+ */
+function adminSignup($user_id, $email) {
+  $return = [
+    'status' => 1,
+    'message' => '',
+  ];
+
+  try {
+    // Get Cognito settings from Drupal site settings.
+    $settings = Settings::get('cognito');
+    // Create a Cognito client.
+    $client = new CognitoIdentityProviderClient($settings);	
+    // Initialize source attribute (custom:source).
+    $source = ''; // Assuming 'custom:source' is a custom attribute
+    
+    // Get the AuthmapInterface service.
+    $authmap = \Drupal::service('externalauth.authmap');
+
+    // Check if the service is available.
+    if ($authmap instanceof \Drupal\externalauth\AuthmapInterface) {
+      // Get connected accounts and format them into a string.
+      $connected_accounts = $authmap->getAll($user_id);	
+      foreach($connected_accounts as $connected_account_key => $connected_account_val){
+        if(!empty($source)){ $source .= ', '; }			
+        $source .= $connected_account_key. ' : '. $connected_account_val;
+      }		
+    }
+    // If no source is found, set it to 'izi_web'.
+    if(empty($source)){ $source = 'izi_web'; }
+
+    // Set user attributes for Cognito registration.
+    $attrb=[];
+    if(!empty($source)){ $attrb['custom:source']=['Name' => 'custom:source','Value' => $source]; }
+    $userAttributes = array_values($attrb);	
+
+    // Call Cognito API to create a new user.
+    $result = $client->adminCreateUser([
+      'DesiredDeliveryMediums' => ['EMAIL'],
+      'UserAttributes' => $userAttributes,
+      'UserPoolId' => $settings['user_pool_id'],
+      'Username' => $email,
+    ]);
+  } catch (\Aws\Exception\AwsException $e) {
+    // Handle AWS exceptions, if the username already exists, ignore it.
+    if ($e->getAwsErrorCode() !== 'UsernameExistsException') {
+      $return = [
+        'status' => 0,
+        'message' => $e->getAwsErrorMessage(),
+      ];
+    }
+  } catch (\Exception $e) {
+    // Handle other exceptions.
+    $return = [
+        'status' => 0,
+        'message' => $e->getMessage(),
+    ];
+  }
+
+  return $return;
+}

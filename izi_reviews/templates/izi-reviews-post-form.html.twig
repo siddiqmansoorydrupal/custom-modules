@@ -1,0 +1,15 @@
+<fieldset class="form__fieldset">
+  <div class="form__group">
+    <label class="form__label">{{ 'I rate this tour'|t }}</label>
+    {{ form.stars }}
+    <div class="form__rating" data-rating="" data-feedback="{{ 'The worst ever!'|t }},{{ 'Dislike it'|t }},{{ "It's ok"|t }},{{ 'Good'|t }},{{ 'Excellent!'|t }}" data-review=""></div>
+  <div class="form__instruction form__instruction--error">A minimum rating of 1 star is required.</div>
+  </div>
+  {{ form.name }}
+  <div class="form__instruction form__instruction--error">Please fill in your name.</div>
+  {{ form.text }}
+  <div class="form__actions">
+    {{ form.submit }}
+  </div>
+</fieldset>
+{{ form|without('stars', 'name', 'text', 'submit') }}

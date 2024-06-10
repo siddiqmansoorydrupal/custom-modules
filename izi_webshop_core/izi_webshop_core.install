@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the IZI Webshop Core module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function izi_webshop_core_install() {
+  \Drupal::messenger()->addStatus(__FUNCTION__);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function izi_webshop_core_uninstall() {
+  \Drupal::messenger()->addStatus(__FUNCTION__);
+}

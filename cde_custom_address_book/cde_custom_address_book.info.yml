@@ -1,0 +1,6 @@
+name: 'Custom Address Book'
+type: module
+description: 'Custom module for adding sub-pages to the Address Book tab'
+core_version_requirement: ^8 || ^9 || ^10
+package: Custom
+version: 1.0

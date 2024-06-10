@@ -1,0 +1,4 @@
+services:
+  izi_maps.maps_service:
+    class: Drupal\izi_maps\MapsService
+    arguments: ['@state']

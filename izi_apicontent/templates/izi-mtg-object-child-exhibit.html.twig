@@ -1,0 +1,36 @@
+<div class="slideout__column">
+  {{ images }}
+</div>
+<div class="slideout__column">
+  <h3 class="slideout__title">
+    {{ title }}
+  </h3>
+  {{ audioplayer }}
+  {{ video }}
+  <div class="slideout__story">
+    {{ description }}
+  </div>
+  <div class="slideout__prev">
+    {% trans %} Previous {% endtrans %}
+  </div>
+  <div class="slideout__next">
+    {% trans %} Next {% endtrans %}
+  </div>
+  <div class="slideout__close">
+    {% trans %} Close {% endtrans %}
+  </div>
+  <div class="slideout__share button__group">
+    <div class="dropdown__group">
+      <a class="button button--secondary button--icon-share dropdown__toggle js-dropdown-toggle">
+        {% trans %} Share {% endtrans %}
+      </a>
+      <div class="dropdown__menu">
+        <div class="social">
+          {{ drupal_block('addtoany_block', {
+            link_url: share_url
+          }) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

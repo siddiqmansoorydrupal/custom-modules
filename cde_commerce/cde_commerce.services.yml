@@ -1,0 +1,22 @@
+services:
+  logger.channel.cde_commerce:
+    class: Drupal\Core\Logger\LoggerChannel
+    factory: logger.factory:get
+    arguments: ['cde_commerce']
+
+  cde_commerce.order_processor:
+    class: Drupal\cde_commerce\CdeOrderProcessor
+    arguments:
+      - '@messenger'
+      - '@current_user'
+    tags:
+      - { name: commerce_order.order_processor, priority: 500 }
+
+  cde_commerce.cart_event_subscriber:
+    class: Drupal\cde_commerce\EventSubscriber\CdeCartEventSubscriber
+    arguments:
+      - '@messenger'
+      - '@current_user'
+      - '@entity_type.manager'
+    tags:
+      - { name: event_subscriber }

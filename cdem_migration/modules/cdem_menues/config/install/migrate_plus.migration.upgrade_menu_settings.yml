@@ -1,0 +1,31 @@
+uuid: 7dfec922-e8d3-48df-bc5e-f8caa5ab40c8
+langcode: en
+status: true
+dependencies: {  }
+id: upgrade_menu_settings
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 6'
+  - 'Drupal 7'
+  - Configuration
+migration_group: cde_menues
+label: 'Menu UI configuration'
+source:
+  plugin: variable
+  variables:
+    - menu_override_parent_selector
+  source_module: menu
+process:
+  override_parent_selector:
+    -
+      plugin: get
+      source: menu_override_parent_selector
+destination:
+  plugin: config
+  config_name: menu_ui.settings
+migration_dependencies:
+  required: {  }
+  optional: {  }

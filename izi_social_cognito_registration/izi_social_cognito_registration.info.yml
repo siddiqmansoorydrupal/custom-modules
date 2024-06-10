@@ -1,0 +1,6 @@
+name: 'Social Cognito Relationship'
+type: module
+description: 'Custom module to add validation before a new user registers through social auth.'
+package: Custom
+core_version_requirement: ^8 || ^9 || ^10
+version: 1.0

@@ -1,0 +1,10 @@
+entity.izi_object.edit_form:
+  route_name: entity.izi_object.edit_form
+  group: izi_object
+  title: Edit
+
+entity.izi_object.delete_form:
+  route_name: entity.izi_object.delete_form
+  group: izi_object
+  title: Delete
+  weight: 10

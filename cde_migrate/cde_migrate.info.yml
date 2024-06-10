@@ -1,0 +1,8 @@
+name: CDE Migrate Module
+type: module
+package: Custom
+description: Migration scripts will be used to store all of the migrations used for the project.
+dependencies:
+  - migrate
+  - migrate_drupal
+core_version_requirement: ^8 || ^9 || ^10

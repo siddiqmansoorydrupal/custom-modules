@@ -1,0 +1,6 @@
+izi_maps.settings_form:
+  title: 'izi_maps'
+  description: 'Configure izi_maps.'
+  parent: system.admin_config_system
+  route_name: izi_maps.settings_form
+  weight: 10

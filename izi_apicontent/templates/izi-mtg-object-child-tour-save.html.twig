@@ -1,0 +1,28 @@
+<div class="tour__details-body">
+  <h3 class="tour__details-title">{{ title }}</h3>
+  <div id="jquery_jplayer_1_{{ uuid }}" class="jp-jplayer"></div>
+
+  {{ audioplayer }}
+
+  {{ images }}
+
+  <div class="tour__details__media">
+
+    {{ video }}
+
+    <div class="dropdown__group">
+      <a class="button button--secondary button--icon-share dropdown__toggle js-dropdown-toggle">
+        {{ 'Share'|t }}
+      </a>
+      <div class="dropdown__menu">
+        <div class="social">
+          {{ drupal_block('addtoany_block', {
+            link_url: share_url
+          }) }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <p>{{ description }}</p>
+  <button class="tour__details-close js-itinerary-close">{{ 'Close'|t }}</button>
+</div>

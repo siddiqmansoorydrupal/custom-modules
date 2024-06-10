@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Contains cde_custom_address_book.module.
+ */
+
+/**
+ * Implements hook_help().
+ */
+/*function cde_custom_address_book_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.cde_custom_address_book':
+      return '<p>' . t('This module adds sub-pages to the Address Book tab.') . '</p>';
+  }
+}*/

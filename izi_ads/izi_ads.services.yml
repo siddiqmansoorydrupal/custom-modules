@@ -1,0 +1,6 @@
+services:
+  izi_ads.izi_ads_twig_extensions:
+    class: Drupal\izi_ads\IziAdsShowAdsTwigExtension
+    arguments: ['@entity_type.manager']
+    tags:
+      - { name: twig.extension }

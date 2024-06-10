@@ -1,0 +1,39 @@
+#izi_ads.settings_form:
+#  path: '/admin/config/system/izi-ads/settings'
+#  defaults:
+#    _title: 'IZI Ads settings'
+#    _form: 'Drupal\izi_ads\Form\SettingsForm'
+#  requirements:
+#    _permission: 'administer izi_ads configuration'
+
+entity.izi_ads_exclusion.collection:
+  path: '/admin/structure/izi-ads-exclusion'
+  defaults:
+    _entity_list: 'izi_ads_exclusion'
+    _title: 'IZI Ads Exclusion configuration'
+  requirements:
+    _permission: 'administer izi_ads_exclusion'
+
+entity.izi_ads_exclusion.add_form:
+  path: '/admin/structure/izi_ads_exclusion/add'
+  defaults:
+    _entity_form: 'izi_ads_exclusion.add'
+    _title: 'Add an izi ads exclusion'
+  requirements:
+    _permission: 'administer izi_ads_exclusion'
+
+entity.izi_ads_exclusion.edit_form:
+  path: '/admin/structure/izi-ads-exclusion/{izi_ads_exclusion}'
+  defaults:
+    _entity_form: 'izi_ads_exclusion.edit'
+    _title: 'Edit an izi ads exclusion'
+  requirements:
+    _permission: 'administer izi_ads_exclusion'
+
+entity.izi_ads_exclusion.delete_form:
+  path: '/admin/structure/izi-ads-exclusion/{izi_ads_exclusion}/delete'
+  defaults:
+    _entity_form: 'izi_ads_exclusion.delete'
+    _title: 'Delete an izi ads exclusion'
+  requirements:
+    _permission: 'administer izi_ads_exclusion'

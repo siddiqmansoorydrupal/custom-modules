@@ -1,0 +1,8 @@
+name: IZI Users
+type: module
+description: 'Provides customization for the users.'
+core_version_requirement: ^10
+package: IZI Travel
+
+dependencies:
+  - cognito

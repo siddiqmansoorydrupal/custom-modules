@@ -1,0 +1,12 @@
+izi_apicontent.settings:
+  title: IZI Apicontent Settings
+  description: 'Configure IZI Apicontent module.'
+  route_name: izi_apicontent.settings_form
+  parent: system.admin_config_system
+
+izi_apicontent.app_settings:
+  title: IZI App Config
+  description: COnfiguration related to IZI Mobile Applications
+  parent: system.admin_config_system
+  route_name: izi_apicontent.app_settings
+  weight: 10

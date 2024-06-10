@@ -1,0 +1,30 @@
+# Schema for the configuration files of the IZI TRAVEL API content module.
+#izi_apicontent.settings:
+#  type: config_object
+#  label: 'IZI TRAVEL API content settings'
+#  mapping:
+#    example:
+#      type: string
+#      label: 'Example'
+
+# Schema for the application configuration.
+izi_apicontent.app_settings:
+  type: config_object
+  label: 'IZI TRAVEL API Application content settings'
+  mapping:
+    app_download_apple:
+      type: label
+      translatable: true
+      label: 'app_download_apple'
+    app_download_windows:
+      type: label
+      translatable: true
+      label: 'app_download_windows'
+    app_download_android:
+      type: label
+      translatable: true
+      label: 'app_download_android'
+    quest_app_dl_message:
+      type: label
+      label: 'Download app text message'
+      translatable: true

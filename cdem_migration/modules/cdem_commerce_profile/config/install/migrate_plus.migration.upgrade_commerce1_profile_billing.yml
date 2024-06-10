@@ -1,0 +1,74 @@
+id: upgrade_commerce1_profile_billing
+class: Drupal\migrate\Plugin\Migration
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - 'CDEM'
+  - 'Drupal 7'
+  - Commerce
+  - Content
+migration_group: cde_commerce_profile
+label: 'Commerce customer profile ()'
+source:
+  plugin: commerce1_profile
+  profile_type: billing
+process:
+  profile_id: profile_id
+  revision_id: revision_id
+  type:
+    -
+      plugin: static_map
+      source: type
+      bypass: true
+      map:
+        billing: customer
+  uid:
+    -
+      plugin: migration_lookup
+      migration: upgrade_d7_user
+      source: uid
+      no_stub: true
+    -
+      plugin: default_value
+      default_value: 0
+      strict: true
+    -
+      plugin: entity_exists
+      entity_type: user
+    -
+      plugin: default_value
+      default_value: 0
+  status: status
+  is_default:
+    -
+      plugin: callback
+      callable: is_string
+      source: cadtype
+  created: created
+  changed: changed
+  data: data
+  commerce_firstdata_billing_phone:
+    -
+      plugin: get
+      source: commerce_firstdata_billing_phone
+  field_company_name:
+    -
+      plugin: get
+      source: field_company_name
+  address:
+    -
+      plugin: addressfield
+      source: commerce_customer_address
+  field_metatag:
+    -
+      plugin: d7_metatag_entities
+      source: pseudo_metatag_entities
+destination:
+  plugin: 'entity:profile'
+  destination_module: profile
+  required:
+    - upgrade_d7_user
+    - upgrade_commerce1_profile_type
+  optional:
+    - upgrade_d7_field_instance
+    - upgrade_d7_user
